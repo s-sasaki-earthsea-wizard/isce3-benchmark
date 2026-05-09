@@ -15,14 +15,24 @@ fi
 
 mkdir -p "${BUILD}"
 
+: "${CONDA_PREFIX:?CONDA_PREFIX not set; entrypoint must activate the isce3 env first}"
+
 if [ ! -f "${BUILD}/CMakeCache.txt" ]; then
+    # Disable isce3's FetchContent fallbacks — all of these libraries are
+    # already in the conda env and we want REQUIRED CONFIG to use them.
+    # CMAKE_PREFIX_PATH points find_package() at the conda env's lib/cmake/...
     cmake -G Ninja \
         -S "${SRC}" -B "${BUILD}" \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DCMAKE_INSTALL_PREFIX="${INSTALL}" \
+        -DCMAKE_PREFIX_PATH="${CONDA_PREFIX}" \
         -DWITH_CUDA=On \
         -DISCE_CUDA_ARCHS="${ARCHS}" \
-        -DCMAKE_CUDA_ARCHITECTURES="${ARCHS}"
+        -DCMAKE_CUDA_ARCHITECTURES="${ARCHS}" \
+        -DISCE3_FETCH_EIGEN=OFF \
+        -DISCE3_FETCH_GTEST=OFF \
+        -DISCE3_FETCH_PYBIND11=OFF \
+        -DISCE3_FETCH_PYRE=OFF
 fi
 
 cmake --build "${BUILD}" --parallel
