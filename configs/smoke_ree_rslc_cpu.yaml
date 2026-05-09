@@ -1,0 +1,54 @@
+# Smoke benchmark — RSLC focus on REE synthetic L0B, CPU path.
+#
+# This is a minimal end-to-end run intended to validate the harness, not to
+# represent realistic workload sizes. Adapted from isce3 tests/data/focus/runconfig.yaml.
+# Pair file: smoke_ree_rslc_gpu.yaml (differs only in worker.gpu_enabled).
+runconfig:
+    name: focus
+    groups:
+        input_file_group:
+            input_file_path:
+            - /data/REE/REE_L0B_out17.h5
+
+        dynamic_ancillary_file_group:
+            orbit: /data/REE/orbit.xml
+            pointing: /data/REE/attitude.xml
+
+        product_path_group:
+            scratch_path: /logs/scratch_smoke_ree_rslc_cpu
+            sas_output_file: /logs/scratch_smoke_ree_rslc_cpu/rslc.h5
+            sas_config_file: /logs/scratch_smoke_ree_rslc_cpu/rslc_config.yaml
+
+        primary_executable:
+            product_type: RSLC
+            partial_granule_id: RSLC_{MODE}_{POLE}_{StartDateTime}_{EndDateTime}_{C}
+            product_doi: https://example.invalid/benchmark
+
+        worker:
+            gpu_enabled: False
+
+        processing:
+            output_grid:
+                start_time: 2021-07-01T03:20:03.457785502
+                end_time: 2021-07-01T03:20:03.542654995
+                start_range: 967124.5530779377
+                end_range: 967930.2453281345
+                output_prf: 1520
+
+            range_window:
+                kind: Kaiser
+                shape: 1.6
+
+            doppler:
+                azimuth_boresight_deg: 0.0
+
+            azcomp:
+                block_size:
+                    range: 64
+                    azimuth: 64
+
+            dry_troposphere_model: nodelay
+
+            metadata_cube_epsg: 32621
+
+            encoding_scale_factor: 1e-8
