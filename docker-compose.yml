@@ -1,0 +1,47 @@
+# GPU passthrough requires the NVIDIA Container Toolkit on the host.
+# `docker info | grep -i runtimes` should list `nvidia`.
+#
+# Usage:
+#   cp .env.example .env  &&  edit
+#   docker compose build dev
+#   docker compose run --rm dev                # interactive shell
+#   docker compose run --rm dev make smoke     # run a benchmark target
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: isce3-benchmark:dev
+    # Resolve env vars from .env in this directory.
+    env_file:
+      - .env
+    environment:
+      - ISCE_CUDA_ARCHS
+      - OMP_NUM_THREADS
+      - MKL_NUM_THREADS
+      - NVIDIA_VISIBLE_DEVICES
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      # isce3 source tree (read-only — we never edit upstream from here).
+      - ${ISCE3_SRC}:/opt/isce3-src:ro
+      # Persistent build directory (so iterating doesn't re-cmake from scratch).
+      - ${ISCE3_BUILD_DIR}:/opt/isce3-build
+      # Benchmark project itself.
+      - .:/work
+      # Input data and outputs.
+      - ${BENCH_DATA_DIR}:/data
+      - ${BENCH_LOG_DIR}:/logs
+    working_dir: /work
+    # ipc=host avoids the default 64MB /dev/shm limit which can bite numpy/HDF5.
+    ipc: host
+    # tty + stdin for interactive shells; harmless for non-interactive runs.
+    tty: true
+    stdin_open: true

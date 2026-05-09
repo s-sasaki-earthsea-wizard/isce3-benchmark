@@ -1,0 +1,8 @@
+# Host-side analysis tooling (NOT runtime — runtime deps live in the container).
+# Install with: python -m venv .venv && .venv/bin/pip install -r requirements.txt
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+pyyaml>=6.0
+ruamel.yaml>=0.18
+py-spy>=0.3.14
