@@ -14,7 +14,7 @@ ARG CUDA_VERSION=12.8.1
 ARG UBUNTU_VERSION=24.04
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${UBUNTU_VERSION}
 
-ARG MAMBA_VERSION=2.0.5
+ARG MAMBA_VERSION=2.0.5-0
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -35,9 +35,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # --- micromamba ---------------------------------------------------------------
+# Pull the static binary from the official GitHub releases. The legacy
+# micro.mamba.pm tarball API has been returning corrupted streams as of 2026-05.
 RUN mkdir -p ${MAMBA_ROOT_PREFIX}/bin \
- && curl -fsSL "https://micro.mamba.pm/api/micromamba/linux-64/${MAMBA_VERSION}" \
-        | tar -xvj -C ${MAMBA_ROOT_PREFIX} bin/micromamba
+ && curl -fsSL -o ${MAMBA_ROOT_PREFIX}/bin/micromamba \
+        "https://github.com/mamba-org/micromamba-releases/releases/download/${MAMBA_VERSION}/micromamba-linux-64" \
+ && chmod +x ${MAMBA_ROOT_PREFIX}/bin/micromamba
 
 # --- isce3 build dependencies (mirror upstream environment.yml) ---------------
 # We install profiling tooling here too: py-spy, pytest-benchmark.
