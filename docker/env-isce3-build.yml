@@ -10,7 +10,9 @@ dependencies:
   - backoff
   - cmake>=3.18
   - cxx-compiler
-  - eigen>=3.3
+  # isce3 pins Eigen 3.3.7 with SAME_MAJOR_VERSION compatibility, so newer
+  # Eigen on conda-forge (4.x / 5.x) is rejected at find_package() time.
+  - eigen>=3.3,<4
   - fftw>=3.3
   - gdal>=3.6
   - gmock>=1.10

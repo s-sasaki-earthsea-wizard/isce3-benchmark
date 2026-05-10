@@ -6,6 +6,11 @@ set -euo pipefail
 eval "$(micromamba shell hook --shell bash)"
 micromamba activate isce3
 
+# Bind-mounted host repos have host UID/GID that don't match the container
+# user, so git refuses to operate on them ("dubious ownership"). Mark them
+# safe globally for this container.
+git config --global --add safe.directory '*' 2>/dev/null || true
+
 # If isce3 has been built into /opt/isce3-build/install via scripts/build_isce3.sh,
 # put it ahead of any pip-installed isce3 in the env.
 ISCE3_INSTALL=/opt/isce3-build/install
