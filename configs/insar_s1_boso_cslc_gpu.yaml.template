@@ -46,7 +46,14 @@ runconfig:
                 threshold: 1.0e-8
                 numiter: 25
             resample:
-                lines_per_block: 1000
+                # Lowered from COMPASS default (1000) to dodge a CUDA OOM on
+                # 16 GiB VRAM. isce3.cuda.image.ResampSlc allocates a sizable
+                # working buffer per tile; with the default 1000 lines a single
+                # IW3 burst (24443x1516 cf32) trips
+                # `cudaErrorMemoryAllocation: out of memory` on RTX 5080.
+                # 250 keeps per-tile working set under ~4 GiB and runs to
+                # completion. This is finding #4 in the bench report.
+                lines_per_block: 250
                 flatten: False
             correction_luts:
                 # See cpu template for schema-vs-defaults int/float divergence note.
