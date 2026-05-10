@@ -49,10 +49,22 @@ runconfig:
                 lines_per_block: 1000
                 flatten: False
             correction_luts:
+                # See cpu template for schema-vs-defaults int/float divergence note.
                 x_spacing: 120
-                y_spacing: 0.028
+                y_spacing: 1
 
         worker:
             internet_access: False
-            gpu_enabled: True
+            # NOTE: gpu_enabled forced False for the REFERENCE CSLC step.
+            # COMPASS only calls isce3 rdr2geo at this stage, and the CUDA
+            # binding `isce3.cuda.geometry.Rdr2Geo.topo` (overload 2) declares
+            # all 11 raster args as REQUIRED, while the CPU sibling marks
+            # them as `= None` defaults. COMPASS passes None for the ones
+            # the user did not request (incidence_angle, heading_angle,
+            # local_Psi, simulated_amplitude, plus the `compute_*: False`
+            # ones), so the CUDA call raises TypeError. This is finding #3
+            # in the bench report (CPU/CUDA API parity gap on Rdr2Geo).
+            # The SECONDARY CSLC runconfig keeps gpu_enabled: True because
+            # geo2rdr + resample have no equivalent kwarg gap.
+            gpu_enabled: False
             gpu_id: 0

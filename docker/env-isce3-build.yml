@@ -37,6 +37,7 @@ dependencies:
   - yamale
   # --- benchmark / profiling additions ---
   - pip
+  - patchelf
   - py-spy
   - pytest-benchmark
   # --- Sentinel-1 stack (Plan E: COMPASS radar mode → isce3 GPU primitives) ---

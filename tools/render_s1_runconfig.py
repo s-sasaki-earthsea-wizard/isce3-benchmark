@@ -38,24 +38,16 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--bursts", required=True, type=Path,
                    help="bursts.json produced by fetch/fetch_sentinel1.py")
     p.add_argument("--orbits-dir", required=True, type=Path,
-                   help="directory containing POEORB EOF files")
+                   help="directory containing POEORB EOF files (container-side path)")
     p.add_argument("--dem", required=True, type=Path,
-                   help="DEM tiff path")
+                   help="DEM tiff path (container-side path)")
+    p.add_argument("--safe-dir", default=Path("/data/S1-data"), type=Path,
+                   help="directory containing the SAFE folders (container-side path)")
     p.add_argument("--burst-id", default=None,
                    help="burst id to use (default: first overlapping in both SAFEs)")
     p.add_argument("--pol", default="VV",
                    help="polarization (default: VV)")
-    p.add_argument("--data-host-root", type=Path, default=REPO_ROOT / "data",
-                   help="host root that maps to /data inside container")
     return p.parse_args()
-
-
-def _to_container_path(host_path: Path, host_root: Path, mount: str) -> str:
-    """Translate a host path under host_root to the container's bind mount."""
-    host_path = host_path.resolve()
-    host_root = host_root.resolve()
-    rel = host_path.relative_to(host_root)
-    return f"{mount}/{rel.as_posix()}"
 
 
 def _pick_overlap_burst(records: list[dict], pol: str) -> tuple[str, dict[str, str]]:
@@ -123,63 +115,77 @@ def main() -> int:
     safe_basenames = sorted({r["safe"] for r in records})
     safe_ref, safe_sec = safe_basenames[0], safe_basenames[1]
 
-    # data/S1-data/<safe>.SAFE — locate by basename under data_host_root
-    safe_ref_host = args.data_host_root / "S1-data" / safe_ref
-    safe_sec_host = args.data_host_root / "S1-data" / safe_sec
-    for s in (safe_ref_host, safe_sec_host):
+    safe_ref_path = args.safe_dir / safe_ref
+    safe_sec_path = args.safe_dir / safe_sec
+    for s in (safe_ref_path, safe_sec_path):
         if not s.is_dir():
-            raise SystemExit(f"SAFE dir not found on host: {s}")
+            raise SystemExit(f"SAFE dir not found: {s}")
 
-    orbit_ref_host = _match_orbit(safe_ref, args.orbits_dir)
-    orbit_sec_host = _match_orbit(safe_sec, args.orbits_dir)
+    orbit_ref_path = _match_orbit(safe_ref, args.orbits_dir)
+    orbit_sec_path = _match_orbit(safe_sec, args.orbits_dir)
 
-    # All host paths under data/ are translated to /data/...
-    safe_ref_c = _to_container_path(safe_ref_host, args.data_host_root, DATA_MOUNT)
-    safe_sec_c = _to_container_path(safe_sec_host, args.data_host_root, DATA_MOUNT)
-    orbit_ref_c = _to_container_path(orbit_ref_host, args.data_host_root, DATA_MOUNT)
-    orbit_sec_c = _to_container_path(orbit_sec_host, args.data_host_root, DATA_MOUNT)
-    dem_c = _to_container_path(args.dem, args.data_host_root, DATA_MOUNT)
+    # Paths are container-side absolute already.
+    safe_ref_c = str(safe_ref_path)
+    safe_sec_c = str(safe_sec_path)
+    orbit_ref_c = str(orbit_ref_path)
+    orbit_sec_c = str(orbit_sec_path)
+    dem_c = str(args.dem)
 
-    # Reference runconfig (CPU + GPU)
+    # Reference runconfig (CPU + GPU).
+    #
+    # NOTE: product_path == scratch_path is a deliberate workaround for a
+    # COMPASS radar-mode path bug. s1_geo2rdr writes range.off / azimuth.off
+    # to <product>/<burst>/<date>/, but s1_resample reads them from
+    # <scratch>/<burst>/<date>/. With separate dirs the secondary run fails
+    # with "failed to create GDAL dataset from file .../range.off". Setting
+    # both to the same root avoids the divergence. This finding is logged
+    # for a possible upstream COMPASS report.
     for path in ("cpu", "gpu"):
         tpl = (CFG_DIR / f"insar_s1_boso_cslc_{path}.yaml.template").read_text()
-        product = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/product"
-        scratch = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/scratch"
+        unified = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/work"
         rendered = _substitute(tpl, {
             "SAFE_REF": safe_ref_c,
             "ORBIT_REF": orbit_ref_c,
             "DEM": dem_c,
             "BURST_ID": burst_id,
-            "PRODUCT_PATH": product,
-            "SCRATCH_PATH": scratch,
+            "PRODUCT_PATH": unified,
+            "SCRATCH_PATH": unified,
         })
         out = CFG_DIR / f"insar_s1_boso_cslc_{path}.yaml"
         out.write_text(rendered)
         print(f"[render] wrote {out} (reference burst, {path})")
 
-    # Secondary runconfig — coregistered to reference
+    # Secondary runconfig — coregistered to reference.
+    # The COMPASS sec config's reference_burst.file_path must point at the
+    # ref burst-date dir (containing radar_grid.txt), not the parent product/.
+    # Layout produced by COMPASS ref run:
+    #   <product>/<burst_id>/<YYYYMMDD>/{radar_grid.txt,*.slc.tif,x.tif,y.tif,z.tif,...}
+    ref_records = [r for r in records
+                   if r["safe"] == safe_ref and r["burst_id"] == burst_id and r["polarization"] == args.pol]
+    if not ref_records:
+        raise SystemExit(f"no record for ref burst {burst_id} pol={args.pol} in {safe_ref}")
+    ref_date = ref_records[0]["sensing_start"][:10].replace("-", "")  # YYYYMMDD
+
     for path in ("cpu", "gpu"):
         tpl = (CFG_DIR / f"insar_s1_boso_cslc_{path}.yaml.template").read_text()
-        # rewrite: SAFE_REF -> SAFE_SEC, ORBIT_REF -> ORBIT_SEC,
-        # is_reference -> False, file_path -> reference product path
-        product = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/product_sec"
-        scratch = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/scratch_sec"
-        ref_product = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/product"
+        unified_sec = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/work_sec"
+        # Match the unified naming for the ref dir used above.
+        ref_burst_date_dir = f"{LOGS_MOUNT}/scratch_s1_boso_cslc_{path}/work/{burst_id}/{ref_date}"
         rendered = _substitute(tpl, {
             "SAFE_REF": safe_sec_c,
             "ORBIT_REF": orbit_sec_c,
             "DEM": dem_c,
             "BURST_ID": burst_id,
-            "PRODUCT_PATH": product,
-            "SCRATCH_PATH": scratch,
+            "PRODUCT_PATH": unified_sec,
+            "SCRATCH_PATH": unified_sec,
         })
         rendered = rendered.replace(
             "is_reference: True\n                file_path:",
-            f"is_reference: False\n                file_path: {ref_product}",
+            f"is_reference: False\n                file_path: {ref_burst_date_dir}",
         )
         out = CFG_DIR / f"insar_s1_boso_cslc_sec_{path}.yaml"
         out.write_text(rendered)
-        print(f"[render] wrote {out} (secondary burst, {path})")
+        print(f"[render] wrote {out} (secondary burst, {path}, ref_date={ref_date})")
 
     print(f"[render] burst_id={burst_id} pol={args.pol}")
     return 0

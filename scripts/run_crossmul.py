@@ -83,7 +83,17 @@ def main() -> int:
     elif args.reference is None or args.secondary is None or args.out_ifg is None:
         print("[crossmul] error: --reference, --secondary, --out-ifg required without --config", file=sys.stderr)
         return 2
-    import isce3
+
+    # `import isce3` triggers journal/pyre, whose CommandLineParser reads
+    # sys.argv looking for pyre framework flags. Our argparse leftovers
+    # (--config, --gpu, ...) confuse pyre and trip a circular import in
+    # journal. Hide our argv during the import.
+    saved_argv = sys.argv[:]
+    sys.argv = [sys.argv[0]]
+    try:
+        import isce3
+    finally:
+        sys.argv = saved_argv
 
     for f in (args.reference, args.secondary):
         if not f.exists():
@@ -110,29 +120,30 @@ def main() -> int:
 
     crossmul.range_looks = args.range_looks
     crossmul.az_looks = args.azimuth_looks
-    crossmul.oversample = args.oversample
+    crossmul.oversample_factor = args.oversample
 
     ref_raster = isce3.io.Raster(str(args.reference))
     sec_raster = isce3.io.Raster(str(args.secondary))
 
     cols = ref_raster.width  // args.range_looks
     rows = ref_raster.length // args.azimuth_looks
-    ifg_raster = isce3.io.Raster(str(args.out_ifg), cols, rows, 1, "CFloat32", "ENVI")
-    coh_raster = None
-    if args.out_coh is not None:
-        coh_raster = isce3.io.Raster(str(args.out_coh), cols, rows, 1, "Float32", "ENVI")
+    args.out_ifg.parent.mkdir(parents=True, exist_ok=True)
+    # GDAL data types (osgeo.gdal.GDT_*): CFloat32 = 10, Float32 = 6.
+    from osgeo import gdal
+    ifg_raster = isce3.io.Raster(str(args.out_ifg), cols, rows, 1, gdal.GDT_CFloat32, "ENVI")
+    coh_path = args.out_coh if args.out_coh is not None else args.out_ifg.with_suffix(".coh")
+    coh_path.parent.mkdir(parents=True, exist_ok=True)
+    coh_raster = isce3.io.Raster(str(coh_path), cols, rows, 1, gdal.GDT_Float32, "ENVI")
 
     print(f"[crossmul] backend={backend} range_looks={args.range_looks} "
-          f"az_looks={args.azimuth_looks} oversample={args.oversample}")
+          f"az_looks={args.azimuth_looks} oversample_factor={args.oversample}")
     print(f"[crossmul] ref={args.reference} ({ref_raster.width}x{ref_raster.length})")
     print(f"[crossmul] sec={args.secondary}")
     print(f"[crossmul] ifg={args.out_ifg} ({cols}x{rows})")
+    print(f"[crossmul] coh={coh_path}")
 
     t0 = time.perf_counter()
-    if coh_raster is not None:
-        crossmul.crossmul(ref_raster, sec_raster, ifg_raster, coh_raster)
-    else:
-        crossmul.crossmul(ref_raster, sec_raster, ifg_raster)
+    crossmul.crossmul(ref_raster, sec_raster, ifg_raster, coh_raster)
     elapsed = time.perf_counter() - t0
     print(f"[crossmul] done in {elapsed:.3f}s")
     return 0

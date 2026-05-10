@@ -59,22 +59,25 @@ def _enumerate_bursts(safes: list[Path]) -> list[dict]:
     records: list[dict] = []
     for safe in safes:
         for subswath in (1, 2, 3):
-            for pol in ("VV", "VH"):
+            for pol in ("vv", "vh"):
                 try:
+                    # s1reader 0.2.5 signature:
+                    # load_bursts(path, orbit_path, swath_num, pol='vv', ...)
                     bursts = load_bursts(str(safe), orbit_path=None,
-                                         i_subswath=subswath, pol=pol)
+                                         swath_num=subswath, pol=pol)
                 except Exception as e:
                     print(f"[fetch] {safe.name} IW{subswath} {pol}: skip ({type(e).__name__}: {e})",
                           file=sys.stderr)
                     continue
                 for b in bursts:
                     poly = getattr(b, "border", None)
+                    # b.border is a list of shapely.Polygon (typically len=1).
                     bbox = list(poly[0].bounds) if poly else None
                     records.append({
                         "safe": safe.name,
                         "burst_id": str(b.burst_id),
                         "subswath": f"IW{subswath}",
-                        "polarization": pol,
+                        "polarization": pol.upper(),
                         "sensing_start": b.sensing_start.isoformat() if b.sensing_start else None,
                         "bbox_lonlat": bbox,
                     })

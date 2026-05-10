@@ -49,6 +49,14 @@ for cfg in "${cfgs[@]}"; do
     echo "--- ${cfg}"
     echo "    workflow: ${wf}"
 
+    # Skip secondary CSLC configs: they reference ${ref}/product, which only
+    # exists after the corresponding ref CSLC run has completed. Validation
+    # is implicit at runtime when run_bench.sh dispatches the sec config.
+    if [[ "${cfg}" == *_sec_*.yaml || "${cfg}" == *_sec.yaml ]]; then
+        echo "    [skip] secondary config (validated at runtime after ref completes)"
+        continue
+    fi
+
     # 1. Workflow-native config loader (HARD).
     if ! CFG="${cfg}" WF="${wf}" python <<'PY'
 import os, sys, importlib, types
@@ -119,7 +127,14 @@ PY
         continue
     fi
 
-    # 3. yamale schema (SOFT — informational).
+    # 3. yamale schema (SOFT — informational). Only NISAR workflows have
+    # schemas under ${ISCE3_INSTALL}/share/nisar/schemas/. COMPASS schemas
+    # live under its own conda site-packages and are exercised by COMPASS's
+    # own RunConfig.load_from_yaml in step 1, so we skip step 3 for those.
+    if [ ! -f "${schema}" ]; then
+        echo "    [info] no yamale schema at ${schema}; relying on workflow loader"
+        continue
+    fi
     SCHEMA="${schema}" CFG="${cfg}" python <<'PY' || true
 import os, sys
 import yamale

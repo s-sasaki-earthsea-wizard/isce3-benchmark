@@ -65,8 +65,11 @@ runconfig:
                 lines_per_block: 1000
                 flatten: False
             correction_luts:
+                # Schema requires int (yamale int(min=0)). COMPASS's own
+                # defaults yaml has y_spacing: 0.028 which actually fails
+                # the schema; we use integer values that satisfy validation.
                 x_spacing: 120
-                y_spacing: 0.028
+                y_spacing: 1
 
         worker:
             internet_access: False

@@ -73,8 +73,11 @@ for k in ('scratch_path', 'product_path', 'sas_output_file'):
             focus|gslc|gcov|insar)
                 cmd=(python -m "nisar.workflows.${wf}" "${cfg}") ;;
             cslc_s1_workflow_default)
-                # COMPASS provides s1_cslc.py as a console_script entry point.
-                cmd=(s1_cslc.py "${cfg}") ;;
+                # COMPASS s1_cslc.py requires --grid {radar,geo}. We use radar
+                # mode because that path lights up isce3's GPU primitives
+                # (Rdr2Geo, Geo2Rdr, ResampSlc); geo mode dispatches to the
+                # CPU-only isce3.geocode.geocode_slc.
+                cmd=(s1_cslc.py "${cfg}" --grid radar) ;;
             crossmul_s1)
                 # Direct primitive call. Inputs are read from the runconfig
                 # by the script itself.
