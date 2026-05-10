@@ -50,8 +50,12 @@ data-ree: ## Stage REE synthetic test fixtures into ./data/REE
 	bash fetch/fetch_ree.sh
 
 # --- benchmarks ---------------------------------------------------------------
+.PHONY: dry-run
+dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
+	$(RUN) bash scripts/dry_run.sh
+
 .PHONY: smoke
-smoke: ## Tiny end-to-end smoke run on REE (CPU+GPU)
+smoke: dry-run ## Tiny end-to-end smoke run on REE (CPU+GPU). Runs dry-run first.
 	$(RUN) bash scripts/run_bench.sh smoke
 
 .PHONY: bench
