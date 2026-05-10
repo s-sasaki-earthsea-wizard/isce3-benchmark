@@ -183,12 +183,6 @@ def main() -> int:
             "is_reference: True\n                file_path:",
             f"is_reference: False\n                file_path: {ref_burst_date_dir}",
         )
-        # The GPU template forces gpu_enabled: False to dodge finding #3
-        # (CUDA Rdr2Geo Optional-kwargs gap). That guard is REF-ONLY — the
-        # secondary stage (geo2rdr + resample) is unaffected and we want
-        # it to actually exercise the CUDA primitives. Re-enable here.
-        if path == "gpu":
-            rendered = rendered.replace("gpu_enabled: False", "gpu_enabled: True")
         out = CFG_DIR / f"insar_s1_boso_cslc_sec_{path}.yaml"
         out.write_text(rendered)
         print(f"[render] wrote {out} (secondary burst, {path}, ref_date={ref_date})")
