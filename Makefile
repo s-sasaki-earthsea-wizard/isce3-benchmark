@@ -49,6 +49,20 @@ isce3-clean: ## Wipe the persistent isce3 build directory
 data-ree: ## Stage REE synthetic test fixtures into ./data/REE
 	bash fetch/fetch_ree.sh
 
+.PHONY: data-s1
+data-s1: ## Fetch POEORB orbits + DEM for the Boso S1 SAFE pair into ./data/S1-boso
+	$(RUN) python fetch/fetch_sentinel1.py \
+	    --safe /data/S1-data/S1A_IW_SLC__1SDV_20251221T204341_20251221T204408_062418_07D1B4_CC6C.SAFE \
+	    --safe /data/S1-data/S1A_IW_SLC__1SDV_20260126T204338_20260126T204405_062943_07E587_C319.SAFE \
+	    --out  /data/S1-boso
+
+.PHONY: render-s1
+render-s1: ## Render concrete S1 CSLC runconfigs from templates (after data-s1)
+	$(RUN) python tools/render_s1_runconfig.py \
+	    --bursts /data/S1-boso/bursts.json \
+	    --orbits-dir /data/S1-boso/orbits \
+	    --dem /data/S1-boso/dem.tif
+
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
@@ -57,6 +71,10 @@ dry-run: ## Validate every config (schema + loader + input existence). Fast gate
 .PHONY: smoke
 smoke: dry-run ## Tiny end-to-end smoke run on REE (CPU+GPU). Runs dry-run first.
 	$(RUN) bash scripts/run_bench.sh smoke
+
+.PHONY: smoke-s1
+smoke-s1: ## Sentinel-1 Boso bench (CSLC ref+sec + crossmul, CPU+GPU, repeats=1)
+	$(RUN) bash scripts/run_bench.sh s1
 
 .PHONY: bench
 bench: ## Full bench sweep defined in scripts/run_bench.sh

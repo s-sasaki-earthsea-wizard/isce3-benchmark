@@ -1,0 +1,20 @@
+# Pair file: insar_s1_boso_crossmul_cpu.yaml (worker.gpu_enabled: false).
+# Dispatches to isce3.cuda.signal.Crossmul. Reference/secondary read from the
+# GPU-side CSLC outputs (different scratch dirs from the CPU side so they
+# don't collide).
+runconfig:
+    name: crossmul_s1
+    groups:
+        input:
+            reference_slc: /logs/scratch_s1_boso_cslc_gpu/work/t046_097519_iw3/20251221/t046_097519_iw3_20251221_VV.slc.tif
+            secondary_slc: /logs/scratch_s1_boso_cslc_gpu/work_sec/t046_097519_iw3/20260126/t046_097519_iw3_20260126.slc.tif
+        output:
+            interferogram: /logs/scratch_s1_boso_cslc_gpu/ifg/t046_097519_iw3.int
+            coherence: /logs/scratch_s1_boso_cslc_gpu/ifg/t046_097519_iw3.coh
+        processing:
+            range_looks: 4
+            azimuth_looks: 1
+            oversample: 2
+        worker:
+            gpu_enabled: true
+            gpu_id: 0

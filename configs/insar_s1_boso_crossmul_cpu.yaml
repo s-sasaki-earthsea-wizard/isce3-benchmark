@@ -1,0 +1,23 @@
+# Direct call to isce3.signal.Crossmul on the radar-grid burst pair produced
+# by the COMPASS CSLC step. Reads the reference and secondary SLC rasters
+# from the unified work / work_sec dirs.
+#
+# Pair file: insar_s1_boso_crossmul_gpu.yaml (worker.gpu_enabled: True).
+# Dispatched by scripts/run_bench.sh as `runconfig.name: crossmul_s1` →
+# scripts/run_crossmul.py --config <this>.
+runconfig:
+    name: crossmul_s1
+    groups:
+        input:
+            reference_slc: /logs/scratch_s1_boso_cslc_cpu/work/t046_097519_iw3/20251221/t046_097519_iw3_20251221_VV.slc.tif
+            secondary_slc: /logs/scratch_s1_boso_cslc_cpu/work_sec/t046_097519_iw3/20260126/t046_097519_iw3_20260126.slc.tif
+        output:
+            interferogram: /logs/scratch_s1_boso_cslc_cpu/ifg/t046_097519_iw3.int
+            coherence: /logs/scratch_s1_boso_cslc_cpu/ifg/t046_097519_iw3.coh
+        processing:
+            range_looks: 4
+            azimuth_looks: 1
+            oversample: 2
+        worker:
+            gpu_enabled: false
+            gpu_id: 0

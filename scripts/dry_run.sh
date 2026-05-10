@@ -49,6 +49,14 @@ for cfg in "${cfgs[@]}"; do
     echo "--- ${cfg}"
     echo "    workflow: ${wf}"
 
+    # Skip secondary CSLC configs: they reference ${ref}/product, which only
+    # exists after the corresponding ref CSLC run has completed. Validation
+    # is implicit at runtime when run_bench.sh dispatches the sec config.
+    if [[ "${cfg}" == *_sec_*.yaml || "${cfg}" == *_sec.yaml ]]; then
+        echo "    [skip] secondary config (validated at runtime after ref completes)"
+        continue
+    fi
+
     # 1. Workflow-native config loader (HARD).
     if ! CFG="${cfg}" WF="${wf}" python <<'PY'
 import os, sys, importlib, types
@@ -57,6 +65,16 @@ cfg_path = os.environ['CFG']; wf = os.environ['WF']
 if wf == 'focus':
     mod = importlib.import_module('nisar.workflows.focus')
     mod.validate_config(mod.load_config(cfg_path))
+elif wf == 'cslc_s1_workflow_default':
+    # COMPASS S1 CSLC. Validate by constructing the COMPASS RunConfig.
+    rc_mod = importlib.import_module('compass.utils.runconfig')
+    if hasattr(rc_mod, 'RunConfig'):
+        rc_mod.RunConfig.load_from_yaml(cfg_path, workflow_name='s1_cslc')
+    else:
+        print(f"    [warn] compass.utils.runconfig has no RunConfig; trusting runtime")
+elif wf == 'crossmul_s1':
+    # Direct-primitive crossmul stage; no schema beyond presence of inputs.
+    print(f"    [info] '{wf}' has no formal config loader; relying on path check")
 else:
     runconfig_cls = {
         'gslc':  ('nisar.workflows.gslc_runconfig',  'GSLCRunConfig'),
@@ -88,7 +106,13 @@ missing = []
 def check(p):
     if isinstance(p, str) and p.startswith('/') and not os.path.exists(p):
         missing.append(p)
-for f in groups.get('input_file_group', {}).get('input_file_path', []) or []:
+ifg = groups.get('input_file_group', {})
+for f in ifg.get('input_file_path', []) or []:
+    check(f)
+# COMPASS uses safe_file_path + orbit_file_path lists
+for f in ifg.get('safe_file_path', []) or []:
+    check(f)
+for f in ifg.get('orbit_file_path', []) or []:
     check(f)
 for v in (groups.get('dynamic_ancillary_file_group') or {}).values():
     check(v)
@@ -103,7 +127,14 @@ PY
         continue
     fi
 
-    # 3. yamale schema (SOFT — informational).
+    # 3. yamale schema (SOFT — informational). Only NISAR workflows have
+    # schemas under ${ISCE3_INSTALL}/share/nisar/schemas/. COMPASS schemas
+    # live under its own conda site-packages and are exercised by COMPASS's
+    # own RunConfig.load_from_yaml in step 1, so we skip step 3 for those.
+    if [ ! -f "${schema}" ]; then
+        echo "    [info] no yamale schema at ${schema}; relying on workflow loader"
+        continue
+    fi
     SCHEMA="${schema}" CFG="${cfg}" python <<'PY' || true
 import os, sys
 import yamale

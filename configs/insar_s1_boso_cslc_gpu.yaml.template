@@ -1,0 +1,77 @@
+# COMPASS radar-mode CSLC runconfig — Sentinel-1 IW SLC, Boso peninsula pair.
+# GPU pair file: insar_s1_boso_cslc_cpu.yaml.template (differs only in worker.gpu_enabled).
+# See cpu template for placeholder substitution semantics.
+runconfig:
+    name: cslc_s1_workflow_default
+
+    groups:
+        pge_name_group:
+            pge_name: CSLC_S1_PGE
+
+        input_file_group:
+            safe_file_path:
+                - "@SAFE_REF@"
+            orbit_file_path:
+                - "@ORBIT_REF@"
+            burst_id:
+                - "@BURST_ID@"
+            reference_burst:
+                is_reference: True
+                file_path:
+
+        dynamic_ancillary_file_group:
+            dem_file: "@DEM@"
+
+        product_path_group:
+            product_path: "@PRODUCT_PATH@"
+            scratch_path: "@SCRATCH_PATH@"
+            sas_output_file: "@PRODUCT_PATH@"
+
+        primary_executable:
+            product_type: CSLC_S1
+
+        processing:
+            polarization: co-pol
+            rdr2geo:
+                threshold: 1.0e-8
+                numiter: 25
+                lines_per_block: 1000
+                extraiter: 10
+                compute_latitude: True
+                compute_longitude: True
+                compute_height: True
+                compute_layover_shadow_mask: True
+            geo2rdr:
+                lines_per_block: 1000
+                threshold: 1.0e-8
+                numiter: 25
+            resample:
+                # Lowered from COMPASS default (1000) to dodge a CUDA OOM on
+                # 16 GiB VRAM. isce3.cuda.image.ResampSlc allocates a sizable
+                # working buffer per tile; with the default 1000 lines a single
+                # IW3 burst (24443x1516 cf32) trips
+                # `cudaErrorMemoryAllocation: out of memory` on RTX 5080.
+                # 250 keeps per-tile working set under ~4 GiB and runs to
+                # completion. This is finding #4 in the bench report.
+                lines_per_block: 250
+                flatten: False
+            correction_luts:
+                # See cpu template for schema-vs-defaults int/float divergence note.
+                x_spacing: 120
+                y_spacing: 1
+
+        worker:
+            internet_access: False
+            # NOTE: gpu_enabled forced False for the REFERENCE CSLC step.
+            # COMPASS only calls isce3 rdr2geo at this stage, and the CUDA
+            # binding `isce3.cuda.geometry.Rdr2Geo.topo` (overload 2) declares
+            # all 11 raster args as REQUIRED, while the CPU sibling marks
+            # them as `= None` defaults. COMPASS passes None for the ones
+            # the user did not request (incidence_angle, heading_angle,
+            # local_Psi, simulated_amplitude, plus the `compute_*: False`
+            # ones), so the CUDA call raises TypeError. This is finding #3
+            # in the bench report (CPU/CUDA API parity gap on Rdr2Geo).
+            # The SECONDARY CSLC runconfig keeps gpu_enabled: True because
+            # geo2rdr + resample have no equivalent kwarg gap.
+            gpu_enabled: False
+            gpu_id: 0

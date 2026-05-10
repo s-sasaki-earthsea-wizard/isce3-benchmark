@@ -1,0 +1,77 @@
+# COMPASS radar-mode CSLC runconfig — Sentinel-1 IW SLC, Boso peninsula pair.
+#
+# This is a TEMPLATE. tools/render_s1_runconfig.py substitutes:
+#   @SAFE_REF@      reference SAFE absolute path
+#   @SAFE_SEC@      secondary SAFE absolute path  (CSLC is per-SAFE; sec config
+#                                                 sets is_reference: False and
+#                                                 file_path: <ref output>)
+#   @ORBIT_REF@     reference POEORB EOF absolute path
+#   @ORBIT_SEC@     secondary POEORB EOF absolute path
+#   @DEM@           DEM tiff absolute path
+#   @BURST_ID@      single burst_id (e.g. t073_153512_iw2)
+#   @PRODUCT_PATH@  output dir (e.g. /logs/scratch_s1_boso_cslc_cpu/product)
+#   @SCRATCH_PATH@  scratch dir (e.g. /logs/scratch_s1_boso_cslc_cpu/scratch)
+#
+# Pair file: insar_s1_boso_cslc_gpu.yaml.template (worker.gpu_enabled: True).
+#
+# This runs the REFERENCE CSLC. The secondary CSLC uses a sibling runconfig
+# (rendered with is_reference: False + ref_burst.file_path pointing at the
+# reference output) — see render_s1_runconfig.py.
+runconfig:
+    name: cslc_s1_workflow_default
+
+    groups:
+        pge_name_group:
+            pge_name: CSLC_S1_PGE
+
+        input_file_group:
+            safe_file_path:
+                - "@SAFE_REF@"
+            orbit_file_path:
+                - "@ORBIT_REF@"
+            burst_id:
+                - "@BURST_ID@"
+            reference_burst:
+                is_reference: True
+                file_path:
+
+        dynamic_ancillary_file_group:
+            dem_file: "@DEM@"
+
+        product_path_group:
+            product_path: "@PRODUCT_PATH@"
+            scratch_path: "@SCRATCH_PATH@"
+            sas_output_file: "@PRODUCT_PATH@"
+
+        primary_executable:
+            product_type: CSLC_S1
+
+        processing:
+            polarization: co-pol
+            rdr2geo:
+                threshold: 1.0e-8
+                numiter: 25
+                lines_per_block: 1000
+                extraiter: 10
+                compute_latitude: True
+                compute_longitude: True
+                compute_height: True
+                compute_layover_shadow_mask: True
+            geo2rdr:
+                lines_per_block: 1000
+                threshold: 1.0e-8
+                numiter: 25
+            resample:
+                lines_per_block: 1000
+                flatten: False
+            correction_luts:
+                # Schema requires int (yamale int(min=0)). COMPASS's own
+                # defaults yaml has y_spacing: 0.028 which actually fails
+                # the schema; we use integer values that satisfy validation.
+                x_spacing: 120
+                y_spacing: 1
+
+        worker:
+            internet_access: False
+            gpu_enabled: False
+            gpu_id: 0
