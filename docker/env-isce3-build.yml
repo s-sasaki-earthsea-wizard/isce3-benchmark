@@ -39,5 +39,15 @@ dependencies:
   - pip
   - py-spy
   - pytest-benchmark
+  # --- Sentinel-1 stack (Plan E: COMPASS radar mode → isce3 GPU primitives) ---
+  # COMPASS pulls a conda-forge `isce3` (CPU-only) as a transitive dep. That is
+  # fine because docker/entrypoint.sh prepends our from-source CUDA build at
+  # /opt/isce3-build/install/packages onto PYTHONPATH, so `import isce3` always
+  # resolves to the GPU-enabled tree. The conda one is only here to satisfy
+  # compass's dep solver.
+  - compass>=0.5.6
+  - s1reader>=0.2.5
+  - sentineleof>=0.12
+  - dem_stitcher>=2.5
   - pip:
       - pynvml
