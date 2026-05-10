@@ -39,12 +39,15 @@ for prefix in "${pairs[@]}"; do
             echo "SKIP: ${cfg} not found"
             continue
         fi
+        # Workflow dispatch is decided by inspecting the runconfig: each
+        # config sets `runconfig.name: <workflow>` (focus, gslc, gcov, insar).
+        # Also pre-create scratch_path — isce3 workflows assume it exists.
+        wf="$(python -c "import yaml; d=yaml.safe_load(open('${cfg}')); print(d['runconfig']['name'])")"
+        scratch="$(python -c "import yaml; d=yaml.safe_load(open('${cfg}')); print(d['runconfig']['groups']['product_path_group']['scratch_path'])")"
+        mkdir -p "${scratch}"
         for i in $(seq 1 "${repeats}"); do
             tag="$(basename "${prefix}")_${path}_${i}"
             echo ">>> ${tag}"
-            # Workflow dispatch is decided by inspecting the runconfig: each
-            # config sets `runconfig.name: <workflow>` (focus, gslc, gcov, insar).
-            wf="$(python -c "import yaml,sys; d=yaml.safe_load(open('${cfg}')); print(d['runconfig']['name'])")"
             timed_run "${run_dir}" "${tag}" \
                 python -m "nisar.workflows.${wf}" "${cfg}"
         done

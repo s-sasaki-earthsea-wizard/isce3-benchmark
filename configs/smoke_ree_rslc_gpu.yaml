@@ -10,6 +10,8 @@ runconfig:
         dynamic_ancillary_file_group:
             orbit: /data/REE/orbit.xml
             pointing: /data/REE/attitude.xml
+            antenna_pattern: /data/REE/REE_ANTPAT_CUTS_DATA.h5
+            internal_calibration: /data/REE/REE_INSTRUMENT_TABLE.h5
 
         product_path_group:
             scratch_path: /logs/scratch_smoke_ree_rslc_gpu
