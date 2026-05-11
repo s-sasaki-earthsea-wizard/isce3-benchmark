@@ -1,0 +1,93 @@
+ Container isce3-benchmark-dev-run-89a23c620e3c Creating 
+ Container isce3-benchmark-dev-run-89a23c620e3c Created 
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:228: UserWarning: isUrgentObservation is boolean but expected string
+  warn("isUrgentObservation is boolean but expected string")
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:238: UserWarning: Could not find isJointObservation in product identification.
+  warn("Could not find isJointObservation in product identification.")
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:247: UserWarning: Could not find hasInputDataException in product identification.  Assuming there are no anomalies.
+  warn("Could not find hasInputDataException in product "
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (isce.geometry.Topo):
+ -- DEM EPSG: 4326
+ -- Output EPSG: 4326
+journal (isce.geometry.Topo):
+ -- Processing block: 1 
+ --   - line start: 0
+ --   - line end  : 500
+ --   - dopplers near mid far: 301.353 289.92 278.742 
+journal (isce.core.Geometry):
+ -- West limit may be insufficient for global height range
+journal (isce.core.Geometry):
+ -- North limit may be insufficient for global height range
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: -115.8 35
+ -- Bottom Right: -115.344 34.6436 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 1643 1284
+Topo progress (block 1/1): Done
+isce3.__file__: /opt/isce3-build/install/packages/isce3/__init__.py
+CUDA built:     True
+
+======================================================================
+Layer 1: pybind11 docstring signature inspection
+======================================================================
+-- CPU  isce3.geometry.Rdr2Geo.topo --
+   kwargs with `= None` default: 11
+    2. topo(self: isce3.ext.isce3.geometry.Rdr2Geo, dem_raster: isce3::io::Raster, x_raster:
+   isce3::io::Raster = None, y_raster: isce3::io::Raster = None, height_raster: isce3::io::Raster =
+   None, incidence_angle_raster: isce3::io::Raster = None, heading_angle_raster: isce3::io::Raster =
+   None, local_incidence_angle_raster: isce3::io::Raster = None, local_psi_raster: isce3::io::Raster =
+   None, simulated_amplitude_raster: isce3::io::Raster = None, layover_shadow_raster: isce3::io::Raster
+   = None, ground_to_sat_east_raster: isce3::io::Raster = None, ground_to_sat_north_raster:
+   isce3::io::Raster = None) -> None
+
+-- CUDA isce3.cuda.geometry.Rdr2Geo.topo --
+   kwargs with `= None` default: 11
+    2. topo(self: isce3.ext.isce3.cuda.geometry.Rdr2Geo, dem_raster: isce3.ext.isce3.io.Raster,
+   x_raster: isce3.ext.isce3.io.Raster = None, y_raster: isce3.ext.isce3.io.Raster = None,
+   height_raster: isce3.ext.isce3.io.Raster = None, incidence_angle_raster: isce3.ext.isce3.io.Raster =
+   None, heading_angle_raster: isce3.ext.isce3.io.Raster = None, local_incidence_angle_raster:
+   isce3.ext.isce3.io.Raster = None, local_psi_raster: isce3.ext.isce3.io.Raster = None,
+   simulated_amplitude_raster: isce3.ext.isce3.io.Raster = None, layover_shadow_raster:
+   isce3.ext.isce3.io.Raster = None, ground_to_sat_east_raster: isce3.ext.isce3.io.Raster = None,
+   ground_to_sat_north_raster: isce3.ext.isce3.io.Raster = None) -> None
+
+======================================================================
+Layer 2: runtime call with kwarg subset (x/y/height only)
+======================================================================
+-- CPU  isce3.geometry.Rdr2Geo.topo(dem, x=..., y=..., z=...): PASS
+
+-- CUDA isce3.cuda.geometry.Rdr2Geo.topo(dem, x=..., y=..., z=...): PASS
+
+======================================================================
+Summary
+======================================================================
+  CPU  isce3.geometry.Rdr2Geo: defaults=11, runtime=PASS
+  CUDA isce3.cuda.geometry.Rdr2Geo: defaults=11, runtime=PASS
+
+Interpretation:
+  If CPU and CUDA both show defaults=11 and runtime=PASS, the
+  binding regression is fixed in this build.
+  If CPU shows defaults=11/PASS but CUDA shows defaults=0/TypeError,
+  the binding regression is live.
+journal (isce.geometry.Topo):
+ -- Total convergence: 187086 out of 250000
+journal (isce.cuda.geometry.Topo):
+ -- Processing block: 0 
+ --   - line start: 0
+ --   - line end  : 500
+ --   - dopplers near mid far: 301.353 289.92 278.742 
+journal (isce.core.Geometry):
+ -- West limit may be insufficient for global height range
+journal (isce.core.Geometry):
+ -- North limit may be insufficient for global height range
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: -115.8 35
+ -- Bottom Right: -115.344 34.6436 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 1643 1284
+journal (isce.cuda.geometry.Topo):
+ -- Total convergence: 187345 out of 250000
