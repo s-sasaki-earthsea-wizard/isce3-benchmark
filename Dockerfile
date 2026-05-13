@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         ca-certificates \
         ccache \
+        cuda-nsight-systems-12-8 \
         curl \
         git \
         less \
