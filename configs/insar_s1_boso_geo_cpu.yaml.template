@@ -9,10 +9,16 @@
 # Differences vs the radar template:
 #   - processing.geocoding {} replaces processing.{rdr2geo,resample}; the
 #     workflow internally computes its own DEM/raster grids.
-#   - correction_luts.enabled: False  ← skips troposphere/ionosphere LUTs.
+#   - correction_luts.enabled: @CORRECTIONS_ENABLED@ ← skips troposphere/ionosphere LUTs.
 #     The geocode_slc kernel itself is what we want to profile; tropo/iono
 #     bring in extra HDF5/grib reads + scipy interpolation that would
-#     muddy the I/O-vs-compute attribution.
+#     muddy the I/O-vs-compute attribution. Two rendered yamls per CPU/GPU:
+#     `insar_s1_boso_geo_{cpu,gpu}.yaml`       (enabled: False — kernel-only profile)
+#     `insar_s1_boso_geo_corr_{cpu,gpu}.yaml`  (enabled: True  — production-realistic)
+#     With ancillary fields empty, enabled=True still runs:
+#     rdr2geo rasters + solid earth tides + bistatic delay + az FM-rate
+#     mismatch + static troposphere. iono returns zeros (no TEC) and
+#     wet/dry tropo falls back to static (no weather model).
 #   - quality_assurance.perform_qa: False, browse_image.enabled: False.
 #     QA reads the geocoded HDF5 back and computes stats, which inflates
 #     wall time without adding signal about the geocode kernel. The
@@ -82,7 +88,7 @@ runconfig:
                 threshold: 1.0e-8
                 numiter: 25
             correction_luts:
-                enabled: False
+                enabled: @CORRECTIONS_ENABLED@
                 range_spacing: 120
                 azimuth_spacing: 0.028
                 troposphere:

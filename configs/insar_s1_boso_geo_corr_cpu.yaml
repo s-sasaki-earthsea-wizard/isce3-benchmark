@@ -9,7 +9,7 @@
 # Differences vs the radar template:
 #   - processing.geocoding {} replaces processing.{rdr2geo,resample}; the
 #     workflow internally computes its own DEM/raster grids.
-#   - correction_luts.enabled: False ← skips troposphere/ionosphere LUTs.
+#   - correction_luts.enabled: True ← skips troposphere/ionosphere LUTs.
 #     The geocode_slc kernel itself is what we want to profile; tropo/iono
 #     bring in extra HDF5/grib reads + scipy interpolation that would
 #     muddy the I/O-vs-compute attribution. Two rendered yamls per CPU/GPU:
@@ -39,8 +39,8 @@
 #                   (COMPASS GeoRunConfig requires a real file — None branch
 #                   is dead code in load_from_yaml())
 #   t046_097519_iw3      single burst_id (e.g. t046_097519_iw3)
-#   /logs/scratch_s1_boso_geo_cpu/work  output dir
-#   /logs/scratch_s1_boso_geo_cpu/work  scratch dir
+#   /logs/scratch_s1_boso_geo_corr_cpu/work  output dir
+#   /logs/scratch_s1_boso_geo_corr_cpu/work  scratch dir
 runconfig:
     name: cslc_s1_workflow_default
 
@@ -66,9 +66,9 @@ runconfig:
             burst_database_file: "/data/S1-boso/burst_db.sqlite3"
 
         product_path_group:
-            product_path: "/logs/scratch_s1_boso_geo_cpu/work"
-            scratch_path: "/logs/scratch_s1_boso_geo_cpu/work"
-            sas_output_file: "/logs/scratch_s1_boso_geo_cpu/work"
+            product_path: "/logs/scratch_s1_boso_geo_corr_cpu/work"
+            scratch_path: "/logs/scratch_s1_boso_geo_corr_cpu/work"
+            sas_output_file: "/logs/scratch_s1_boso_geo_corr_cpu/work"
             product_version: '0.2'
             product_specification_version: '0.1'
 
@@ -88,7 +88,7 @@ runconfig:
                 threshold: 1.0e-8
                 numiter: 25
             correction_luts:
-                enabled: False
+                enabled: True
                 range_spacing: 120
                 azimuth_spacing: 0.028
                 troposphere:

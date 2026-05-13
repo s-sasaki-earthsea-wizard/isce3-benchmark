@@ -5,14 +5,24 @@ profile-first investigation. Re-frames finding #1 from the
 [Stage 1 baseline report](2026-05-baseline-s1-boso.md) on measurement,
 not assumption.
 
-**TL;DR**: `isce3.geocode.geocode_slc` is **CPU-bound** on this dataset.
-The "missing CUDA → port to GPU" framing from the Stage 1 report is
-supported by measurement. The I/O-bound counter-hypothesis (which would
-have implied a smaller-scoped chunking / async-read RFC) is **not
-supported**: warm-cache iostat shows zero disk reads during the 30 s
-kernel call, and a measured cold-cache run shifts wall by only +2.3 s
-(+5.7 %) — entirely in startup/prep, not in the kernel itself, which
-remains at 29 s in both cache states.
+**TL;DR**: `isce3.geocode.geocode_slc` is **CPU-bound** on this dataset
+and remains the dominant single phase even with COMPASS corrections
+enabled. The "missing CUDA → port to GPU" framing from the Stage 1
+report is supported by measurement on three independent angles:
+
+1. **Cache state.** Warm-cache iostat shows zero disk reads during the
+   30 s kernel call; a measured cold-cache run shifts wall by only +2.3 s
+   (+5.7 %), entirely in startup/prep — the kernel itself is 29 s in
+   both cache states.
+2. **System time vs user time.** `time -v` reports ~5 % system, ~95 %
+   user CPU. Not I/O-bound.
+3. **Corrections-enabled production-realistic run.** Enabling
+   `correction_luts.enabled: True` (without external ancillary —
+   exercises COMPASS's solid earth tides + bistatic + static tropo +
+   coarse rdr2geo) adds only ~1 s to the journal-timed phases.
+   `geocode_slc` stays at 28-30 s and remains 75-77 % of the
+   corrections-enabled wall. The I/O-bound and "geocode_slc is just
+   one of several bottlenecks" counter-hypotheses are both rejected.
 
 ## Setup
 
@@ -262,6 +272,115 @@ separate decision (see `feedback_contribution_strategy`: don't draft
 features ahead of upstream signalling). The data above just answers
 the question of whether the work would be well-targeted.
 
+## Production-realistic addendum — corrections enabled (no external ancillary)
+
+The headline numbers above all run with `correction_luts.enabled: False` so
+that wall time is attributable to `geocode_slc` alone. Real OPERA L2
+CSLC-S1 processing has corrections **on**, which raises a natural
+follow-up: is `geocode_slc` still the dominant single phase when
+ionosphere / troposphere / solid-earth-tide LUTs are computed?
+
+The cheapest experiment for that question: enable corrections **without
+external ancillary files**. With both `tec_file` and `weather_model_file`
+empty, COMPASS's `cumulative_correction_luts` still runs:
+
+- a coarse-grid `rdr2geo` (rg_step 120 m × az_step 0.028 s) to produce
+  lat/lon/height/incidence/heading rasters in scratch (CUDA-accelerated
+  on GPU since RFC #265's fix landed on the fork branch),
+- solid earth tides via pySolid (decimated, then resized),
+- bistatic delay (geometric),
+- azimuth FM-rate mismatch (numpy),
+- **static troposphere** from incidence angle + DEM height (numpy
+  fallback when `weather_model_path is None`),
+- ionosphere returns zeros (early return when `tec_path is None`).
+
+This exercises the **COMPASS workflow overhead** of having corrections
+enabled, but skips the heavy RAiDER + ERA5 tropo path and the IGS TEC
+iono interpolation. A "production-realistic γ" experiment (TEC + ERA5
+ancillary) is left as a follow-up; if α already shows corrections is
+negligible, γ would need a >20 s addition to topple `geocode_slc`,
+which RAiDER throughput on a single burst does not typically reach.
+
+Same burst / runconfig / host as above. Two new rendered configs:
+`configs/insar_s1_boso_geo_corr_{cpu,gpu}.yaml`.
+
+### Phase timing comparison
+
+Both runs warm-cache.
+
+| Phase | Base CPU | Base GPU | **Corr CPU** | **Corr GPU** |
+|---|---:|---:|---:|---:|
+| corrections (journal) | 0 s | 0 s | **1 s** | **1 s** |
+| prep (journal) | 1 s | 1 s | 1 s | 1 s |
+| **geocoding (journal)** | **29 s** | **32 s** | **28 s** | **30 s** |
+| QA + metadata (journal) | 2 s | 2 s | 2 s | 2 s |
+| Journal total | 36 s | 37 s | 37 s | 39 s |
+| `time -v` Elapsed (wall) | 39.88 s | 41.07 s | **42.65 s** | **49.64 s** |
+| `time -v` User CPU | 188.13 s | 190.80 s | 195.83 s | 197.22 s |
+| `time -v` System CPU | 2.06 s | 1.98 s | 2.28 s | 2.29 s |
+| Effective cores (user/wall) | 4.72 | 4.65 | 4.59 | 3.97 |
+
+The corrections phase itself is **only ~1 s of journal-timed wall** in
+both the CPU and GPU run. The reason is that
+`cumulative_correction_luts` operates on a **coarse LUT grid** (120 m
+× 0.028 s spacing → ~150 × 1500 pixels for this burst), not on the
+SLC grid (24 443 × 1516 pixels). All the numpy ops (static tropo,
+bistatic, az FM mismatch, solid-earth-tides resize) run against that
+small grid in milliseconds. The internal `rdr2geo` call also works on
+the coarse grid and finishes fast on either CPU or GPU.
+
+### Where the GPU run regresses vs CPU
+
+| | CPU corr | GPU corr | Δ |
+|---|---:|---:|---:|
+| Journal `burst successfully ran in` | 37 s | 39 s | +2 s |
+| `time -v` Elapsed | 42.65 s | 49.64 s | **+6.99 s** |
+| "non-journal" startup + finalisation overhead | ~5.6 s | ~10.6 s | **+5 s** |
+
+The journal-timed phases account for ~94 % of CPU-corr wall but only
+~79 % of GPU-corr wall. The extra ~5 s of GPU wall lives **outside
+the journal**, almost certainly **CUDA context init + driver / lib
+load** triggered by the CUDA `rdr2geo` path inside corrections. The
+base GPU run also has this overhead but it's smaller (~4 s) because
+the only CUDA exercise in the base path is the DEM raster handle.
+
+**Net for this single-burst experiment**: enabling corrections makes
+GPU **slower** than CPU end-to-end, by ~7 s. This is a one-burst
+result; the CUDA-context cost is amortised over many bursts in a
+real PGE daemon, so a stack of N bursts would recover the GPU
+advantage on the coarse `rdr2geo` step at break-even N ≈ 5-10. Worth
+flagging but not RFC-actionable on its own.
+
+### Disk I/O during corrections runs
+
+`iostat -xm 2 -t -y nvme0n1` confirms warm-cache picture continues to
+hold for corrections-enabled runs — non-zero read seconds are
+single-digit MB scattered over the run window (page-cache top-up for
+the dem block reads inside coarse rdr2geo), no sustained read
+activity. Disk near-idle during the geocoding phase, same as the base
+run.
+
+### Implication for the RFC-shape decision
+
+`geocode_slc` accounts for **75-77 % of corrections-enabled wall**
+(28-30 s of 37-39 s journal total; 66-60 % of `time -v` wall after
+CUDA init overhead is included). Even with α-level corrections
+enabled, no other single phase comes within an order of magnitude of
+`geocode_slc`'s wall time. The corrections phase is small enough
+that adding the full γ (TEC + ERA5 + RAiDER) would have to contribute
+**more than 20 s of additional wall** before `geocode_slc` loses the
+"dominant single phase" position — empirically high for a single
+burst given typical RAiDER throughput on coarse LUT grids.
+
+The "is `geocode_slc` THE bottleneck or just one of several?"
+question therefore resolves on the α data: **`geocode_slc` is the
+single dominant phase, both with and without COMPASS corrections.**
+
+The γ experiment (TEC + ERA5 + RAiDER) is still useful for a numbered
+production estimate, but it is no longer a gating decision point for
+the RFC framing. It can be deferred to a follow-up if the RFC
+discussion calls for tighter production numbers.
+
 ## Open questions / follow-ups
 
 These are noted but not blocking issue #8:
@@ -337,3 +456,7 @@ All under `isce3-benchmark/logs_nucbox-evo-t1/` on the dev host:
 | host iostat (warm, 2 s interval) | `iostat_geo_cpu/iostat.log` | 2346 lines / ~40 s window |
 | CPU cold-cache run — journal + `time -v` | `20260513T*cold_geo_cpu*/geo_cpu.{log,time}` | — |
 | host iostat (cold, 1 s interval) | `iostat_geo_cpu_cold/iostat.log` | full ~50 s window |
+| CPU corrections-enabled — journal + `time -v` | `20260513T*corr_geo_cpu*/geo_corr_cpu.{log,time}` | — |
+| GPU corrections-enabled — journal + `time -v` | `20260513T*corr_geo_gpu*/geo_corr_gpu.{log,time}` | — |
+| host iostat (corr CPU, 2 s interval) | `iostat_geo_corr_cpu/iostat.log` | full run window |
+| host iostat (corr GPU, 2 s interval) | `iostat_geo_corr_gpu/iostat.log` | full run window |

@@ -20,25 +20,25 @@ runconfig:
 
         input_file_group:
             safe_file_path:
-                - "@SAFE_REF@"
+                - "/data/S1-data/S1A_IW_SLC__1SDV_20251221T204341_20251221T204408_062418_07D1B4_CC6C.SAFE"
             orbit_file_path:
-                - "@ORBIT_REF@"
+                - "/data/S1-boso/orbits/S1A_OPER_AUX_POEORB_OPOD_20260110T070405_V20251220T225942_20251222T005942.EOF"
             burst_id:
-                - "@BURST_ID@"
+                - "t046_097519_iw3"
 
         dynamic_ancillary_file_group:
-            dem_file: "@DEM@"
+            dem_file: "/data/S1-boso/dem.tif"
             dem_description: "Boso copernicus 1arcsec (Stage 1 staging)"
             tec_file:
             weather_model_file:
 
         static_ancillary_file_group:
-            burst_database_file: "@BURST_DB@"
+            burst_database_file: "/data/S1-boso/burst_db.sqlite3"
 
         product_path_group:
-            product_path: "@PRODUCT_PATH@"
-            scratch_path: "@SCRATCH_PATH@"
-            sas_output_file: "@PRODUCT_PATH@"
+            product_path: "/logs/scratch_s1_boso_geo_corr_gpu/work"
+            scratch_path: "/logs/scratch_s1_boso_geo_corr_gpu/work"
+            sas_output_file: "/logs/scratch_s1_boso_geo_corr_gpu/work"
             product_version: '0.2'
             product_specification_version: '0.1'
 
@@ -58,7 +58,7 @@ runconfig:
                 threshold: 1.0e-8
                 numiter: 25
             correction_luts:
-                enabled: @CORRECTIONS_ENABLED@
+                enabled: True
                 range_spacing: 120
                 azimuth_spacing: 0.028
                 troposphere:
