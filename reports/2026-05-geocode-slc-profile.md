@@ -8,7 +8,17 @@ not assumption.
 **TL;DR**: `isce3.geocode.geocode_slc` is **CPU-bound** on this dataset
 and remains the dominant single phase even with COMPASS corrections
 enabled. The "missing CUDA → port to GPU" framing from the Stage 1
-report is supported by measurement on three independent angles:
+report is supported by measurement on three independent angles, and a
+read-only review of the CPU source plus the existing CUDA `Geocode`
+shows the kernel is **algorithmically well-suited to a CUDA port**
+(4 embarrassingly-parallel phases, compute-bound by transcendentals,
+substantial infrastructure reuse). Estimated per-burst speedup
+**3-4×**, engineering scope **1500-2500 lines** — comparable to
+existing CUDA siblings in isce3. Sufficient data to draft an
+issue-shaped RFC; prototype work deferred per
+`feedback_contribution_strategy`.
+
+The three measurement angles:
 
 1. **Cache state.** Warm-cache iostat shows zero disk reads during the
    30 s kernel call; a measured cold-cache run shifts wall by only +2.3 s
@@ -380,6 +390,168 @@ The γ experiment (TEC + ERA5 + RAiDER) is still useful for a numbered
 production estimate, but it is no longer a gating decision point for
 the RFC framing. It can be deferred to a follow-up if the RFC
 discussion calls for tighter production numbers.
+
+## Algorithm review — CUDA portability of `geocode_slc`
+
+Companion to the bottleneck measurement. The question this section
+answers is *not* "is `geocode_slc` the bottleneck?" (covered above) but
+"if we were to CUDA-port it, what is the shape of that work and what
+speedup is realistic?". Read-only review of
+[`cxx/isce3/geocode/geocodeSlc.cpp`](https://github.com/isce-framework/isce3/blob/develop/cxx/isce3/geocode/geocodeSlc.cpp)
+(1037 lines) and the existing CUDA infrastructure under
+[`cxx/isce3/cuda/geocode/`](https://github.com/isce-framework/isce3/tree/develop/cxx/isce3/cuda/geocode).
+
+### Kernel structure — 4 phases, all data-parallel
+
+The CPU implementation decomposes the work into 4 sequential phases
+that each loop over output (or input) pixels with `#pragma omp parallel
+for`. Each phase is **embarrassingly parallel** at the pixel level; the
+data dependency is strictly Phase 1 → {2, 3, 4}.
+
+| # | Phase | Source | Per-pixel work | Parallelism |
+|---|---|---|---|---|
+| 1 | geo2rdr per geogrid pixel | [`computeGeogridRadarIndicesAndMask` :55-228](https://github.com/isce-framework/isce3/blob/develop/cxx/isce3/geocode/geocodeSlc.cpp#L55-L228) | iterative `geo2rdr` (5-25 iter: ellipsoid xform, orbit interp, Doppler eval) + DEM lat/lon interp + corrections LUT eval | independent per output pixel |
+| 2 | carrier phase deramp | [`carrierPhaseDeramp` :240-274](https://github.com/isce-framework/isce3/blob/develop/cxx/isce3/geocode/geocodeSlc.cpp#L240-L274) | 1 × `sin+cos` + 1 × complex multiply on input radar block | independent per input pixel |
+| 3 | **SLC sinc interpolation** (dominant) | [`interpolate` :409-511](https://github.com/isce-framework/isce3/blob/develop/cxx/isce3/geocode/geocodeSlc.cpp#L409-L511) | 8×8 sinc chip interp + per-row Doppler demod/remod (64 × `sin+cos` + 64 × weighted complex mul per pixel) | independent per output pixel (chip gather pattern) |
+| 4 | carrier reramp + flatten phase | [`carrierPhaseRerampAndFlatten` :298-394](https://github.com/isce-framework/isce3/blob/develop/cxx/isce3/geocode/geocodeSlc.cpp#L298-L394) | `sin+cos` + complex mul + 2 LUT evals + `4π·sRng/λ` accumulation | independent per output pixel |
+
+### Memory-bound or compute-bound?
+
+For the Boso reference burst (output 1046 × 645 = 675k pixels):
+
+| | Volume | A100 (1.5 TB/s mem BW) | RTX 5080 (~1 TB/s) |
+|---|---|---|---|
+| Phase 3 chip gather (read) | ~345 MiB | 0.23 ms | 0.35 ms |
+| Phase 3 output (write) | ~5 MiB | <0.01 ms | <0.01 ms |
+| Phase 3 compute (sinc + sin/cos) | ~40-100 GFLOP | 1-5 ms | 3-10 ms |
+
+The kernel is **compute-bound by transcendentals**: `sin+cos` per
+Doppler demod/remod sample dominates. On CUDA this maps to `sincosf`
+intrinsics which run at ~1 cycle/SP-op throughput on modern Streaming
+Multiprocessors. Memory bandwidth is overkill for this workload.
+
+### Existing CUDA infrastructure — substantial reuse
+
+[`isce3::cuda::geocode::Geocode`](https://github.com/isce-framework/isce3/blob/develop/cxx/isce3/cuda/geocode/Geocode.h)
+already implements the non-SLC equivalent and provides directly
+reusable pieces:
+
+- **`setBlockRdrCoordGrid`** — runs Phase 1 (geo2rdr per geo pixel)
+  on device, with DEM block interpolation + per-block radar grid
+  index buffers + masking. This is essentially the GPU
+  implementation of `computeGeogridRadarIndicesAndMask`.
+- Device-side LUT2d (`gpuLUT2d`), projection (`ProjectionBaseHandle`),
+  sinc interpolator (`InterpolatorHandle`), and SubSwaths (`ViewSubSwaths`)
+  are all already on device.
+- Block-iteration pattern (`_n_blocks`, `_geo_block_length`, …) is
+  the same memory-management strategy a CUDA `GeocodeSlc` would use.
+
+What a CUDA `GeocodeSlc` would need to add:
+
+- **Phase 2 kernel** — carrier deramp on the input radar block. New,
+  ~50 lines of CUDA C++.
+- **Phase 3 kernel** — SLC sinc interpolation with Doppler
+  demod/remod. The current GPU sinc interpolator handles complex
+  scalar types per template, but does not bake in the
+  Doppler-baseband trick the SLC kernel uses (rotating the chip by
+  `exp(-i·doppFreq·(ii - chipHalf))` before interp, then by
+  `exp(i·doppFreq·fracAzIndex)` after). New, ~200 lines.
+- **Phase 4 kernel** — reramp + flatten. New, ~100 lines.
+- **Device-side `AzRgFunc`** for the carrier function template
+  (Poly2d / LUT2d). Poly2d device representation is trivial
+  (coefficient array); `gpuLUT2d` already exists. ~50 lines for the
+  Poly2d device side.
+- pybind binding — ~200 lines, mirrors the existing `Geocode` pybind.
+- Tests — golden-output comparison against CPU `geocode_slc` on a small
+  fixture. ~200 lines.
+
+### Engineering scope
+
+| Component | LoC estimate |
+|---|---|
+| 3 new CUDA kernels (deramp, interpSlc, reramp+flatten) | 350-400 |
+| `GeocodeSlc` class (header + cpp, mirrors existing `Geocode`) | 600-800 |
+| Device-side Poly2d helper | 50-100 |
+| pybind binding | 150-250 |
+| Tests | 200-300 |
+| **Total** | **1500-2500 lines** |
+
+Same order of magnitude as `cuda/image/ResampSlc` (the closest sibling
+in scope) and `cuda/geocode/Geocode` (the closest sibling in algorithm
+shape). One to two orders of magnitude larger than the RFC #265 fix
+(~10 production lines).
+
+### Speedup estimate
+
+Per-phase, based on the Boso burst dimensions and reference points
+from the existing CUDA siblings (Stage 1 measured `Rdr2Geo` ~2.5× on
+RTX 5080):
+
+| Phase | CPU (29 s budget) | CUDA RTX 5080 | CUDA A100 |
+|---|---:|---:|---:|
+| 1 — geo2rdr per geo pixel | ~5-7 s | ~0.3 s | ~0.1 s |
+| 2 — deramp | ~1 s | ~0.05 s | ~0.02 s |
+| 3 — sinc interp + Doppler (dominant) | **~15-20 s** | ~1-3 s | ~0.5-1 s |
+| 4 — reramp + flatten | ~1 s | ~0.1 s (fp64 penalty) | ~0.05 s |
+| **Kernel total** | **~25 s** | **~2-4 s** | **~1-2 s** |
+
+End-to-end per-burst (kernel + unchanged prep/QA):
+
+| | Wall (s) | vs CPU |
+|---|---:|---:|
+| CPU (today) | 36 | 1.0× |
+| CUDA on RTX 5080 (estimate) | ~11 | ~3.3× |
+| CUDA on A100 (estimate) | ~9 | ~4× |
+
+At production scale (~7000 bursts/day global S1 acquisitions per
+public OPERA documentation), the saved CPU-node-hours are in the
+thousands per year. Whether this is *worth* the 1500-2500 lines of
+upstream engineering is a maintainer-side ROI judgment, not a
+measurement question.
+
+### Risks / caveats specific to the port
+
+1. **Flatten phase precision on consumer GPUs.** `4π·sRng/λ` with
+   `sRng ~ 800 km` and `λ ~ 5.5 cm` yields phase magnitudes of
+   ~10^11 rad. Accurate modular reduction (`fmod`) requires fp64.
+   A100/H100 have fp64:fp32 = 1:2; RTX 5080 (Blackwell consumer) is
+   1:64. So on a consumer GPU, **Phase 4 may bottleneck the whole
+   kernel** at the fp64 reduction step. Production OPERA hardware
+   is A-class so this is fine in practice, but the bench-side
+   measurement on RTX 5080 would underestimate A100 performance —
+   relevant if the RFC includes RTX-class numbers.
+2. **Sinc chip overlap / cache strategy.** Adjacent output pixels
+   share most of their 8×8 chip with neighbours. A naive global-load
+   kernel works, but a shared-memory tile or texture-memory variant
+   gets 2-3× more on the interp phase. Not a correctness issue, but
+   a tunable knob in the implementation.
+3. **`AzRgFunc` template specialisation on device.** Both Poly2d and
+   LUT2d need a device representation. LUT2d is already available
+   (`gpuLUT2d`); Poly2d needs a small new device struct. No
+   architectural blocker.
+4. **Multi-band / multi-pol parallelism.** The CPU version processes
+   each band serially within a block (outer loop over rasters). The
+   GPU version could process all bands in a single kernel launch by
+   adding a band index, increasing arithmetic intensity. Minor
+   optimisation opportunity, not a correctness concern.
+
+### Net assessment for upstream RFC framing
+
+- The kernel is **algorithmically well-suited to CUDA**: 4 phases all
+  embarrassingly parallel, compute-bound by `sin+cos` (a strength of
+  modern GPUs), with substantial reusable infrastructure already in
+  `isce3::cuda::geocode::Geocode`.
+- The realistic per-burst speedup of **3-4×** sums to **thousands of
+  node-hours/year** at production global S1 throughput.
+- Engineering cost is **1500-2500 lines**, an order or two above the
+  RFC #265 patch but comparable to existing CUDA siblings in isce3.
+- Production hardware (A-class) avoids the consumer-GPU fp64 wrinkle.
+
+This is **enough information to draft an issue-shaped RFC**
+(measurement + algorithm review + speedup estimate + scope estimate)
+without committing to a prototype. Per `feedback_contribution_strategy`
+the next step is "RFC issue first, prototype only after maintainer
+engagement" — and the data above is the contents of that issue.
 
 ## Open questions / follow-ups
 
