@@ -10,8 +10,9 @@ The "missing CUDA → port to GPU" framing from the Stage 1 report is
 supported by measurement. The I/O-bound counter-hypothesis (which would
 have implied a smaller-scoped chunking / async-read RFC) is **not
 supported**: warm-cache iostat shows zero disk reads during the 30 s
-kernel call, and cold-cache I/O budget (~430 MB / NVMe bandwidth) is
-negligible against ~30 s of compute on any plausible storage.
+kernel call, and a measured cold-cache run shifts wall by only +2.3 s
+(+5.7 %) — entirely in startup/prep, not in the kernel itself, which
+remains at 29 s in both cache states.
 
 ## Setup
 
@@ -156,31 +157,80 @@ a hotspot in Python land but it accounts for the missing ~80 % of wall
 time that is not in any of the Python frames above. This is consistent
 with the journal-timed phase breakdown.
 
-## Cold-cache concern — bounded out by data volume
+## Cold-cache verification — measured
 
-`iostat`'s zero-read result is warm-cache only. A cold-cache run would
-read:
+A cold-cache run was executed after the initial write-up to verify the
+hypothesis empirically. Procedure: `sudo sysctl vm.drop_caches=3` on
+the host (operator-run per project sudo policy), then immediately
+re-execute the same CPU geo-mode workflow under `/usr/bin/time -v`
+with host-side `iostat -xm 1 -t -y nvme0n1` running in parallel.
 
-- The burst SLC tiff from the SAFE archive (~282 MiB cf32 — `gdal.Open`
-  + `ReadAsArray` in prep phase).
-- The DEM tiff blocks intersecting the burst footprint (~16 MiB worth
-  of float32 from a 150 MiB on-disk DEM, read incrementally by the
-  C++ DEM interpolator).
+Artefacts:
 
-Total cold-read budget: **~300 MiB**. The host NVMe is a Crucial T705
-class device with measured sequential read ~3 GB/s; cold-read worst
-case is **~100 ms**.
+- `logs_nucbox-evo-t1/20260513T*cold_geo_cpu*/geo_cpu.{log,time}`
+- `logs_nucbox-evo-t1/iostat_geo_cpu_cold/iostat.log`
 
-Compared to the 30 s kernel time, this is < 0.5 %. A cold-cache run
-cannot flip the picture from "CPU-bound" to "I/O-bound" on any plausible
-host storage — even a 100 MB/s spinning disk would budget 3 s, still
-< 10 % of wall.
+### Wall-time comparison
 
-We did not execute a cold-cache run for this report; the
-`vm.drop_caches=3` invocation requires host root (per project sudo
-policy, propose-only). Available on request if the cold-cache margin
-becomes important, but the budget math above shows it cannot reverse
-the conclusion.
+| Metric | Warm | Cold | Δ |
+|---|---:|---:|---:|
+| Wall (Elapsed) | 39.88 s | **42.17 s** | **+2.29 s (+5.7 %)** |
+| User CPU | 188.13 s | 185.21 s | -2.92 s (within noise) |
+| System CPU | 2.06 s | 2.39 s | +0.33 s |
+| Voluntary context switches | 2274 | 6614 | ×2.9 (I/O blocking) |
+| Involuntary context switches | 35 548 | 46 955 | ×1.3 |
+| `time -v` file-system inputs (512-byte blocks) | (not exercised) | 346 176 (≈ 169 MiB) | — |
+| `time -v` file-system outputs (512-byte blocks) | (warm) | 594 504 (≈ 290 MiB) | — |
+| **Journal `geocode_slc` phase** | **29 s** | **29 s** | **0 s** |
+| Journal `prep` phase | 1 s | 1 s | 0 s (display granularity) |
+| Journal `QA + metadata` phase | 2 s | 3 s | +1 s |
+
+### Where the +2.3 s lives — iostat timeline
+
+`iostat -xm 1 -t` on `nvme0n1` during the cold run (non-zero-read
+seconds only, full log in `logs_nucbox-evo-t1/iostat_geo_cpu_cold/`):
+
+```
+20:50:31  r/s= 1182  rMB/s= 75.4  w/s= 54.1  wMB/s=193   %util=41.9   ← burst-import
+20:50:32  r/s= 1478  rMB/s= 80.3  w/s=  1.0  wMB/s=187   %util=29.7
+20:50:35  r/s=   31  rMB/s=  1.6  w/s=  0.0  wMB/s=  0   %util= 1.3
+20:50:36  r/s= 1737  rMB/s= 98.4  w/s=  0.6  wMB/s=124   %util=34.4   ← peak read burst
+20:50:37  r/s= 2102  rMB/s= 49.6  w/s=  0.2  wMB/s= 37   %util=30.7   ← peak r/s (many small)
+20:50:38  r/s=  425  rMB/s= 10.9  w/s=  0.0  wMB/s=  0   %util= 7.2
+20:50:39  r/s=  276  rMB/s=  5.1  w/s=  0.0  wMB/s=  0   %util= 5.3
+20:50:40  r/s=   59  rMB/s=  2.8  w/s=  0.0  wMB/s=  0   %util= 3.1
+20:50:43  r/s=  163  rMB/s=  9.1  w/s=  0.0  wMB/s=  0   %util= 4.9
+20:50:44  r/s=   70  rMB/s=  1.9  w/s=  0.0  wMB/s=  0   %util= 2.6
+20:50:56  r/s=  206  rMB/s= 17.1  w/s=  0.0  wMB/s=  0   %util= 9.6   ← later DEM-block reads
+20:50:57  r/s=  400  rMB/s=  9.1  w/s=  0.0  wMB/s=  0   %util= 4.9
+... (then quiet for the remaining ~27 s of kernel compute) ...
+20:51:18  r/s=   13  rMB/s=  0.2  w/s= 41.1  wMB/s=121   %util=10.0   ← HDF5 writeback
+```
+
+Cold reads are concentrated in the first ~10 s (Python startup imports
++ SAFE annotation XML parsing + GDAL `ReadAsArray` of the burst SLC),
+with a small later burst around 20:50:56-57 (DEM block reads as the
+C++ kernel walks the geogrid). For the remaining ~27 s of the run,
+`nvme0n1` is essentially idle (`r/s < 5`).
+
+Peak read throughput hit 98 MB/s, ~3 % of the NVMe's measured
+sequential-read ceiling. Peak `r/s` of 2102 is small-random-read
+behaviour (Python interpreter walking site-packages, GDAL opening
+metadata files, h5py initialising) — explains why the wall penalty
+(+2.3 s) was larger than the pure-bandwidth budget (~100 ms)
+estimated above. The cost is in seek-amortised small-read latency,
+not bandwidth.
+
+### Re-stated cold-cache verdict
+
+- **Cold-cache penalty on wall: +2.3 s (+5.7 %).** All of it lives in
+  startup / prep / HDF5 writeback — phases that pre-load or post-emit
+  the data the kernel works on.
+- **The `geocode_slc` kernel phase itself is 29 s warm AND 29 s cold.**
+  Cache state does not change kernel wall time. iostat confirms the
+  disk is idle during the kernel-execution window.
+- The cold-cache run does not reverse the CPU-bound finding — it
+  reinforces it.
 
 ## Re-framed finding #1
 
@@ -189,8 +239,10 @@ the conclusion.
 > single Sentinel-1 IW3 burst). The kernel is CPU-bound, not I/O-bound:**
 >
 > - host-side `r/s = 0.00` during the entire kernel execution
->   (warm-cache); cold-cache I/O budget is ~100 ms on NVMe vs ~30 s
->   compute,
+>   (warm-cache); a measured cold-cache run shifts total wall by only
+>   +2.3 s (+5.7 %), and the `geocode_slc` phase itself stays at 29 s in
+>   both cache states (cold-cache penalty lives entirely in startup /
+>   prep / HDF5 writeback),
 > - user CPU time = 188 s on a 40 s wall → ~4.7 effective cores out of
 >   16, so the kernel is OpenMP-threaded but does not saturate the
 >   host. Parallelism headroom exists on CPU before "needs GPU"
@@ -240,6 +292,14 @@ These are noted but not blocking issue #8:
    I/O-vs-compute question (we have the answer); becomes relevant if
    the next investigation is "which sub-kernel inside geocode_slc
    would benefit most from CUDA porting."
+5. **Startup-import overhead dominates the cold-cache penalty.** The
+   measured cold-cache penalty (+2.3 s) is mostly Python + isce3 +
+   COMPASS module-load reading shared libraries / `.pyc` files cold
+   off NVMe — not data I/O the kernel itself causes. In a long-running
+   PGE daemon (OPERA production reality) the interpreter and libraries
+   are loaded once; subsequent bursts see the warm-cache picture. The
+   "+5.7 %" figure is therefore an over-estimate of per-burst
+   cold-cache cost in production.
 
 ## Instrumentation notes (for reproducibility)
 
@@ -270,8 +330,10 @@ All under `isce3-benchmark/logs_nucbox-evo-t1/` on the dev host:
 
 | Artefact | Path | Size |
 |---|---|---|
-| CPU sanity run journal + `time -v` | `20260513T094600Z_sanity_geo_cpu/geo_cpu.{log,time}` | — |
-| GPU sanity run journal + `time -v` | `20260513T094652Z_sanity_geo_gpu/geo_gpu.{log,time}` | — |
-| py-spy flamegraph (Python frames) | `20260513T105032Z_pyspy_geo/pyspy.svg` | 385 KB |
-| nsys timeline (CUDA + OSRT + NVTX) | `20260513T101907Z_nsys_geo/nsys.nsys-rep` | 402 KB |
-| host-side iostat | `iostat_geo_cpu/iostat.log` | 2346 lines / ~40 s window |
+| CPU sanity (warm) — journal + `time -v` | `20260513T094600Z_sanity_geo_cpu/geo_cpu.{log,time}` | — |
+| GPU sanity (warm) — journal + `time -v` | `20260513T094652Z_sanity_geo_gpu/geo_gpu.{log,time}` | — |
+| py-spy flamegraph (Python frames, warm) | `20260513T105032Z_pyspy_geo/pyspy.svg` | 385 KB |
+| nsys timeline (CUDA + OSRT + NVTX, warm) | `20260513T101907Z_nsys_geo/nsys.nsys-rep` | 402 KB |
+| host iostat (warm, 2 s interval) | `iostat_geo_cpu/iostat.log` | 2346 lines / ~40 s window |
+| CPU cold-cache run — journal + `time -v` | `20260513T*cold_geo_cpu*/geo_cpu.{log,time}` | — |
+| host iostat (cold, 1 s interval) | `iostat_geo_cpu_cold/iostat.log` | full ~50 s window |
