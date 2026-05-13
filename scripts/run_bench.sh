@@ -52,43 +52,22 @@ for prefix in "${pairs[@]}"; do
             echo "SKIP: ${cfg} not found"
             continue
         fi
-        # Workflow dispatch is decided by inspecting the runconfig: each
-        # config sets `runconfig.name: <workflow>`.
-        # Also pre-create scratch/product paths — workflows assume they exist.
-        wf="$(python -c "import yaml; d=yaml.safe_load(open('${cfg}')); print(d['runconfig']['name'])")"
-        python -c "
-import os, yaml
-d = yaml.safe_load(open('${cfg}'))
-g = d['runconfig']['groups'].get('product_path_group') or {}
-for k in ('scratch_path', 'product_path', 'sas_output_file'):
-    v = g.get(k)
-    if isinstance(v, str) and v.startswith('/'):
-        # If sas_output_file points at a file (has an extension), mkdir its parent.
-        # If it's a dir (COMPASS style), mkdir the path itself.
-        target = v if (k != 'sas_output_file' or os.path.splitext(v)[1] == '') else os.path.dirname(v)
-        os.makedirs(target, exist_ok=True)
-"
-        # Resolve dispatch.
-        case "${wf}" in
-            focus|gslc|gcov|insar)
-                cmd=(python -m "nisar.workflows.${wf}" "${cfg}") ;;
-            cslc_s1_workflow_default)
-                # COMPASS s1_cslc.py requires --grid {radar,geo}. We use radar
-                # mode because that path lights up isce3's GPU primitives
-                # (Rdr2Geo, Geo2Rdr, ResampSlc); geo mode dispatches to the
-                # CPU-only isce3.geocode.geocode_slc.
-                cmd=(s1_cslc.py "${cfg}" --grid radar) ;;
-            crossmul_s1)
-                # Direct primitive call. Inputs are read from the runconfig
-                # by the script itself.
-                cmd=(python "${BENCH_ROOT}/scripts/run_crossmul.py" --config "${cfg}") ;;
-            *)
-                echo "ERROR: unknown workflow '${wf}' in ${cfg}" >&2
-                exit 2 ;;
+        # Pre-create scratch/product paths — workflows assume they exist.
+        ensure_runconfig_paths "${cfg}"
+
+        # Pick COMPASS grid mode by config name. Default-radar matches the
+        # historical Stage 1 behaviour (lights up isce3 GPU primitives).
+        # `*_geo_*` configs profile the geo-mode kernel (isce3.geocode.geocode_slc).
+        case "${prefix}" in
+            *_geo) compass_grid="geo" ;;
+            *)     compass_grid="radar" ;;
         esac
+        mapfile -t cmd < <(dispatch_workflow "${cfg}" "${compass_grid}")
+        wf="$(python -c "import yaml; print(yaml.safe_load(open('${cfg}'))['runconfig']['name'])")"
+
         for i in $(seq 1 "${repeats}"); do
             tag="$(basename "${prefix}")_${path}_${i}"
-            echo ">>> ${tag} (workflow=${wf})"
+            echo ">>> ${tag} (workflow=${wf}, grid=${compass_grid})"
             timed_run "${run_dir}" "${tag}" "${cmd[@]}"
         done
     done

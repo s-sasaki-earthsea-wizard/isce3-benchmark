@@ -66,12 +66,23 @@ if wf == 'focus':
     mod = importlib.import_module('nisar.workflows.focus')
     mod.validate_config(mod.load_config(cfg_path))
 elif wf == 'cslc_s1_workflow_default':
-    # COMPASS S1 CSLC. Validate by constructing the COMPASS RunConfig.
-    rc_mod = importlib.import_module('compass.utils.runconfig')
-    if hasattr(rc_mod, 'RunConfig'):
-        rc_mod.RunConfig.load_from_yaml(cfg_path, workflow_name='s1_cslc')
+    # COMPASS S1 CSLC. Radar and geo modes use different RunConfig subclasses
+    # and different defaults schemas; pick based on the filename convention.
+    # `*_geo_*.yaml` → GeoRunConfig + s1_cslc_geo defaults.
+    # everything else → RunConfig + s1_cslc (radar) defaults.
+    if '_geo_' in os.path.basename(cfg_path) or os.path.basename(cfg_path).startswith('insar_s1_boso_geo'):
+        rc_mod = importlib.import_module('compass.utils.geo_runconfig')
+        cls = getattr(rc_mod, 'GeoRunConfig', None)
+        if cls is not None:
+            cls.load_from_yaml(cfg_path, workflow_name='s1_cslc_geo')
+        else:
+            print(f"    [warn] compass.utils.geo_runconfig has no GeoRunConfig; trusting runtime")
     else:
-        print(f"    [warn] compass.utils.runconfig has no RunConfig; trusting runtime")
+        rc_mod = importlib.import_module('compass.utils.runconfig')
+        if hasattr(rc_mod, 'RunConfig'):
+            rc_mod.RunConfig.load_from_yaml(cfg_path, workflow_name='s1_cslc')
+        else:
+            print(f"    [warn] compass.utils.runconfig has no RunConfig; trusting runtime")
 elif wf == 'crossmul_s1':
     # Direct-primitive crossmul stage; no schema beyond presence of inputs.
     print(f"    [info] '{wf}' has no formal config loader; relying on path check")

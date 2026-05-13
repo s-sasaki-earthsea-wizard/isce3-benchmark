@@ -1,0 +1,100 @@
+# COMPASS geo-mode CSLC GPU runconfig — sibling of insar_s1_boso_geo_cpu.yaml.template.
+# Differs only in worker.gpu_enabled. See the CPU template for substitution
+# semantics and the rationale for the trimmed processing/qa sections.
+#
+# Important caveat: `isce3.geocode.geocode_slc` has no CUDA implementation
+# (this is precisely the kernel we are investigating in issue #8). Setting
+# gpu_enabled: True here does NOT make geocode_slc itself run on the GPU —
+# the kernel call dispatches to the CPU path regardless. The flag controls
+# the upstream stages COMPASS runs before geocode_slc (DEM rasterisation,
+# correction LUT prep, geo2rdr) — anything that has a CUDA sibling in isce3.
+# With correction_luts.enabled: False most of that work is skipped, so the
+# CPU/GPU wall-time delta is expected to be small. We still capture both
+# to confirm.
+runconfig:
+    name: cslc_s1_workflow_default
+
+    groups:
+        pge_name_group:
+            pge_name: CSLC_S1_PGE
+
+        input_file_group:
+            safe_file_path:
+                - "@SAFE_REF@"
+            orbit_file_path:
+                - "@ORBIT_REF@"
+            burst_id:
+                - "@BURST_ID@"
+
+        dynamic_ancillary_file_group:
+            dem_file: "@DEM@"
+            dem_description: "Boso copernicus 1arcsec (Stage 1 staging)"
+            tec_file:
+            weather_model_file:
+
+        static_ancillary_file_group:
+            burst_database_file: "@BURST_DB@"
+
+        product_path_group:
+            product_path: "@PRODUCT_PATH@"
+            scratch_path: "@SCRATCH_PATH@"
+            sas_output_file: "@PRODUCT_PATH@"
+            product_version: '0.2'
+            product_specification_version: '0.1'
+
+        primary_executable:
+            product_type: CSLC_S1
+
+        processing:
+            polarization: co-pol
+            geocoding:
+                flatten: True
+                x_posting:
+                y_posting:
+                x_snap:
+                y_snap:
+            geo2rdr:
+                lines_per_block: 1000
+                threshold: 1.0e-8
+                numiter: 25
+            correction_luts:
+                enabled: False
+                range_spacing: 120
+                azimuth_spacing: 0.028
+                troposphere:
+                    delay_type: wet_dry
+            rdr2geo:
+                threshold: 1.0e-8
+                numiter: 25
+                lines_per_block: 1000
+                extraiter: 10
+                compute_latitude: False
+                compute_longitude: False
+                compute_height: False
+                compute_layover_shadow_mask: True
+                compute_local_incidence_angle: True
+                compute_ground_to_sat_east: True
+                compute_ground_to_sat_north: True
+
+        worker:
+            internet_access: False
+            gpu_enabled: True
+            gpu_id: 0
+
+        quality_assurance:
+            browse_image:
+                enabled: False
+                complex_to_real: amplitude
+                percent_low: 0
+                percent_high: 95
+                gamma: 0.5
+                equalize: False
+            perform_qa: False
+            output_to_json: False
+
+        output:
+            cslc_data_type: complex64_zero_mantissa
+            compression_enabled: True
+            compression_level: 4
+            chunk_size: [128, 128]
+            shuffle: True
