@@ -56,6 +56,14 @@ data-s1: ## Fetch POEORB orbits + DEM for the Boso S1 SAFE pair into ./data/S1-b
 	    --safe /data/S1-data/S1A_IW_SLC__1SDV_20260126T204338_20260126T204405_062943_07E587_C319.SAFE \
 	    --out  /data/S1-boso
 
+.PHONY: data-s1-burst-db
+data-s1-burst-db: ## Build minimal COMPASS burst DB for the chosen Boso burst (geo-mode profile)
+	$(RUN) python fetch/build_burst_db.py \
+	    --bursts /data/S1-boso/bursts.json \
+	    --burst-id t046_097519_iw3 \
+	    --pol VV \
+	    --out /data/S1-boso/burst_db.sqlite3
+
 .PHONY: render-s1
 render-s1: ## Render concrete S1 CSLC runconfigs from templates (after data-s1)
 	$(RUN) python tools/render_s1_runconfig.py \

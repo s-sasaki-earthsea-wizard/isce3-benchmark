@@ -41,6 +41,10 @@ def _parse_args() -> argparse.Namespace:
                    help="directory containing POEORB EOF files (container-side path)")
     p.add_argument("--dem", required=True, type=Path,
                    help="DEM tiff path (container-side path)")
+    p.add_argument("--burst-db", default=None, type=Path,
+                   help="minimal COMPASS burst sqlite (container-side path). "
+                        "Only required for geo-mode runconfigs; if omitted, "
+                        "geo configs default to data/S1-boso/burst_db.sqlite3.")
     p.add_argument("--safe-dir", default=Path("/data/S1-data"), type=Path,
                    help="directory containing the SAFE folders (container-side path)")
     p.add_argument("--burst-id", default=None,
@@ -186,6 +190,44 @@ def main() -> int:
         out = CFG_DIR / f"insar_s1_boso_cslc_sec_{path}.yaml"
         out.write_text(rendered)
         print(f"[render] wrote {out} (secondary burst, {path}, ref_date={ref_date})")
+
+    # Geo-mode runconfigs — exercise isce3.geocode.geocode_slc directly.
+    # Stand-alone CSLC (no ref/sec pairing), used by the issue #8 profile.
+    #
+    # Two variants rendered from the same template (differ only in
+    # correction_luts.enabled):
+    #   _geo_{cpu,gpu}.yaml       — enabled: False (kernel-only profile)
+    #   _geo_corr_{cpu,gpu}.yaml  — enabled: True  (production-realistic;
+    #                                ancillary tec/weather fields are empty,
+    #                                so iono returns zeros and wet/dry tropo
+    #                                falls back to static — no external
+    #                                downloads required)
+    burst_db_path = args.burst_db or Path(f"{DATA_MOUNT}/S1-boso/burst_db.sqlite3")
+    variants = [
+        ("", "False"),       # base geo (kernel only)
+        ("_corr", "True"),   # corrections enabled
+    ]
+    for path in ("cpu", "gpu"):
+        tpl_path = CFG_DIR / f"insar_s1_boso_geo_{path}.yaml.template"
+        if not tpl_path.exists():
+            continue
+        tpl = tpl_path.read_text()
+        for variant_suffix, corr_flag in variants:
+            geo_dir = f"{LOGS_MOUNT}/scratch_s1_boso_geo{variant_suffix}_{path}/work"
+            rendered = _substitute(tpl, {
+                "SAFE_REF": safe_ref_c,
+                "ORBIT_REF": orbit_ref_c,
+                "DEM": dem_c,
+                "BURST_DB": str(burst_db_path),
+                "BURST_ID": burst_id,
+                "PRODUCT_PATH": geo_dir,
+                "SCRATCH_PATH": geo_dir,
+                "CORRECTIONS_ENABLED": corr_flag,
+            })
+            out = CFG_DIR / f"insar_s1_boso_geo{variant_suffix}_{path}.yaml"
+            out.write_text(rendered)
+            print(f"[render] wrote {out} (geo-mode, {path}, "
+                  f"corrections={corr_flag}, burst_db={burst_db_path})")
 
     print(f"[render] burst_id={burst_id} pol={args.pol}")
     return 0

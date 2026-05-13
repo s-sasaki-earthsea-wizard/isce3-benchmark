@@ -1,0 +1,130 @@
+# COMPASS geo-mode CSLC runconfig — Sentinel-1 IW SLC, Boso peninsula.
+#
+# This template exercises `isce3.geocode.geocode_slc` via
+# `compass.s1_geocode_slc.run` (geo-mode dispatch of `s1_cslc.py --grid geo`),
+# which is the production OPERA L2 CSLC-S1 path. Stage 1's radar-mode
+# templates intentionally side-step this kernel; this one targets it
+# specifically for the issue #8 profile-first investigation.
+#
+# Differences vs the radar template:
+#   - processing.geocoding {} replaces processing.{rdr2geo,resample}; the
+#     workflow internally computes its own DEM/raster grids.
+#   - correction_luts.enabled: True ← skips troposphere/ionosphere LUTs.
+#     The geocode_slc kernel itself is what we want to profile; tropo/iono
+#     bring in extra HDF5/grib reads + scipy interpolation that would
+#     muddy the I/O-vs-compute attribution. Two rendered yamls per CPU/GPU:
+#     `insar_s1_boso_geo_{cpu,gpu}.yaml`       (enabled: False — kernel-only profile)
+#     `insar_s1_boso_geo_corr_{cpu,gpu}.yaml`  (enabled: True  — production-realistic)
+#     With ancillary fields empty, enabled=True still runs:
+#     rdr2geo rasters + solid earth tides + bistatic delay + az FM-rate
+#     mismatch + static troposphere. iono returns zeros (no TEC) and
+#     wet/dry tropo falls back to static (no weather model).
+#   - quality_assurance.perform_qa: False, browse_image.enabled: False.
+#     QA reads the geocoded HDF5 back and computes stats, which inflates
+#     wall time without adding signal about the geocode kernel. The
+#     in-workflow `t_qa_meta` timer would mask the geocode/prep ratio.
+#   - geo2rdr.lines_per_block: 1000 (no resample tuning needed).
+#
+# Pair file: insar_s1_boso_geo_gpu.yaml.template (worker.gpu_enabled: True).
+#
+# `s1_cslc.py --grid geo` does NOT support reference/secondary distinction
+# (it produces a standalone CSLC). So this runs once per burst; no _sec
+# variant is needed.
+#
+# Placeholders substituted by tools/render_s1_runconfig.py:
+#   /data/S1-data/S1A_IW_SLC__1SDV_20251221T204341_20251221T204408_062418_07D1B4_CC6C.SAFE      reference SAFE absolute path
+#   /data/S1-boso/orbits/S1A_OPER_AUX_POEORB_OPOD_20260110T070405_V20251220T225942_20251222T005942.EOF     reference POEORB EOF absolute path
+#   /data/S1-boso/dem.tif           DEM tiff absolute path
+#   /data/S1-boso/burst_db.sqlite3      minimal burst-id-to-bbox sqlite built by fetch/build_burst_db.py
+#                   (COMPASS GeoRunConfig requires a real file — None branch
+#                   is dead code in load_from_yaml())
+#   t046_097519_iw3      single burst_id (e.g. t046_097519_iw3)
+#   /logs/scratch_s1_boso_geo_corr_cpu/work  output dir
+#   /logs/scratch_s1_boso_geo_corr_cpu/work  scratch dir
+runconfig:
+    name: cslc_s1_workflow_default
+
+    groups:
+        pge_name_group:
+            pge_name: CSLC_S1_PGE
+
+        input_file_group:
+            safe_file_path:
+                - "/data/S1-data/S1A_IW_SLC__1SDV_20251221T204341_20251221T204408_062418_07D1B4_CC6C.SAFE"
+            orbit_file_path:
+                - "/data/S1-boso/orbits/S1A_OPER_AUX_POEORB_OPOD_20260110T070405_V20251220T225942_20251222T005942.EOF"
+            burst_id:
+                - "t046_097519_iw3"
+
+        dynamic_ancillary_file_group:
+            dem_file: "/data/S1-boso/dem.tif"
+            dem_description: "Boso copernicus 1arcsec (Stage 1 staging)"
+            tec_file:
+            weather_model_file:
+
+        static_ancillary_file_group:
+            burst_database_file: "/data/S1-boso/burst_db.sqlite3"
+
+        product_path_group:
+            product_path: "/logs/scratch_s1_boso_geo_corr_cpu/work"
+            scratch_path: "/logs/scratch_s1_boso_geo_corr_cpu/work"
+            sas_output_file: "/logs/scratch_s1_boso_geo_corr_cpu/work"
+            product_version: '0.2'
+            product_specification_version: '0.1'
+
+        primary_executable:
+            product_type: CSLC_S1
+
+        processing:
+            polarization: co-pol
+            geocoding:
+                flatten: True
+                x_posting:
+                y_posting:
+                x_snap:
+                y_snap:
+            geo2rdr:
+                lines_per_block: 1000
+                threshold: 1.0e-8
+                numiter: 25
+            correction_luts:
+                enabled: True
+                range_spacing: 120
+                azimuth_spacing: 0.028
+                troposphere:
+                    delay_type: wet_dry
+            rdr2geo:
+                threshold: 1.0e-8
+                numiter: 25
+                lines_per_block: 1000
+                extraiter: 10
+                compute_latitude: False
+                compute_longitude: False
+                compute_height: False
+                compute_layover_shadow_mask: True
+                compute_local_incidence_angle: True
+                compute_ground_to_sat_east: True
+                compute_ground_to_sat_north: True
+
+        worker:
+            internet_access: False
+            gpu_enabled: False
+            gpu_id: 0
+
+        quality_assurance:
+            browse_image:
+                enabled: False
+                complex_to_real: amplitude
+                percent_low: 0
+                percent_high: 95
+                gamma: 0.5
+                equalize: False
+            perform_qa: False
+            output_to_json: False
+
+        output:
+            cslc_data_type: complex64_zero_mantissa
+            compression_enabled: True
+            compression_level: 4
+            chunk_size: [128, 128]
+            shuffle: True
