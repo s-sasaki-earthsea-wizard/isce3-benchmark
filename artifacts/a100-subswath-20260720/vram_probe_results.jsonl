@@ -1,0 +1,3 @@
+{"n_samples":194637,"duration_s":3.333,"rate_hz":58394,"baseline_mib":1565,"peak_mib":4849,"peak_at_s":1.804,"over_4gib_s":0.202,"lines_per_block":200,"geocode_wall_s":2.369,"geogrid":[3477,23521],"chip_model_gib":2.84}
+{"n_samples":143470,"duration_s":2.592,"rate_hz":55357,"baseline_mib":1565,"peak_mib":16951,"peak_at_s":1.212,"over_4gib_s":0.044,"lines_per_block":1000,"geocode_wall_s":1.589,"geogrid":[3477,23521],"chip_model_gib":14.19}
+{"n_samples":147246,"duration_s":2.531,"rate_hz":58167,"baseline_mib":1565,"peak_mib":32049,"peak_at_s":0.87,"over_4gib_s":0.214,"lines_per_block":2000,"geocode_wall_s":1.485,"geogrid":[3477,23521],"chip_model_gib":28.39}
