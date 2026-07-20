@@ -18,6 +18,7 @@ bash build.sh
     nvcc --version | tail -1
     nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader || true
     echo "OMP_NUM_THREADS=${OMP_NUM_THREADS:-unset}"
+    echo "OMP_PROC_BIND=${OMP_PROC_BIND:-unset} OMP_PLACES=${OMP_PLACES:-unset}"
     git -C ../.. rev-parse HEAD 2>/dev/null || echo "git SHA unavailable"
     echo
 } | tee "$OUT_DIR/provenance.txt"

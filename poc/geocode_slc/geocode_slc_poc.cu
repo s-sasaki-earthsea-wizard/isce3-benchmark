@@ -3,9 +3,11 @@
 // Measurement PoC for a prospective CUDA port of isce3::geocode::geocodeSlc
 // (isce3-benchmark issue #11; gates the second upstream RFC).
 //
-// This is NOT the port. It isolates the two dominant compute patterns of
-// isce3 cxx/isce3/geocode/geocodeSlc.cpp as minimal CUDA kernels plus
-// OpenMP CPU references, on synthetic but realistically shaped data:
+// This is NOT the port. It isolates two selected compute patterns of
+// isce3 cxx/isce3/geocode/geocodeSlc.cpp (candidate GPU kernels — NOT
+// established as the dominant cost of the real call) as minimal CUDA
+// kernels plus OpenMP CPU references, on synthetic but realistically
+// shaped data:
 //
 //   1. sinc interpolation (interpolate(), geocodeSlc.cpp:409):
 //      per output pixel, gather a 9x9 chip at an irregular radar-grid
@@ -38,6 +40,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -275,6 +278,93 @@ static void interpCpu(const float2* rdr, float2* geo, const double* rgIdxArr,
     }
 }
 
+// Original-call-pattern CPU reference: same arithmetic as interpCpu but
+// reproducing the real interpolate() overheads the fused reference
+// removes — a per-pixel heap-allocated chip and a virtual interpolator
+// call — to bound their contribution on synthetic input.
+struct SincInterpBase {
+    virtual std::complex<float> interp(double fracRg, double fracAz,
+            const std::complex<float>* chip) const = 0;
+    virtual ~SincInterpBase() = default;
+};
+
+struct Sinc2dTableInterp : SincInterpBase {
+    const double* table;
+    explicit Sinc2dTableInterp(const double* t) : table(t) {}
+    std::complex<float> interp(double fracRg, double fracAz,
+            const std::complex<float>* chip) const override
+    {
+        const int ifx = std::min(std::max(0, (int)(fracRg * SINC_SUB)),
+                SINC_SUB - 1);
+        const int ify = std::min(std::max(0, (int)(fracAz * SINC_SUB)),
+                SINC_SUB - 1);
+        std::complex<float> acc(0.f, 0.f);
+        for (int ki = 0; ki < SINC_LEN; ++ki) {
+            const float ky = (float)table[(size_t)ify * SINC_LEN + ki];
+            for (int kj = 0; kj < SINC_LEN; ++kj) {
+                const float kx = (float)table[(size_t)ifx * SINC_LEN + kj];
+                acc += chip[(2 * SINC_HALF - ki) * SINC_ONE +
+                               (2 * SINC_HALF - kj)] *
+                        ky * kx;
+            }
+        }
+        return acc;
+    }
+};
+
+static void interpCpuOrigStyle(const float2* rdr, float2* geo,
+        const double* rgIdxArr, const double* azIdxArr,
+        const SincInterpBase* interp, const Params& p)
+{
+    const int inRows = p.inRows, inCols = p.inCols;
+    const size_t outN = (size_t)p.outRows * p.outCols;
+#pragma omp parallel for
+    for (size_t ii = 0; ii < outN; ++ii) {
+        geo[ii] = make_float2(0.f, 0.f);
+        const double rgD = rgIdxArr[ii];
+        const double azD = azIdxArr[ii];
+        if (std::isnan(rgD) || std::isnan(azD))
+            continue;
+        const int intRg = (int)rgD;
+        const int intAz = (int)azD;
+        const double fracRg = rgD - intRg;
+        const double fracAz = azD - intAz;
+        if (intRg < SINC_HALF || intRg >= inCols - SINC_HALF)
+            continue;
+        if (intAz < SINC_HALF || intAz >= inRows - SINC_HALF)
+            continue;
+
+        const double rng = p.startingRange + rgD * p.rangePixelSpacing;
+        const double az = p.sensingStart + azD / p.prf;
+        const double doppFreq =
+                dopplerHz(az, rng, p.startingRange) * 2.0 * M_PI / p.prf;
+
+        // Per-pixel heap allocation, as Matrix<complex<float>> chip(9, 9)
+        // does in the real interpolate() loop.
+        std::vector<std::complex<float>> chip((size_t)SINC_ONE * SINC_ONE);
+        for (int ci = 0; ci < SINC_ONE; ++ci) {
+            const int row = intAz + ci - SINC_HALF;
+            const double doppPhase = doppFreq * (ci - SINC_HALF);
+            const std::complex<float> doppVal(
+                    (float)std::cos(doppPhase), (float)-std::sin(doppPhase));
+            for (int cj = 0; cj < SINC_ONE; ++cj) {
+                const int col = intRg + cj - SINC_HALF;
+                const float2 v = rdr[(size_t)row * inCols + col];
+                chip[(size_t)ci * SINC_ONE + cj] =
+                        std::complex<float>(v.x, v.y) * doppVal;
+            }
+        }
+
+        const std::complex<float> acc =
+                interp->interp(fracRg, fracAz, chip.data());
+        const double doppAddBack = doppFreq * fracAz;
+        const std::complex<float> addBack(
+                (float)std::cos(doppAddBack), (float)std::sin(doppAddBack));
+        const std::complex<float> out = acc * addBack;
+        geo[ii] = make_float2(out.real(), out.imag());
+    }
+}
+
 // carrierPhaseRerampAndFlatten() (geocodeSlc.cpp:299), fp64 phase path,
 // reramp=true, flatten=true, corrected slant range. In-place on geo.
 static void flattenCpu(float2* geo, const double* rgIdxArr,
@@ -457,6 +547,17 @@ struct GpuTimer {
     }
 };
 
+template <typename T>
+static double medianOf(std::vector<T> v)
+{
+    if (v.empty())
+        return 0.0;
+    std::sort(v.begin(), v.end());
+    const size_t n = v.size();
+    return n % 2 ? (double)v[n / 2]
+                 : 0.5 * ((double)v[n / 2 - 1] + (double)v[n / 2]);
+}
+
 static void usage(const char* argv0)
 {
     std::printf(
@@ -555,22 +656,40 @@ int main(int argc, char** argv)
             validN, outN, 100.0 * validN / outN, wsBboxMiB, wsRowsMiB);
 
     // --- CPU references ----------------------------------------------------
-    std::vector<float2> geoCpu(outN), geoFlatCpu(outN);
-    double interpCpuMs = 1e30, flattenCpuMs = 1e30;
+    std::vector<float2> geoCpu(outN), geoCpuOrig(outN), geoFlatCpu(outN);
+    std::vector<double> tInterpCpu, tInterpCpuOrig, tFlattenCpu;
     for (int r = 0; r < p.cpuReps; ++r) {
         const double t0 = omp_get_wtime();
         interpCpu(rdr.data(), geoCpu.data(), rgIdx.data(), azIdx.data(),
                 table.data(), p);
-        const double t1 = omp_get_wtime();
-        interpCpuMs = std::min(interpCpuMs, (t1 - t0) * 1e3);
+        tInterpCpu.push_back((omp_get_wtime() - t0) * 1e3);
     }
+    const std::unique_ptr<SincInterpBase> sincRef(
+            new Sinc2dTableInterp(table.data()));
+    for (int r = 0; r < p.cpuReps; ++r) {
+        const double t0 = omp_get_wtime();
+        interpCpuOrigStyle(rdr.data(), geoCpuOrig.data(), rgIdx.data(),
+                azIdx.data(), sincRef.get(), p);
+        tInterpCpuOrig.push_back((omp_get_wtime() - t0) * 1e3);
+    }
+    // fused and orig-style perform identical arithmetic — must agree bitwise
+    double origMaxAbs = 0.0;
+    for (size_t k = 0; k < outN; ++k)
+        origMaxAbs = std::max(origMaxAbs,
+                (double)std::hypot(geoCpuOrig[k].x - geoCpu[k].x,
+                        geoCpuOrig[k].y - geoCpu[k].y));
     for (int r = 0; r < p.cpuReps; ++r) {
         geoFlatCpu = geoCpu; // flatten mutates in place; restore per rep
         const double t0 = omp_get_wtime();
         flattenCpu(geoFlatCpu.data(), rgIdx.data(), azIdx.data(), p);
-        const double t1 = omp_get_wtime();
-        flattenCpuMs = std::min(flattenCpuMs, (t1 - t0) * 1e3);
+        tFlattenCpu.push_back((omp_get_wtime() - t0) * 1e3);
     }
+    const double interpCpuMs =
+            *std::min_element(tInterpCpu.begin(), tInterpCpu.end());
+    const double interpCpuOrigMs =
+            *std::min_element(tInterpCpuOrig.begin(), tInterpCpuOrig.end());
+    const double flattenCpuMs =
+            *std::min_element(tFlattenCpu.begin(), tFlattenCpu.end());
 
     // --- GPU buffers + transfers -------------------------------------------
     float2 *dRdr = nullptr, *dGeo = nullptr, *dGeoIn = nullptr;
@@ -611,12 +730,14 @@ int main(int argc, char** argv)
         runInterp();
     CUDA_CHECK(cudaDeviceSynchronize());
     CUDA_CHECK(cudaGetLastError());
-    float interpGpuMs = 1e30f;
+    std::vector<float> tInterpGpu;
     for (int r = 0; r < p.gpuReps; ++r) {
         timer.start();
         runInterp();
-        interpGpuMs = std::min(interpGpuMs, timer.stopMs());
+        tInterpGpu.push_back(timer.stopMs());
     }
+    const float interpGpuMs =
+            *std::min_element(tInterpGpu.begin(), tInterpGpu.end());
 
     // Use the CPU interp result as the flatten input on BOTH sides so the
     // flatten validation is not polluted by interp CPU/GPU differences.
@@ -637,31 +758,35 @@ int main(int argc, char** argv)
         launch();
         CUDA_CHECK(cudaDeviceSynchronize());
         CUDA_CHECK(cudaGetLastError());
-        float best = 1e30f;
+        std::vector<float> reps;
         for (int r = 0; r < p.gpuReps; ++r) {
             CUDA_CHECK(cudaMemcpy(dGeo, dGeoIn, outN * sizeof(float2),
                     cudaMemcpyDeviceToDevice));
             timer.start();
             launch();
-            best = std::min(best, timer.stopMs());
+            reps.push_back(timer.stopMs());
         }
-        return best;
+        return reps;
     };
 
-    const float flatten64GpuMs = timeFlatten([&]() {
+    const std::vector<float> tFlatten64Gpu = timeFlatten([&]() {
         flattenKernelF64<<<grid, block>>>(dGeo, dRg, dAz, p.inRows, p.inCols,
                 outN, p.startingRange, p.rangePixelSpacing, p.prf,
                 p.sensingStart, p.wavelength);
     });
+    const float flatten64GpuMs =
+            *std::min_element(tFlatten64Gpu.begin(), tFlatten64Gpu.end());
     std::vector<float2> flat64Gpu(outN);
     CUDA_CHECK(cudaMemcpy(flat64Gpu.data(), dGeo, outN * sizeof(float2),
             cudaMemcpyDeviceToHost));
 
-    const float flatten32GpuMs = timeFlatten([&]() {
+    const std::vector<float> tFlatten32Gpu = timeFlatten([&]() {
         flattenKernelF32<<<grid, block>>>(dGeo, dRg, dAz, p.inRows, p.inCols,
                 outN, (float)p.startingRange, (float)p.rangePixelSpacing,
                 (float)p.prf, (float)p.sensingStart, (float)p.wavelength);
     });
+    const float flatten32GpuMs =
+            *std::min_element(tFlatten32Gpu.begin(), tFlatten32Gpu.end());
     std::vector<float2> flat32Gpu(outN);
     CUDA_CHECK(cudaMemcpy(flat32Gpu.data(), dGeo, outN * sizeof(float2),
             cudaMemcpyDeviceToHost));
@@ -732,14 +857,25 @@ int main(int argc, char** argv)
     const double e2eGpuMs =
             h2dMs + interpGpuMs + flatten64GpuMs + d2hMs;
 
-    std::printf("\n-- timings (best of %d GPU / %d CPU reps) --\n", p.gpuReps,
-            p.cpuReps);
-    std::printf("interp   : CPU %9.3f ms | GPU %8.3f ms | speedup %6.1fx\n",
-            interpCpuMs, interpGpuMs, interpCpuMs / interpGpuMs);
-    std::printf("flatten64: CPU %9.3f ms | GPU %8.3f ms | speedup %6.1fx\n",
-            flattenCpuMs, flatten64GpuMs, flattenCpuMs / flatten64GpuMs);
-    std::printf("flatten32:                  GPU %8.3f ms | fp64/fp32 %5.2fx\n",
-            flatten32GpuMs, flatten64GpuMs / flatten32GpuMs);
+    std::printf("\n-- timings (best of %d GPU / %d CPU reps; median in "
+                "parens) --\n",
+            p.gpuReps, p.cpuReps);
+    std::printf("interp   : CPU %9.3f (%.3f) ms | GPU %8.3f (%.3f) ms | "
+                "speedup %6.1fx\n",
+            interpCpuMs, medianOf(tInterpCpu), interpGpuMs,
+            medianOf(tInterpGpu), interpCpuMs / interpGpuMs);
+    std::printf("interp orig-style CPU (heap chip + virtual dispatch): "
+                "%9.3f (%.3f) ms | overhead vs fused %.2fx\n",
+            interpCpuOrigMs, medianOf(tInterpCpuOrig),
+            interpCpuOrigMs / interpCpuMs);
+    std::printf("flatten64: CPU %9.3f (%.3f) ms | GPU %8.3f (%.3f) ms | "
+                "speedup %6.1fx\n",
+            flattenCpuMs, medianOf(tFlattenCpu), flatten64GpuMs,
+            medianOf(tFlatten64Gpu), flattenCpuMs / flatten64GpuMs);
+    std::printf("flatten32:                  GPU %8.3f (%.3f) ms | fp64/fp32 "
+                "%5.2fx\n",
+            flatten32GpuMs, medianOf(tFlatten32Gpu),
+            flatten64GpuMs / flatten32GpuMs);
     std::printf("H2D: %.1f MiB in %.3f ms (%.1f GB/s) | D2H: %.1f MiB in "
                 "%.3f ms (%.1f GB/s)\n",
             h2dBytes / 1048576.0, h2dMs, h2dGBs, d2hBytes / 1048576.0, d2hMs,
@@ -748,6 +884,8 @@ int main(int argc, char** argv)
             e2eGpuMs);
 
     std::printf("\n-- validation --\n");
+    std::printf("orig-style vs fused CPU max abs   : %.3e (expect 0)\n",
+            origMaxAbs);
     std::printf("interp GPU-vs-CPU max rel err     : %.3e\n", interpMaxRel);
     std::printf("flatten64 GPU-vs-CPU max phase err: %.3e rad\n",
             flat64MaxPhase);
@@ -769,18 +907,27 @@ int main(int argc, char** argv)
             if (std::ftell(f) == 0)
                 std::fprintf(f,
                         "gpu,in_rows,in_cols,out_rows,out_cols,valid_px,"
-                        "cpu_threads,interp_cpu_ms,interp_gpu_ms,"
-                        "flatten_cpu_ms,flatten64_gpu_ms,flatten32_gpu_ms,"
+                        "cpu_threads,interp_cpu_ms,interp_cpu_med_ms,"
+                        "interp_cpu_orig_ms,interp_cpu_orig_med_ms,"
+                        "interp_gpu_ms,interp_gpu_med_ms,"
+                        "flatten_cpu_ms,flatten_cpu_med_ms,"
+                        "flatten64_gpu_ms,flatten64_gpu_med_ms,"
+                        "flatten32_gpu_ms,"
                         "h2d_ms,h2d_bytes,d2h_ms,d2h_bytes,e2e_gpu_ms,"
                         "interp_max_rel,flat64_max_phase,"
                         "fp32_unwrapped_max_rad,fp32_unwrapped_mean_rad,"
                         "ws_bbox_mib,ws_rowspan_mib\n");
             std::fprintf(f,
                     "%s,%d,%d,%d,%d,%zu,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,"
+                    "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,"
                     "%zu,%.4f,%zu,%.4f,%.4e,%.4e,%.4e,%.4e,%.2f,%.2f\n",
                     prop.name, p.inRows, p.inCols, p.outRows, p.outCols,
-                    validN, omp_get_max_threads(), interpCpuMs, interpGpuMs,
-                    flattenCpuMs, flatten64GpuMs, flatten32GpuMs, h2dMs,
+                    validN, omp_get_max_threads(), interpCpuMs,
+                    medianOf(tInterpCpu), interpCpuOrigMs,
+                    medianOf(tInterpCpuOrig), (double)interpGpuMs,
+                    medianOf(tInterpGpu), flattenCpuMs, medianOf(tFlattenCpu),
+                    (double)flatten64GpuMs, medianOf(tFlatten64Gpu),
+                    (double)flatten32GpuMs, h2dMs,
                     h2dBytes, d2hMs, d2hBytes, e2eGpuMs, interpMaxRel,
                     flat64MaxPhase, fp32UnwrappedMax, fp32UnwrappedMean,
                     wsBboxMiB, wsRowsMiB);

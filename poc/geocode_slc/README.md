@@ -2,11 +2,12 @@
 
 Measurement PoC for a prospective CUDA port of
 `isce3::geocode::geocodeSlc` ([issue #11], gates the second upstream
-RFC). **This is not the port** — it isolates the two dominant compute
-patterns of `cxx/isce3/geocode/geocodeSlc.cpp` as minimal CUDA kernels
-plus OpenMP CPU references on synthetic, realistically shaped data, so
-that GPU speedup and precision claims in the RFC rest on measurement
-rather than estimation.
+RFC). **This is not the port** — it isolates two selected compute
+patterns of `cxx/isce3/geocode/geocodeSlc.cpp` (candidate GPU kernels;
+NOT established as the dominant cost of the real call) as minimal CUDA
+kernels plus OpenMP CPU references on synthetic, realistically shaped
+data, so that GPU speedup and precision claims in the RFC rest on
+measurement rather than estimation.
 
 [issue #11]: https://github.com/s-sasaki-earthsea-wizard/isce3-benchmark/issues/11
 
@@ -27,7 +28,13 @@ sits inside the radar grid, with NaN outside an elliptical footprint
 
 ## What is measured
 
-- CPU (OpenMP) vs GPU kernel-only wall time per kernel (best of N reps)
+- CPU (OpenMP) vs GPU kernel-only wall time per kernel (best AND
+  median of N reps)
+- **implementation-overhead A/B**: the fused CPU reference vs an
+  "orig-style" CPU reference that reproduces the real `interpolate()`
+  call pattern (per-pixel heap-allocated chip + virtual interpolator
+  dispatch) with identical arithmetic — bounds how much of the real
+  code's CPU time is implementation overhead rather than algorithm
 - H2D/D2H transfer bytes, times, effective bandwidth
 - transfer-inclusive GPU end-to-end time
 - CPU-vs-GPU agreement (interp: max relative error; flatten fp64: max
