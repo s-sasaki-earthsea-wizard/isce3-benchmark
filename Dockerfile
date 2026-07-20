@@ -29,11 +29,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         git \
         less \
+        linux-tools-generic \
         ninja-build \
         pkg-config \
         time \
         vim-tiny \
     && rm -rf /var/lib/apt/lists/*
+
+# The /usr/bin/perf wrapper insists on linux-tools-$(uname -r), which will
+# never match the host kernel inside a container. Symlink the real binary.
+RUN ln -sf "$(ls -d /usr/lib/linux-tools-*/perf | head -1)" /usr/local/bin/perf
 
 # --- micromamba ---------------------------------------------------------------
 # Pull the static binary from the official GitHub releases. The legacy

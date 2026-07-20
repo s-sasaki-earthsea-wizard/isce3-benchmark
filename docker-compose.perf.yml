@@ -1,0 +1,13 @@
+# Override for perf-based profiling runs. Docker's default seccomp profile
+# blocks perf_event_open; this relaxes it for the dev service only.
+# Host kernel.perf_event_paranoid=2 still limits us to user-space samples
+# of our own processes, which is all we need.
+#
+# Usage (explicit opt-in — NOT auto-loaded):
+#   docker compose -f docker-compose.yml -f docker-compose.perf.yml run --rm dev <cmd>
+services:
+  dev:
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - PERFMON
