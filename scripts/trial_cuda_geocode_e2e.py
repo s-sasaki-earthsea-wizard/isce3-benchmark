@@ -245,12 +245,27 @@ def stage2_amplitude_metrics(cpu_arr, gpu_arr):
 
 
 def invariance_metrics(arr_a, arr_b):
+    """Elementwise comparison of two runs. Reviewers will ask 'is it
+    deterministic?' — quantify how many pixels differ and where."""
     fin_a, fin_b = np.isfinite(arr_a), np.isfinite(arr_b)
     both = fin_a & fin_b
-    d = np.abs(arr_a[both] - arr_b[both])
+    d = np.abs(arr_a - arr_b)
+    d[~both] = 0.0
+    differing = d > 0
+    n_both = int(both.sum())
+    n_diff = int(differing.sum())
+    diff_rows = np.flatnonzero(differing.any(axis=1))
     return {
         'finite_mask_mismatch': int((fin_a != fin_b).sum()),
-        'max_abs_diff': float(d.max()) if both.any() else None,
+        'n_valid_both': n_both,
+        'n_differing_px': n_diff,
+        'differing_ppm': round(1e6 * n_diff / n_both, 3) if n_both else None,
+        'max_abs_diff': float(d.max()) if n_both else None,
+        'rms_abs_diff': float(np.sqrt(np.mean(d[both] ** 2))) if n_both else None,
+        'p99_abs_diff': float(np.percentile(d[both], 99)) if n_both else None,
+        'n_rows_with_diffs': int(diff_rows.size),
+        'diff_row_range': ([int(diff_rows.min()), int(diff_rows.max())]
+                           if diff_rows.size else None),
     }
 
 
@@ -331,6 +346,13 @@ def main():
         timings[name] = median_iqr(reps)
     results['timings'] = timings
 
+    # --- determinism: same block size, two runs ----------------------------
+    print('# gpu determinism run (same lines_per_block)')
+    run_gpu(work / 'gpu_par_rerun.slc', slc_raster, inp, args.lines_per_block)
+    det = invariance_metrics(read_cf32(work / 'gpu_par.slc'),
+                             read_cf32(work / 'gpu_par_rerun.slc'))
+    results['gpu_determinism_same_block'] = det
+
     # --- block-size invariance (GPU, half block size) ----------------------
     print('# gpu block-size invariance run')
     half = max(args.lines_per_block // 2, 1)
@@ -348,6 +370,15 @@ def main():
     run_gpu(work / 'gpu_coord.slc', coord_raster, inp, args.lines_per_block)
     results['stage1_geometry'] = stage1_geometry_metrics(
         cpu_coord, read_cf32(work / 'gpu_coord.slc'))
+
+    # Coordinate-raster block invariance: bisects whether the block-size
+    # sensitivity of the real-SLC output comes from the geometry stage
+    # (per-block DEM interpolator) or the interpolation stage.
+    run_gpu(work / 'gpu_coord_half.slc', coord_raster, inp, half)
+    cinv = invariance_metrics(read_cf32(work / 'gpu_coord.slc'),
+                              read_cf32(work / 'gpu_coord_half.slc'))
+    cinv['lines_per_block_pair'] = [args.lines_per_block, half]
+    results['gpu_coord_block_invariance'] = cinv
 
     # --- stage 2: amplitude on the real SLC --------------------------------
     print('# stage 2: amplitude comparison')
