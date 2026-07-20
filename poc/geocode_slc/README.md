@@ -36,6 +36,23 @@ sits inside the radar grid, with NaN outside an elliptical footprint
   (from GPU outputs) — the "is fp64 truly required?" datum
 - working-set size (bounding box and row-span of touched radar chips)
 
+## How to read the numbers (do not quote out of context)
+
+- The kernel speedups measured here (interp ~100x, flatten ~65x on
+  RTX 5080) describe **only these two phases**, which together account
+  for ~53 ms of CPU time against the ~29 s measured for the full
+  `geocode_slc` call. They say "these kernels are GPU-friendly", not
+  "geocode_slc gets ~100x faster". Never cite them without this
+  context.
+- The CPU references are **faithful reimplementations of the isce3
+  loops, not the isce3 binaries**: they preserve the arithmetic but
+  drop the per-pixel `Matrix` chip heap allocation and the virtual
+  interpolator dispatch of the real `interpolate()`. CPU times here
+  therefore understate the real implementation's cost.
+- Nothing here extrapolates to the geo2rdr phase (per-pixel Newton
+  solve with data-dependent iteration counts → warp divergence).
+  That phase needs its own PoC/measurement.
+
 ## Known simplifications
 
 - The geo2rdr and `carrierPhaseDeramp` phases are **not** modelled.
