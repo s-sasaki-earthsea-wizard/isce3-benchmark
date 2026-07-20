@@ -95,7 +95,8 @@ def main():
 
     sampler_json = work / f'sampler_lpb{args.lpb}.json'
     child = subprocess.Popen(
-        [sys.executable, __file__, '--sampler-out', str(sampler_json)])
+        [sys.executable, __file__, '--config', args.config,
+         '--lpb', str(args.lpb), '--sampler-out', str(sampler_json)])
     time.sleep(0.5)  # let the sampler reach steady state
     dt = run_gpu(work / 'probe_out.slc', raster, inp, args.lpb)
     time.sleep(0.2)
