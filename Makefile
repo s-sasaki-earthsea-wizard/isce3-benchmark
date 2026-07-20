@@ -88,6 +88,10 @@ smoke-s1: ## Sentinel-1 Boso bench (CSLC ref+sec + crossmul, CPU+GPU, repeats=1)
 bench: ## Full bench sweep defined in scripts/run_bench.sh
 	$(RUN) bash scripts/run_bench.sh full
 
+.PHONY: poc-geocode-slc
+poc-geocode-slc: ## Build + run the geocode_slc CUDA PoC microbenchmark (issue #11)
+	$(RUN) bash poc/geocode_slc/run.sh
+
 .PHONY: profile-nsys
 profile-nsys: ## Nsight Systems trace on a single workflow run
 	$(RUN) bash scripts/run_profile_nsys.sh

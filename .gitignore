@@ -43,3 +43,6 @@ configs/insar_s1_boso_cslc_cpu.yaml
 configs/insar_s1_boso_cslc_gpu.yaml
 configs/insar_s1_boso_cslc_sec_cpu.yaml
 configs/insar_s1_boso_cslc_sec_gpu.yaml
+
+# PoC build artifacts
+poc/geocode_slc/geocode_slc_poc
