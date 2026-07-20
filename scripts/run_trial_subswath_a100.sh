@@ -5,7 +5,10 @@
 # Assumes:
 #   - micromamba env "isce3" (docker/env-isce3-build.yml) at $MAMBA_ROOT_PREFIX
 #   - from-source CUDA isce3 install at $ISCE3_INSTALL
-#     (scripts/build_isce3.sh output; RPATH already patched)
+#     (scripts/build_isce3.sh output; RPATH already patched).
+#     NOTE: must live on an exec-mounted filesystem — /dev/shm on the
+#     pod is noexec, so .so files there fail to map. Building in
+#     /dev/shm is fine; copy install/ to /opt and re-run patchelf.
 #
 # Usage:
 #   scripts/run_trial_subswath_a100.sh <runconfig.yaml> [repeats] [lines_per_block] [extra args...]
@@ -19,7 +22,7 @@ shift $(( $# > 3 ? 3 : $# ))
 BENCH_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 MAMBA_ROOT_PREFIX="${MAMBA_ROOT_PREFIX:-/opt/mamba}"
 MICROMAMBA="${MICROMAMBA:-/workspace/mamba/bin/micromamba}"
-ISCE3_INSTALL="${ISCE3_INSTALL:-/dev/shm/isce3-build/install}"
+ISCE3_INSTALL="${ISCE3_INSTALL:-/opt/isce3-install}"
 LOG_ROOT="${LOG_ROOT:-/workspace/logs_runpod-a100}"
 
 export MAMBA_ROOT_PREFIX

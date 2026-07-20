@@ -39,8 +39,9 @@ def _parse_args() -> argparse.Namespace:
     sel.add_argument("--burst-id",
                      help="JPL burst ID to include (e.g. t046_097519_iw3)")
     sel.add_argument("--subswath",
-                     help="include every burst of this subswath (e.g. IW2); "
-                          "one row per unique burst_id matching --pol")
+                     help="include every burst of these subswaths (e.g. IW2 "
+                          "or IW1,IW2,IW3); one row per unique burst_id "
+                          "matching --pol")
     p.add_argument("--pol", default="VV",
                    help="polarization filter for picking the bbox row (default: VV)")
     p.add_argument("--out", required=True, type=Path,
@@ -58,8 +59,9 @@ def main() -> int:
         if not wanted:
             raise SystemExit(f"no record for burst_id={args.burst_id} pol={args.pol} in {args.bursts}")
     else:
+        swaths = {s.strip().lower() for s in args.subswath.split(",")}
         wanted = [r for r in records
-                  if r["subswath"].lower() == args.subswath.lower()
+                  if r["subswath"].lower() in swaths
                   and r["polarization"] == args.pol]
         if not wanted:
             raise SystemExit(f"no records for subswath={args.subswath} pol={args.pol} in {args.bursts}")
