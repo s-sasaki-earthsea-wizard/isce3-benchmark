@@ -1,0 +1,48 @@
+# Verification: RFC2 evidence path does NOT depend on PR #270
+#
+# Question: is the geocode_slc GPU work (RFC2) technically blocked by
+# upstream PR #270 (CUDA Rdr2Geo.topo() optional-raster defaults fix),
+# or is the "file after #270 merges" stance purely a sequencing choice?
+#
+# Method: rebuilt isce3 from upstream develop HEAD 2919e1c97 (branch
+# verify/rfc2-no-270, does NOT contain the #270 fix), then ran the
+# exact RFC2 evidence harness (trial_cuda_geocode_e2e.py) on the real
+# Boso burst, RTX 5080, repeats=3, lines_per_block=200.
+#
+# Date: 2026-07-21 (UTC)
+
+## Control: the build is unpatched
+scripts/repro_cuda_rdr2geo_optional_kwargs.py, Layer 1 signature check:
+  CPU  isce3.geometry.Rdr2Geo.topo       : 11 kwargs with `= None` default
+  CUDA isce3.cuda.geometry.Rdr2Geo.topo  :  0 kwargs with `= None` default
+=> #270 fix confirmed ABSENT from this build.
+
+## Static analysis
+grep over trial_cuda_geocode_e2e.py / trial_cuda_geocode_subswath.py /
+run_trial_*.sh / scripts/lib/: zero references to Rdr2Geo or topo().
+The harness exercises isce3.geocode.geocode_slc (CPU) and
+isce3.cuda.geocode.Geocode (GPU) only.
+
+## Dynamic result: trial PASSES on the unpatched build
+Run dir: logs_nucbox-evo-t1/20260721T171742Z_trial_cuda_geocode/
+isce3 build SHA (provenance.txt): 2919e1c976922cbac82ab19093cabf8d71698e8e
+
+Timings (median of 3):
+  gpu        :  3.185 s  (cold first call 3.517 s)
+  cpu_parity : 15.428 s  -> 4.84x
+  cpu_prod   : 16.718 s  -> 5.25x
+
+Validation (all matching the patched-build RFC2 draft numbers):
+  valid mask            : 42,841,555 px both, Jaccard = 1.0
+  gpu determinism       : 0 differing px (same block size)
+  gpu block invariance  : 4 differing px (lpb 200 vs 100)
+  amplitude pearson r   : 0.9999999999858643
+  rel_amp_err_max       : 3.02e-2 (p99 = 0.0)
+
+## Conclusion
+The RFC2 evidence path is code-independent of #270. The dependency is
+(a) evidence provenance only in prior runs (they were built on the fork
+branch, whose fix touches rdr2geo bindings only), and (b) the COMPASS
+E2E all-GPU pipeline story (s1_rdr2geo step), NOT the geocode trial
+harness. "Wait for #270 to merge" is a goodwill/sequencing choice
+("one open PR at a time"), not a technical blocker.
