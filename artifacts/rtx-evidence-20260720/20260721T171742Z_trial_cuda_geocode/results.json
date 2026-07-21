@@ -1,0 +1,113 @@
+{
+  "config": "configs/insar_s1_boso_geo_cpu.yaml",
+  "burst_id": "t046_097519_iw3",
+  "radar_grid": [
+    1516,
+    24443
+  ],
+  "geo_grid": [
+    3225,
+    20939
+  ],
+  "repeats": 3,
+  "gpu_lines_per_block": 200,
+  "timings": {
+    "gpu_cold_first_call_s": 3.517,
+    "gpu": {
+      "n": 3,
+      "median_s": 3.184988754801452,
+      "iqr_s": 0.3057497697882354,
+      "all_s": [
+        3.185,
+        2.583,
+        3.194
+      ]
+    },
+    "cpu_parity": {
+      "n": 3,
+      "median_s": 15.428345143329352,
+      "iqr_s": 0.4558893679641187,
+      "all_s": [
+        14.767,
+        15.678,
+        15.428
+      ]
+    },
+    "cpu_prod": {
+      "n": 3,
+      "median_s": 16.717684078030288,
+      "iqr_s": 1.0614999590907246,
+      "all_s": [
+        16.718,
+        15.44,
+        17.563
+      ]
+    }
+  },
+  "gpu_determinism_same_block": {
+    "finite_mask_mismatch": 0,
+    "n_valid_both": 42841555,
+    "n_differing_px": 0,
+    "differing_ppm": 0.0,
+    "max_abs_diff": 0.0,
+    "rms_abs_diff": 0.0,
+    "p99_abs_diff": 0.0,
+    "n_rows_with_diffs": 0,
+    "diff_row_range": null
+  },
+  "gpu_block_invariance": {
+    "finite_mask_mismatch": 0,
+    "n_valid_both": 42841555,
+    "n_differing_px": 4,
+    "differing_ppm": 0.093,
+    "max_abs_diff": 0.020410636439919472,
+    "rms_abs_diff": 3.3272835935349576e-06,
+    "p99_abs_diff": 0.0,
+    "n_rows_with_diffs": 4,
+    "diff_row_range": [
+      1329,
+      2313
+    ],
+    "lines_per_block_pair": [
+      200,
+      100
+    ]
+  },
+  "stage1_geometry": {
+    "n_valid_cpu": 42841555,
+    "n_valid_gpu": 42841555,
+    "n_valid_both": 42841555,
+    "mask_jaccard": 1.0,
+    "rg_index_max_abs_diff": 0.017578125,
+    "rg_index_rms_diff": 0.00010338937863707542,
+    "az_index_max_abs_diff": 0.0010986328125,
+    "az_index_rms_diff": 7.145997187762987e-06,
+    "rg_index_p99_abs_diff": 0.0,
+    "az_index_p99_abs_diff": 0.0
+  },
+  "gpu_coord_block_invariance": {
+    "finite_mask_mismatch": 0,
+    "n_valid_both": 42841555,
+    "n_differing_px": 4,
+    "differing_ppm": 0.093,
+    "max_abs_diff": 0.001953125,
+    "rms_abs_diff": 3.506796133478929e-07,
+    "p99_abs_diff": 0.0,
+    "n_rows_with_diffs": 4,
+    "diff_row_range": [
+      1329,
+      2313
+    ],
+    "lines_per_block_pair": [
+      200,
+      100
+    ]
+  },
+  "stage2_amplitude": {
+    "n_valid_both": 42841555,
+    "amplitude_pearson_r": 0.9999999999858643,
+    "rel_amp_err_mean": 1.9711679224867764e-07,
+    "rel_amp_err_p99": 0.0,
+    "rel_amp_err_max": 0.030226087747417314
+  }
+}

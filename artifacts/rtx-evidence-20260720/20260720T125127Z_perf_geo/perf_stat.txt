@@ -1,0 +1,28 @@
+# started on Mon Jul 20 12:51:27 2026
+
+
+ Performance counter stats for 's1_cslc.py configs/insar_s1_boso_geo_cpu.yaml --grid geo':
+
+         185440.02 msec task-clock                       #    4.247 CPUs utilized             
+             24929      context-switches                 #  134.432 /sec                      
+               328      cpu-migrations                   #    1.769 /sec                      
+            648616      page-faults                      #    3.498 K/sec                     
+      647292798757      cpu_atom/cycles/                 #    3.491 GHz                         (41.27%)
+      511724385348      cpu_core/cycles/                 #    2.760 GHz                         (50.98%)
+      290733405052      cpu_lowpower/cycles/             #    1.568 GHz                         (9.68%)
+     2600939962533      cpu_atom/instructions/           #    4.02  insn per cycle              (41.27%)
+     2113601927524      cpu_core/instructions/           #    4.13  insn per cycle              (50.98%)
+      853243385717      cpu_lowpower/instructions/       #    2.93  insn per cycle              (9.68%)
+      338405638597      cpu_atom/branches/               #    1.825 G/sec                       (41.27%)
+      272446877284      cpu_core/branches/               #    1.469 G/sec                       (50.98%)
+      114300116896      cpu_lowpower/branches/           #  616.372 M/sec                       (9.68%)
+         236219518      cpu_atom/branch-misses/          #    0.07% of all branches             (41.27%)
+        1842435500      cpu_core/branch-misses/          #    0.68% of all branches             (50.98%)
+          42550994      cpu_lowpower/branch-misses/      #    0.04% of all branches             (9.68%)
+
+      43.659447029 seconds time elapsed
+
+     181.720674000 seconds user
+       3.720100000 seconds sys
+
+
