@@ -1,0 +1,942 @@
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 36.0454 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0732
+ -- Bottom Right: 139.29 36.0274 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0551
+ -- Bottom Right: 139.29 36.0096 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0371
+ -- Bottom Right: 139.29 35.9915 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.019
+ -- Bottom Right: 139.29 35.9735 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0012
+ -- Bottom Right: 139.29 35.9554 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9832
+ -- Bottom Right: 139.29 35.9374 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9651
+ -- Bottom Right: 139.29 35.9196 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9471
+ -- Bottom Right: 139.29 35.9015 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.929
+ -- Bottom Right: 139.29 35.8835 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9113
+ -- Bottom Right: 139.29 35.8654 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8932
+ -- Bottom Right: 139.29 35.8474 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8751
+ -- Bottom Right: 139.29 35.8296 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8571
+ -- Bottom Right: 139.29 35.8115 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.839
+ -- Bottom Right: 139.29 35.7935 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8212
+ -- Bottom Right: 139.29 35.7754 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8032
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 109
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 36.0454 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0732
+ -- Bottom Right: 139.29 36.0274 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0551
+ -- Bottom Right: 139.29 36.0096 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0371
+ -- Bottom Right: 139.29 35.9915 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.019
+ -- Bottom Right: 139.29 35.9735 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0012
+ -- Bottom Right: 139.29 35.9554 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9832
+ -- Bottom Right: 139.29 35.9374 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9651
+ -- Bottom Right: 139.29 35.9196 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9471
+ -- Bottom Right: 139.29 35.9015 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.929
+ -- Bottom Right: 139.29 35.8835 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9113
+ -- Bottom Right: 139.29 35.8654 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8932
+ -- Bottom Right: 139.29 35.8474 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8751
+ -- Bottom Right: 139.29 35.8296 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8571
+ -- Bottom Right: 139.29 35.8115 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.839
+ -- Bottom Right: 139.29 35.7935 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8212
+ -- Bottom Right: 139.29 35.7754 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8032
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 109
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 1146
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 1146
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 36.0454 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0732
+ -- Bottom Right: 139.29 36.0274 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0551
+ -- Bottom Right: 139.29 36.0096 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0371
+ -- Bottom Right: 139.29 35.9915 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.019
+ -- Bottom Right: 139.29 35.9735 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0012
+ -- Bottom Right: 139.29 35.9554 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9832
+ -- Bottom Right: 139.29 35.9374 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9651
+ -- Bottom Right: 139.29 35.9196 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9471
+ -- Bottom Right: 139.29 35.9015 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.929
+ -- Bottom Right: 139.29 35.8835 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9113
+ -- Bottom Right: 139.29 35.8654 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8932
+ -- Bottom Right: 139.29 35.8474 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8751
+ -- Bottom Right: 139.29 35.8296 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8571
+ -- Bottom Right: 139.29 35.8115 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.839
+ -- Bottom Right: 139.29 35.7935 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8212
+ -- Bottom Right: 139.29 35.7754 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8032
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 109
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 36.0546 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0821
+ -- Bottom Right: 139.29 36.0454 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0732
+ -- Bottom Right: 139.29 36.0365 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.064
+ -- Bottom Right: 139.29 36.0274 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0551
+ -- Bottom Right: 139.29 36.0185 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0463
+ -- Bottom Right: 139.29 36.0096 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0371
+ -- Bottom Right: 139.29 36.0004 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0282
+ -- Bottom Right: 139.29 35.9915 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.019
+ -- Bottom Right: 139.29 35.9824 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0101
+ -- Bottom Right: 139.29 35.9735 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0012
+ -- Bottom Right: 139.29 35.9646 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9921
+ -- Bottom Right: 139.29 35.9554 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9832
+ -- Bottom Right: 139.29 35.9465 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.974
+ -- Bottom Right: 139.29 35.9374 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9651
+ -- Bottom Right: 139.29 35.9285 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9563
+ -- Bottom Right: 139.29 35.9196 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9471
+ -- Bottom Right: 139.29 35.9104 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9382
+ -- Bottom Right: 139.29 35.9015 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.929
+ -- Bottom Right: 139.29 35.8924 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9201
+ -- Bottom Right: 139.29 35.8835 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9113
+ -- Bottom Right: 139.29 35.8746 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9021
+ -- Bottom Right: 139.29 35.8654 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8932
+ -- Bottom Right: 139.29 35.8565 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.884
+ -- Bottom Right: 139.29 35.8474 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8751
+ -- Bottom Right: 139.29 35.8385 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8663
+ -- Bottom Right: 139.29 35.8296 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8571
+ -- Bottom Right: 139.29 35.8204 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8482
+ -- Bottom Right: 139.29 35.8115 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.839
+ -- Bottom Right: 139.29 35.8024 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8301
+ -- Bottom Right: 139.29 35.7935 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8212
+ -- Bottom Right: 139.29 35.7846 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8121
+ -- Bottom Right: 139.29 35.7754 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8032
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 109
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 1146
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 36.0454 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0732
+ -- Bottom Right: 139.29 36.0274 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0551
+ -- Bottom Right: 139.29 36.0096 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0371
+ -- Bottom Right: 139.29 35.9915 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.019
+ -- Bottom Right: 139.29 35.9735 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0012
+ -- Bottom Right: 139.29 35.9554 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9832
+ -- Bottom Right: 139.29 35.9374 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9651
+ -- Bottom Right: 139.29 35.9196 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9471
+ -- Bottom Right: 139.29 35.9015 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.929
+ -- Bottom Right: 139.29 35.8835 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9113
+ -- Bottom Right: 139.29 35.8654 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8932
+ -- Bottom Right: 139.29 35.8474 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8751
+ -- Bottom Right: 139.29 35.8296 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8571
+ -- Bottom Right: 139.29 35.8115 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.839
+ -- Bottom Right: 139.29 35.7935 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 165
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8212
+ -- Bottom Right: 139.29 35.7754 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 166
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8032
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 109
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 36.0546 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0821
+ -- Bottom Right: 139.29 36.0454 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0732
+ -- Bottom Right: 139.29 36.0365 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.064
+ -- Bottom Right: 139.29 36.0274 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0551
+ -- Bottom Right: 139.29 36.0185 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0463
+ -- Bottom Right: 139.29 36.0096 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0371
+ -- Bottom Right: 139.29 36.0004 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0282
+ -- Bottom Right: 139.29 35.9915 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.019
+ -- Bottom Right: 139.29 35.9824 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0101
+ -- Bottom Right: 139.29 35.9735 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0012
+ -- Bottom Right: 139.29 35.9646 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9921
+ -- Bottom Right: 139.29 35.9554 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9832
+ -- Bottom Right: 139.29 35.9465 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.974
+ -- Bottom Right: 139.29 35.9374 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9651
+ -- Bottom Right: 139.29 35.9285 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9563
+ -- Bottom Right: 139.29 35.9196 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9471
+ -- Bottom Right: 139.29 35.9104 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9382
+ -- Bottom Right: 139.29 35.9015 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.929
+ -- Bottom Right: 139.29 35.8924 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9201
+ -- Bottom Right: 139.29 35.8835 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9113
+ -- Bottom Right: 139.29 35.8746 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.9021
+ -- Bottom Right: 139.29 35.8654 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8932
+ -- Bottom Right: 139.29 35.8565 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.884
+ -- Bottom Right: 139.29 35.8474 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8751
+ -- Bottom Right: 139.29 35.8385 
+ -- Spacing: 0.00027# loading inputs from configs/insar_s1_boso_geo_cpu.yaml
+Chi squared: 0.000419
+# burst t046_097519_iw3: radar 1516x24443, geogrid 3225x20939, geo2rdr threshold=1e-08 numiter=25
+# gpu cold run (CUDA context + first-touch)
+  gpu cold: 3.46 s
+  gpu rep 1/1: 2.50 s
+  cpu_parity rep 1/1: 13.88 s
+  cpu_prod rep 1/1: 15.97 s
+# gpu determinism run (same lines_per_block)
+# gpu block-size invariance run
+# stage 1: geometry (coordinate-encoded raster)
+# stage 2: amplitude comparison
+# wrote logs_nucbox-evo-t1/20260720T133244Z_trial_cuda_geocode/results.json
+{
+  "config": "configs/insar_s1_boso_geo_cpu.yaml",
+  "burst_id": "t046_097519_iw3",
+  "radar_grid": [
+    1516,
+    24443
+  ],
+  "geo_grid": [
+    3225,
+    20939
+  ],
+  "repeats": 1,
+  "gpu_lines_per_block": 200,
+  "timings": {
+    "gpu_cold_first_call_s": 3.457,
+    "gpu": {
+      "n": 1,
+      "median_s": 2.502726124599576,
+      "iqr_s": 0.0,
+      "all_s": [
+        2.503
+      ]
+    },
+    "cpu_parity": {
+      "n": 1,
+      "median_s": 13.875106492079794,
+      "iqr_s": 0.0,
+      "all_s": [
+        13.875
+      ]
+    },
+    "cpu_prod": {
+      "n": 1,
+      "median_s": 15.966437472961843,
+      "iqr_s": 0.0,
+      "all_s": [
+        15.966
+      ]
+    }
+  },
+  "gpu_determinism_same_block": {
+    "finite_mask_mismatch": 0,
+    "n_valid_both": 42841555,
+    "n_differing_px": 0,
+    "differing_ppm": 0.0,
+    "max_abs_diff": 0.0,
+    "rms_abs_diff": 0.0,
+    "p99_abs_diff": 0.0,
+    "n_rows_with_diffs": 0,
+    "diff_row_range": null
+  },
+  "gpu_block_invariance": {
+    "finite_mask_mismatch": 0,
+    "n_valid_both": 42841555,
+    "n_differing_px": 4,
+    "differing_ppm": 0.093,
+    "max_abs_diff": 0.020410636439919472,
+    "rms_abs_diff": 3.3272835935349576e-06,
+    "p99_abs_diff": 0.0,
+    "n_rows_with_diffs": 4,
+    "diff_row_range": [
+      1329,
+      2313
+    ],
+    "lines_per_block_pair": [
+      200,
+      100
+    ]
+  },
+  "stage1_geometry": {
+    "n_valid_cpu": 42841555,
+    "n_valid_gpu": 42841555,
+    "n_valid_both": 42841555,
+    "mask_jaccard": 1.0,
+    "rg_index_max_abs_diff": 0.017578125,
+    "rg_index_rms_diff": 0.00010338937863707542,
+    "az_index_max_abs_diff": 0.0010986328125,
+    "az_index_rms_diff": 7.145997187762987e-06,
+    "rg_index_p99_abs_diff": 0.0,
+    "az_index_p99_abs_diff": 0.0
+  },
+  "gpu_coord_block_invariance": {
+    "finite_mask_mismatch": 0,
+    "n_valid_both": 42841555,
+    "n_differing_px": 4,
+    "differing_ppm": 0.093,
+    "max_abs_diff": 0.001953125,
+    "rms_abs_diff": 3.506796133478929e-07,
+    "p99_abs_diff": 0.0,
+    "n_rows_with_diffs": 4,
+    "diff_row_range": [
+      1329,
+      2313
+    ],
+    "lines_per_block_pair": [
+      200,
+      100
+    ]
+  },
+  "stage2_amplitude": {
+    "n_valid_both": 42841555,
+    "amplitude_pearson_r": 0.9999999999858643,
+    "rel_amp_err_mean": 1.9711679224867764e-07,
+    "rel_amp_err_p99": 0.0,
+    "rel_amp_err_max": 0.030226087747417314
+  }
+}
+7778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8663
+ -- Bottom Right: 139.29 35.8296 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8571
+ -- Bottom Right: 139.29 35.8204 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8482
+ -- Bottom Right: 139.29 35.8115 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.839
+ -- Bottom Right: 139.29 35.8024 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8301
+ -- Bottom Right: 139.29 35.7935 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8212
+ -- Bottom Right: 139.29 35.7846 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8121
+ -- Bottom Right: 139.29 35.7754 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 133
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 35.8032
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 109

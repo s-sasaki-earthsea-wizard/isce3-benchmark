@@ -1,0 +1,14 @@
+ Container isce3-benchmark-dev-run-793eff22eed5 Creating 
+ Container isce3-benchmark-dev-run-793eff22eed5 Created 
+=== RUN A: compression ON (gzip4+shuffle) ===
+ -- s1_geocode_slc geocoding time 0:00:30 (hr:min:sec)
+journal (s1_geocode_slc.run):
+ -- s1_geocode_slc QA meta processing time 0:00:02 (hr:min:sec)
+journal (s1_geocode_slc.run):
+ -- s1_geocode_slc burst successfully ran in 0:00:37 (hr:min:sec)
+=== RUN B: compression OFF ===
+ -- s1_geocode_slc geocoding time 0:00:16 (hr:min:sec)
+journal (s1_geocode_slc.run):
+ -- s1_geocode_slc QA meta processing time 0:00:02 (hr:min:sec)
+journal (s1_geocode_slc.run):
+ -- s1_geocode_slc burst successfully ran in 0:00:38 (hr:min:sec)

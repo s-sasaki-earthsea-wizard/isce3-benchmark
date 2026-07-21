@@ -1,0 +1,18 @@
+py-spy> Sampling process 100 times a second. Press Control-C to exit.
+
+py-spy> 4.78s behind in sampling, results may be inaccurate. Try reducing the sampling rate
+py-spy> 2.19s behind in sampling, results may be inaccurate. Try reducing the sampling rate
+Chi squared: 0.000419
+journal (s1_geocode_slc.run):
+ -- Starting s1_geocode_slc burst
+journal (s1_geocode_slc.run):
+ -- Starting geocoding of t046_097519_iw3 for 20251221
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: 138.32 36.0913
+ -- Bottom Right: 139.29 35.7732 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 3493 1146
+
+py-spy> Stopped sampling because process exited
+py-spy> Wrote flamegraph data to './logs_nucbox-evo-t1/20260720T123151Z_pyspy_geo/pyspy.svg'. Samples: 13884 Errors: 1

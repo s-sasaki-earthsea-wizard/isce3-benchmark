@@ -1,0 +1,21 @@
+== geocode_slc PoC microbenchmark (issue #11) ==
+GPU: NVIDIA GeForce RTX 5080 (sm_120), CPU threads: 16
+radar block: 1500 x 24000 (274.7 MiB cf32), geogrid: 2092 x 1290 (2698680 px)
+valid px: 2611656 / 2698680 (96.8%), working set: bbox 216.2 MiB, row-span 221.9 MiB
+
+-- timings (best of 30 GPU / 3 CPU reps; median in parens) --
+interp   : CPU    77.872 (83.782) ms | GPU    1.885 (1.888) ms | speedup   41.3x
+interp orig-style CPU (heap chip + virtual dispatch):    80.441 (81.712) ms | overhead vs fused 1.03x
+flatten64: CPU    15.207 (17.042) ms | GPU    0.358 (0.360) ms | speedup   42.4x
+flatten32:                  GPU    0.063 (0.066) ms | fp64/fp32  5.64x
+H2D: 316.3 MiB in 50.777 ms (6.5 GB/s) | D2H: 20.6 MiB in 3.919 ms (5.5 GB/s)
+GPU end-to-end (H2D + interp + flatten64 + D2H): 56.939 ms
+
+-- validation --
+orig-style vs fused CPU max abs   : 0.000e+00 (expect 0)
+interp GPU-vs-CPU max rel err     : 1.680e-04
+flatten64 GPU-vs-CPU max phase err: 1.924e-07 rad
+fp32 flatten phase err (unwrapped): max 2.559e+01 rad, mean 1.006e+01 rad
+fp32 flatten phase err (wrapped)  : max 3.142e+00 rad, mean 1.578e+00 rad
+
+RESULT: PASS
