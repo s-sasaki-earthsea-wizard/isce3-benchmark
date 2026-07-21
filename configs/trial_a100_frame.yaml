@@ -1,0 +1,115 @@
+# COMPASS geo-mode CSLC runconfig for the A100 full-IW2-subswath CUDA
+# Geocode trial (scripts/trial_cuda_geocode_subswath.py).
+#
+# Pod-shaped (Runpod, no docker): absolute /workspace paths, single
+# reference SAFE, all 9 IW2 VV bursts. The trial harness only consumes
+# bursts / geogrids / dem / geo2rdr params from this config — the
+# correction-LUT and QA sections are irrelevant to it (kept minimal,
+# mirroring configs/insar_s1_boso_geo_gpu.yaml).
+#
+# Companion burst DB: built with
+#   python fetch/build_burst_db.py --bursts /workspace/data/S1-boso-full/bursts.json \
+#       --subswath IW1,IW2,IW3 --pol VV --out /workspace/data/S1-boso-full/burst_db_frame.sqlite3
+runconfig:
+    name: cslc_s1_workflow_default
+
+    groups:
+        pge_name_group:
+            pge_name: CSLC_S1_PGE
+
+        input_file_group:
+            safe_file_path:
+                - "/workspace/data/S1-data/S1A_IW_SLC__1SDV_20251221T204341_20251221T204408_062418_07D1B4_CC6C.SAFE"
+            orbit_file_path:
+                - "/workspace/data/S1-boso-full/orbits/S1A_OPER_AUX_POEORB_OPOD_20260110T070405_V20251220T225942_20251222T005942.EOF"
+            burst_id:
+                - t046_097519_iw3
+                - t046_097520_iw1
+                - t046_097520_iw2
+                - t046_097520_iw3
+                - t046_097521_iw1
+                - t046_097521_iw2
+                - t046_097521_iw3
+                - t046_097522_iw1
+                - t046_097522_iw2
+                - t046_097522_iw3
+                - t046_097523_iw1
+                - t046_097523_iw2
+                - t046_097523_iw3
+                - t046_097524_iw1
+                - t046_097524_iw2
+                - t046_097524_iw3
+                - t046_097525_iw1
+                - t046_097525_iw2
+                - t046_097525_iw3
+                - t046_097526_iw1
+                - t046_097526_iw2
+                - t046_097526_iw3
+                - t046_097527_iw1
+                - t046_097527_iw2
+                - t046_097527_iw3
+                - t046_097528_iw1
+                - t046_097528_iw2
+
+        dynamic_ancillary_file_group:
+            dem_file: "/workspace/data/S1-boso-full/dem.tif"
+            dem_description: "Boso full-frame copernicus 1arcsec (A100 trial staging)"
+            tec_file:
+            weather_model_file:
+
+        static_ancillary_file_group:
+            burst_database_file: "/workspace/data/S1-boso-full/burst_db_frame.sqlite3"
+
+        product_path_group:
+            product_path: "/dev/shm/trial_frame/product"
+            scratch_path: "/dev/shm/trial_frame/product"
+            sas_output_file: "/dev/shm/trial_frame/product"
+            product_version: '0.2'
+            product_specification_version: '0.1'
+
+        primary_executable:
+            product_type: CSLC_S1
+
+        processing:
+            polarization: co-pol
+            geocoding:
+                flatten: True
+                x_posting:
+                y_posting:
+                x_snap:
+                y_snap:
+            geo2rdr:
+                lines_per_block: 1000
+                threshold: 1.0e-8
+                numiter: 25
+            correction_luts:
+                enabled: False
+                range_spacing: 120
+                azimuth_spacing: 0.028
+                troposphere:
+                    delay_type: wet_dry
+            rdr2geo:
+                threshold: 1.0e-8
+                numiter: 25
+                lines_per_block: 1000
+                extraiter: 10
+                compute_latitude: False
+                compute_longitude: False
+                compute_height: False
+                compute_layover_shadow_mask: True
+                compute_local_incidence_angle: True
+                compute_ground_to_sat_east: True
+                compute_ground_to_sat_north: True
+
+        worker:
+            internet_access: False
+            gpu_enabled: True
+            gpu_id: 0
+
+        quality_assurance:
+            browse_image:
+                enabled: False
+                complex_to_real: amplitude
+                percent_low: 0
+                percent_high: 95
+                gamma: 0.5
