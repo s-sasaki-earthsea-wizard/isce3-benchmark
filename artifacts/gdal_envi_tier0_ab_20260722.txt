@@ -1,0 +1,40 @@
+=== provenance ===
+timestamp_utc: 2026-07-22T12:03:24Z
+host: 1bd232580c03
+micromamba: 2.0.5
+base env GDAL: GDAL 3.12.3 "Chicoutimi", released 2026/03/17
+
+--- solving disposable env: libgdal-core=3.12.1 -> /tmp/gdal_ab/gdal3121
+      libgdal-core     3.12.1        hf05ffb4_1        conda-forge
+      proj             9.7.1         he0df7b0_3        conda-forge
+--- solving disposable env: libgdal-core=3.12.2 -> /tmp/gdal_ab/gdal3122
+      libgdal-core     3.12.2        h4f65170_3        conda-forge
+      proj             9.8.1         he0df7b0_0        conda-forge
+
+=== [3.12.1] gdal_create -of ENVI -ot Float32 -outsize 34992 34416 -bands 2 /tmp/gdal_ab_out/3.12.1_Float32.bin ===
+version: GDAL 3.12.1 "Chicoutimi", released 2025/12/12
+exit code: 0
+created: 8 -rw-r--r-- 1 root root 9634277376 Jul 22 12:03 /tmp/gdal_ab_out/3.12.1_Float32.bin
+created: 4 -rw-r--r-- 1 root root        139 Jul 22 12:03 /tmp/gdal_ab_out/3.12.1_Float32.hdr
+
+=== [3.12.2] gdal_create -of ENVI -ot Float32 -outsize 34992 34416 -bands 2 /tmp/gdal_ab_out/3.12.2_Float32.bin ===
+version: GDAL 3.12.2 "Chicoutimi", released 2026/02/03
+ERROR 1: Int overflow occurred.
+exit code: 1
+created: 4 -rw-r--r-- 1 root root   2 Jul 22 12:03 /tmp/gdal_ab_out/3.12.2_Float32.bin
+created: 4 -rw-r--r-- 1 root root 139 Jul 22 12:03 /tmp/gdal_ab_out/3.12.2_Float32.hdr
+
+=== [3.12.3-base] gdal_create -of ENVI -ot Float32 -outsize 34992 34416 -bands 2 /tmp/gdal_ab_out/3.12.3-base_Float32.bin ===
+version: GDAL 3.12.3 "Chicoutimi", released 2026/03/17
+ERROR 1: Int overflow occurred.
+exit code: 1
+created: 4 -rw-r--r-- 1 root root   2 Jul 22 12:03 /tmp/gdal_ab_out/3.12.3-base_Float32.bin
+created: 4 -rw-r--r-- 1 root root 139 Jul 22 12:03 /tmp/gdal_ab_out/3.12.3-base_Float32.hdr
+
+=== [3.12.3-base-byte-pitfall] gdal_create -of ENVI -ot Byte -outsize 34992 34416 -bands 2 /tmp/gdal_ab_out/3.12.3-base-byte-pitfall_Byte.bin ===
+version: GDAL 3.12.3 "Chicoutimi", released 2026/03/17
+exit code: 0
+created: 8 -rw-r--r-- 1 root root 2408569344 Jul 22 12:03 /tmp/gdal_ab_out/3.12.3-base-byte-pitfall_Byte.bin
+created: 4 -rw-r--r-- 1 root root        139 Jul 22 12:03 /tmp/gdal_ab_out/3.12.3-base-byte-pitfall_Byte.hdr
+
+=== done ===
