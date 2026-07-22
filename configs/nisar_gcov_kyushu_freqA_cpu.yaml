@@ -9,12 +9,14 @@
 # Note:   no TEC file -> ionospheric corrections OFF (official reference has
 #         them ON). Expected small geolocation offset; record in comparison.
 # Note:   output format is switched from the HDF5(->ENVI) default to GTiff:
-#         with the default, the multiband BSQ ENVI scratch raster hits the
-#         GDAL ENVI driver's band-stride guard (nLineOffset * nLines must
-#         fit in int32; 29240*4*21232 = 2.48 GB exceeds it; guard present
-#         since GDAL 2.1 / commit 28762760e, 2016) and isce3.io.Raster
-#         segfaults on the unchecked null dataset. GTiff auto-promotes to
-#         BigTIFF and works. See session note 2026-07-22.
+#         with the default, the multiband BSQ ENVI scratch raster hits a
+#         GDAL band-stride guard (nLineOffset * nLines must fit in int32;
+#         29240*4*21232 = 2.48 GB exceeds it). The guard is a REGRESSION
+#         introduced by GDAL commit 13d14e3188 (2026-01-11, oss-fuzz
+#         474923693 fix), shipped in GDAL 3.12.2+ / 3.13+; 3.12.1 and
+#         older work. isce3.io.Raster then segfaults on the unchecked
+#         null dataset. GTiff auto-promotes to BigTIFF and works.
+#         See session note 2026-07-22.
 #
 # Unset fields inherit isce3 share/nisar/defaults/gcov.yaml
 # (apply_rtc: True, gamma0, area_projection, fullcovariance -> False for
