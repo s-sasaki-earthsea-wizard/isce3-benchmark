@@ -92,6 +92,38 @@ bench: ## Full bench sweep defined in scripts/run_bench.sh
 poc-geocode-slc: ## Build + run the geocode_slc CUDA PoC microbenchmark (issue #11)
 	$(RUN) bash poc/geocode_slc/run.sh
 
+# --- NISAR Stage 2a (issue #18) ----------------------------------------------
+# Expects the RSLC + official GCOV reference under ./data/NISAR/{RSLC,GCOV}
+# (staged manually; ~18 GB, not fetched by the harness). Granule names for
+# NISAR_ANC below come from the official GCOV's embedded runconfig.
+
+NISAR_REF_GCOV := /data/NISAR/GCOV/NISAR_L2_PR_GCOV_025_125_A_017_4005_DHDH_A_20260716T203701_20260716T203721_P05023_N_P_J_001.h5
+
+.PHONY: data-nisar-anc
+data-nisar-anc: ## Fetch TEC + MOE orbit ancillaries from ASF DAAC (~/.netrc auth) into ./data/NISAR/ancillary
+	python3 fetch/fetch_nisar_ancillary.py --out data/NISAR/ancillary \
+	    NISAR_ANC_TEC_20260717T211944_20260715T230002_20260716T235952_s015 \
+	    NISAR_ANC_J_PR_MOE_20260717T132621_20260715T205942_20260717T025942
+
+.PHONY: gcov-freqB
+gcov-freqB: ## NISAR GCOV freqB (80 m) smoke run (CPU, ~3 min)
+	$(RUN) bash -c "mkdir -p /data/NISAR/out_gcov_freqB && cd /data/NISAR/out_gcov_freqB && /usr/bin/time -v python /work/scripts/run_gcov_nisar.py /work/configs/nisar_gcov_kyushu_freqB_cpu.yaml"
+
+.PHONY: gcov-freqA
+gcov-freqA: ## NISAR GCOV freqA (10 m) baseline run (CPU, ~30 min, ~59 GB RAM)
+	$(RUN) bash -c "mkdir -p /data/NISAR/out_gcov_freqA && cd /data/NISAR/out_gcov_freqA && /usr/bin/time -v python /work/scripts/run_gcov_nisar.py /work/configs/nisar_gcov_kyushu_freqA_cpu.yaml"
+
+.PHONY: gcov-freqA-anc
+gcov-freqA-anc: ## NISAR GCOV freqA same-ancillary rerun (official TEC + MOE orbit; needs data-nisar-anc)
+	$(RUN) bash -c "mkdir -p /data/NISAR/out_gcov_freqA_anc && cd /data/NISAR/out_gcov_freqA_anc && /usr/bin/time -v python /work/scripts/run_gcov_nisar.py /work/configs/nisar_gcov_kyushu_freqA_anc_cpu.yaml"
+
+.PHONY: compare-gcov
+compare-gcov: ## Compare all local GCOV outputs against the official reference
+	$(RUN) bash -c "python /work/scripts/compare_gcov_nisar.py --ours /data/NISAR/out_gcov_freqB/gcov_freqB.h5 --ref $(NISAR_REF_GCOV) --freq B; \
+	    for d in out_gcov_freqA out_gcov_freqA_anc; do \
+	        [ -d /data/NISAR/$$d ] && python /work/scripts/compare_gcov_nisar.py --ours /data/NISAR/$$d --ref $(NISAR_REF_GCOV) --freq A; \
+	    done; true"
+
 .PHONY: profile-nsys
 profile-nsys: ## Nsight Systems trace on a single workflow run
 	$(RUN) bash scripts/run_profile_nsys.sh

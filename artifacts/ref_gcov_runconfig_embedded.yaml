@@ -1,0 +1,121 @@
+#s3://nisar-static-repo/LSAR_PARAMETER_SET/05020/GCOV/NISAR_ParameterSet_GCOV_20000101_diag_40_v0.1.yaml was used to generate this runconfig.
+runconfig:
+    name: NISAR_GCOV_RUNCONFIG
+    groups:
+        pge_name_group:
+            pge_name: GCOV_L_PGE
+        input_file_group:
+            input_file_path: 
+                /data/work/jobs/2026/07/20/22/24/SCIFLO_GCOV__pcm_r05.02.2_pge_r05.02.3-gcov_gslc_025_125_017_partial_individual_L_40_DH_05_DH_25_state-config-20260720T222345.263578Z/NISAR_L1_PR_RSLC_025_125_A_017_4005_DHDH_A_20260716T203701_20260716T203721_P05023_N_P_J_001.h5
+            qa_input_file: output/gcov.h5
+        dynamic_ancillary_file_group:
+            dem_file: 
+                /data/work/jobs/2026/07/20/22/24/SCIFLO_GCOV__pcm_r05.02.2_pge_r05.02.3-gcov_gslc_025_125_017_partial_individual_L_40_DH_05_DH_25_state-config-20260720T222345.263578Z/dem.vrt
+            dem_file_description: Digital Elevation Model (DEM) for the 
+                NASA-ISRO NISAR mission, version 1.2, based on the Copernicus 
+                DEM 30-m (2023_1), referenced to the WGS84 ellipsoid. This 
+                digital elevation model (DEM) was prepared at the Jet Propulsion
+                Laboratory, California Institute of Technology, under contract 
+                with the National Aeronautics and Space Administration, using 
+                the Copernicus DEM 30-m COP-DEM_GLO-30-DGED/2023_1 model, 
+                provided by the European Space Agency (ESA). The Copernicus DEM 
+                30-m was produced using Copernicus WorldDEM-30  DLR e.V. 
+                2010-2014 and  Airbus Defence and Space GmbH 2014-2018 provided 
+                under COPERNICUS by the European Union and ESA; all rights 
+                reserved. The organizations in charge of the NISAR mission or 
+                the Copernicus programme by law or by delegation do not incur 
+                any liability for any use of the Copernicus WorldDEM-30. Users, 
+                including those who redistribute, adapt, modify, or combine the 
+                data contained in this DEM, must comply with the terms of the 
+                Copernicus DEM 30-m License Agreement. For additional 
+                information, please refer to https://doi.org/10.5067/NIDEM-1 and
+                https://doi.org/10.5270/ESA-c5d3d65.
+            orbit_file: 
+                /data/work/jobs/2026/07/20/22/24/SCIFLO_GCOV__pcm_r05.02.2_pge_r05.02.3-gcov_gslc_025_125_017_partial_individual_L_40_DH_05_DH_25_state-config-20260720T222345.263578Z/NISAR_ANC_J_PR_MOE_20260717T132621_20260715T205942_20260717T025942.xml
+            tec_file: 
+                /data/work/jobs/2026/07/20/22/24/SCIFLO_GCOV__pcm_r05.02.2_pge_r05.02.3-gcov_gslc_025_125_017_partial_individual_L_40_DH_05_DH_25_state-config-20260720T222345.263578Z/NISAR_ANC_TEC_20260717T211944_20260715T230002_20260716T235952_s015.json
+        primary_executable:
+            product_type: GCOV
+            product_version: 1.0.11
+            product_doi: 10.5067/NIL2GCOV-P1
+            composite_release_id: P05023
+            processing_type: PR
+            product_accuracy: N
+            urgent_request_id:
+            processing_center: J
+            data_source: A
+            static_layers_data_access: 
+                https://nisar-services.earthdata.nasa.gov/redirect/NISAR_L2_STATIC/{granule_id}.h5
+            partial_granule_id: 
+                NISAR_L2_PR_GCOV_025_125_A_017_{MODE}_{POLE}_A_{StartDateTime}_{EndDateTime}_P05023_N_P_J_001
+        product_path_group:
+            product_path: output
+            scratch_path: scratch
+            sas_output_file: output/gcov.h5
+            product_counter: 1
+            qa_output_dir: output
+        debug_level_group:
+            debug_switch: false
+        processing:
+      #s3://nisar-static-repo/LSAR_PARAMETER_SET/05020/GCOV/NISAR_ParameterSet_GCOV_20000101_diag_40_v0.1.yaml was used to generate this runconfig.
+      #s3://nisar-static-repo/PRODUCT_VERSION/NISAR_ProductVersion_20260629_v1.0.21.yaml is the location of the product version file.
+            input_subset:
+                list_of_frequencies:
+                symmetrize_cross_pol_channels: false
+            dem_download:
+                source:
+                top_left:
+                    x:
+                    y:
+                bottom_right:
+                    x:
+                    y:
+            geocode:
+                output_posting:
+                    A:
+                        x_posting: 10
+                        y_posting: 10
+                    B:
+                        x_posting: 80
+                        y_posting: 80
+                output_epsg: 32652
+                top_left:
+                    y_abs: 3568320.0
+                    x_abs: 427680.0
+                bottom_right:
+                    y_abs: 3224160.0
+                    x_abs: 777600.0
+            radar_grid_cubes:
+                output_epsg: 32652
+                output_posting:
+                    x_posting:
+                    y_posting:
+                top_left:
+                    y_abs:
+                    x_abs:
+                bottom_right:
+                    y_abs:
+                    x_abs:
+            rtc:
+                rtc_min_value_db: -30
+                dem_upsampling: 1
+        worker:
+            internet_access: false
+            gpu_enabled: false
+        logging:
+            path: scratch/gcov.log
+            write_mode: w
+        output:
+            output_gcov_terms:
+                mantissa_nbits: 16
+                compression_level: 1
+            output_secondary_layers:
+                compression_level: 1
+        qa:
+            qa_reports:
+                backscatter_img:
+                    output_individual_pngs: true
+                browse_latlon:
+                    output_browse_latlon: true
+
+
