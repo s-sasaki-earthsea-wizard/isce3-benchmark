@@ -1,0 +1,76 @@
+# NISAR GCOV baseline run — frequency A (Stage 2a, real granule).
+#
+# Input:  real NISAR L1 RSLC over Kyushu / Nansei islands (track 125, frame 17,
+#         ascending, L-band DHDH, 2026-07-16). Frequency A (40 MHz).
+# DEM:    Copernicus GLO-30 stitched via dem_stitcher,
+#         bbox (W,S,E,N) = (128.28, 30.03, 131.65, 32.30).
+# Geogrid: EPSG 32652 (UTM 52N) at 10 m with 10 m snapping, matching the
+#         official GCOV reference granule (frequencyA posting).
+# Note:   no TEC file -> ionospheric corrections OFF (official reference has
+#         them ON). Expected small geolocation offset; record in comparison.
+# Note:   output format is switched from the HDF5(->ENVI) default to GTiff:
+#         with the default, the per-band scratch raster (29240x21232x4 B
+#         = 2.48 GB > INT32_MAX) trips a GDAL 3.12 ENVI-driver int overflow
+#         and isce3.io.Raster segfaults on the unchecked null dataset.
+#         GTiff auto-promotes to BigTIFF and works. See session note.
+#
+# Unset fields inherit isce3 share/nisar/defaults/gcov.yaml
+# (apply_rtc: True, gamma0, area_projection, fullcovariance -> False for
+# dual-pol HH/HV).
+
+runconfig:
+    name: gcov_workflow_default
+
+    groups:
+        pge_name_group:
+            pge_name: GCOV_L_PGE
+
+        primary_executable:
+            product_type: GCOV
+
+        debug_level_group:
+            debug_switch: false
+
+        input_file_group:
+            input_file_path: /data/NISAR/RSLC/NISAR_L1_PR_RSLC_025_125_A_017_4005_DHDH_A_20260716T203701_20260716T203721_P05023_N_P_J_001.h5
+
+        dynamic_ancillary_file_group:
+            dem_file: /data/NISAR/dem.tif
+            dem_file_description: Copernicus GLO-30 (dem_stitcher glo_30, ellipsoidal height)
+
+        product_path_group:
+            product_path: /data/NISAR/out_gcov_freqA
+            scratch_path: /data/NISAR/out_gcov_freqA/scratch
+            sas_output_file: /data/NISAR/out_gcov_freqA/gcov_freqA.h5
+
+        processing:
+            input_subset:
+                list_of_frequencies:
+                    A:
+
+            geocode:
+                output_epsg: 32652
+                output_posting:
+                    A:
+                        x_posting: 10.0
+                        y_posting: 10.0
+                    B:
+                        x_posting:
+                        y_posting:
+                x_snap: 10.0
+                y_snap: 10.0
+                top_left:
+                    y_abs:
+                    x_abs:
+                bottom_right:
+                    y_abs:
+                    x_abs:
+
+        output:
+            output_gcov_terms:
+                format: GTiff
+            output_secondary_layers:
+                format: GTiff
+
+        worker:
+            gpu_enabled: False
