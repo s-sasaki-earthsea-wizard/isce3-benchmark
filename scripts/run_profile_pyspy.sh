@@ -25,8 +25,11 @@ record_provenance "${run_dir}"
 # --native (C-frame attribution) is opt-in via PYSPY_NATIVE=1. It is more
 # informative for pybind11/numpy hotspots, but interferes with h5py's GC
 # in some COMPASS configs (HDF5 "Software caused connection abort" on
-# context-manager exit). Default off — Python attribution is enough for
-# the I/O-vs-compute determination.
+# context-manager exit). On NAS/NFS-backed data dirs it can also inject
+# EIO into GDAL scratch-file reads mid-run (observed 2026-07-23: NISAR
+# GCOV freqB run died with "ERROR 3: I/O error" reading an ENVI scratch
+# .bin, followed by an errno=5 h5py close failure). Default off — Python
+# attribution is enough for the I/O-vs-compute determination.
 native_arg=()
 if [ "${PYSPY_NATIVE:-0}" = "1" ]; then
     native_arg=(--native)
@@ -43,11 +46,29 @@ case "${fmt}" in
     *) echo "unsupported PYSPY_FORMAT: ${fmt}" >&2; exit 1 ;;
 esac
 
+# Sampling rate override (Hz). 100 Hz can fall behind with --native on
+# many-thread runs; 50 Hz is plenty for multi-minute workflows.
+rate="${PYSPY_RATE:-100}"
+
+# --nonblocking is the DEFAULT here (opt out with PYSPY_BLOCKING=1).
+# py-spy normally ptrace-stops the target at every sample; on this host the
+# data dir is a CIFS mount with `soft,retrans=1`, where a stop landing during
+# an in-flight SMB operation makes the kernel return EIO to the application.
+# Observed 2026-07-23 on NISAR GCOV: GDAL scratch read-back died with
+# "ERROR 3: I/O error" under blocking sampling (both with and without
+# --native), while unprofiled runs pass. Nonblocking sampling trades a small
+# amount of stack consistency for not perturbing I/O syscalls at all.
+blocking_arg=(--nonblocking)
+if [ "${PYSPY_BLOCKING:-0}" = "1" ]; then
+    blocking_arg=()
+fi
+
 py-spy record \
     --output "${run_dir}/pyspy.${ext}" \
     --format "${fmt}" \
-    --rate 100 \
+    --rate "${rate}" \
     --subprocesses \
+    "${blocking_arg[@]}" \
     "${native_arg[@]}" \
     -- "${cmd[@]}" \
     > >(tee "${run_dir}/run.log") \
