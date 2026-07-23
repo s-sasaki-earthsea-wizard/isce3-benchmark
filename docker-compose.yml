@@ -42,6 +42,11 @@ services:
     working_dir: /work
     # ipc=host avoids the default 64MB /dev/shm limit which can bite numpy/HDF5.
     ipc: host
+    # perf profiling inside the container (issue #18 Step 2): perf_event_open
+    # is denied without a capability grant. CAP_PERFMON (kernel >= 5.8) is the
+    # least-privilege way to allow it (avoids full SYS_ADMIN).
+    cap_add:
+      - PERFMON
     # tty + stdin for interactive shells; harmless for non-interactive runs.
     tty: true
     stdin_open: true
