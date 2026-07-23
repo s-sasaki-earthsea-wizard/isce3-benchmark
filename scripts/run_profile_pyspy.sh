@@ -32,9 +32,20 @@ if [ "${PYSPY_NATIVE:-0}" = "1" ]; then
     native_arg=(--native)
 fi
 
+# Output format is opt-in via PYSPY_FORMAT (default: flamegraph SVG).
+# "raw" emits collapsed stacks with sample counts — the easiest form to
+# aggregate quantitatively (compute-vs-I/O attribution) with plain scripts.
+fmt="${PYSPY_FORMAT:-flamegraph}"
+case "${fmt}" in
+    flamegraph) ext="svg" ;;
+    speedscope) ext="json" ;;
+    raw)        ext="collapsed.txt" ;;
+    *) echo "unsupported PYSPY_FORMAT: ${fmt}" >&2; exit 1 ;;
+esac
+
 py-spy record \
-    --output "${run_dir}/pyspy.svg" \
-    --format flamegraph \
+    --output "${run_dir}/pyspy.${ext}" \
+    --format "${fmt}" \
     --rate 100 \
     --subprocesses \
     "${native_arg[@]}" \
@@ -42,4 +53,4 @@ py-spy record \
     > >(tee "${run_dir}/run.log") \
     2> >(tee "${run_dir}/run.err" >&2)
 
-echo "flamegraph: ${run_dir}/pyspy.svg"
+echo "profile (${fmt}): ${run_dir}/pyspy.${ext}"

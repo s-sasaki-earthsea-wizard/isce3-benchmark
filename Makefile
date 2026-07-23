@@ -132,6 +132,14 @@ profile-nsys: ## Nsight Systems trace on a single workflow run
 profile-pyspy: ## py-spy sampling profile on a single workflow run
 	$(RUN) bash scripts/run_profile_pyspy.sh
 
+.PHONY: profile-pyspy-gcov-freqB
+profile-pyspy-gcov-freqB: ## py-spy profile of NISAR GCOV freqB smoke (~3 min, separate output dir)
+	$(RUN) bash scripts/run_profile_pyspy.sh /work/configs/nisar_gcov_kyushu_freqB_profile_cpu.yaml
+
+.PHONY: profile-pyspy-gcov-freqA
+profile-pyspy-gcov-freqA: ## py-spy profile of NISAR GCOV freqA (~30 min, ~59 GB RAM, separate output dir)
+	$(RUN) bash scripts/run_profile_pyspy.sh /work/configs/nisar_gcov_kyushu_freqA_profile_cpu.yaml
+
 # --- analysis -----------------------------------------------------------------
 .PHONY: report
 report: ## Aggregate latest log dir into a markdown report
