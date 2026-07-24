@@ -1,0 +1,33 @@
+total samples: 138987
+
+== stage attribution (first matching rule) ==
+   98.24%     136541  cpp geocode+RTC (pybind call)
+    1.01%       1399  save products (save_dataset)
+    0.26%        367  h5/metadata writer
+    0.23%        315  other
+    0.21%        298  radar grid cubes
+    0.05%         67  imports/startup
+
+== workflow/writer call sites (any depth) ==
+   99.92%     138874  run (nisar/workflows/gcov.py:312)
+   99.53%     138334  _run (nisar/workflows/gcov.py:606)
+   98.24%     136541  run_geocode_cov (nisar/products/writers/GcovWriter.py:215)
+    0.85%       1185  save_dataset (nisar/products/writers/BaseL2WriterSingleInput.py:325)
+    0.40%        549  run_geocode_cov (nisar/products/writers/GcovWriter.py:283)
+    0.39%        537  _run (nisar/workflows/gcov.py:660)
+    0.32%        440  save_raster (nisar/products/writers/BaseL2WriterSingleInput.py:689)
+    0.28%        384  save_raster (nisar/products/writers/BaseL2WriterSingleInput.py:748)
+    0.24%        334  run_geocode_cov (nisar/products/writers/GcovWriter.py:294)
+    0.23%        313  run_geocode_cov (nisar/products/writers/GcovWriter.py:316)
+
+== leaf frames ==
+   98.24%     136541  run_geocode_cov (nisar/products/writers/GcovWriter.py:215)
+    0.51%        703  BandRasterIONumPy (osgeo/gdal_array.py:266)
+    0.28%        384  save_raster (nisar/products/writers/BaseL2WriterSingleInput.py:748)
+    0.21%        293  add_radar_grid_cubes_to_hdf5 (nisar/workflows/h5_prep.py:888)
+    0.17%        239  _run (nisar/workflows/gcov.py:660)
+    0.13%        187  run_geocode_cov (nisar/products/writers/GcovWriter.py:243)
+    0.13%        184  write_direct (h5py/_hl/dataset.py:1160)
+    0.07%        100  _get_stats_obj_list (nisar/products/writers/BaseL2WriterSingleInput.py:178)
+    0.06%         87  run_geocode_cov (nisar/products/writers/GcovWriter.py:252)
+    0.05%         66  run_geocode_cov (nisar/products/writers/GcovWriter.py:246)

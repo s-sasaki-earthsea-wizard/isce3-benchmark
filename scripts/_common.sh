@@ -96,8 +96,13 @@ dispatch_workflow() {
     local wf
     wf="$(python -c "import yaml; print(yaml.safe_load(open('${cfg}'))['runconfig']['name'])")"
     case "${wf}" in
-        focus|gslc|gcov|insar)
+        focus|gslc|insar)
             printf '%s\n' python -m "nisar.workflows.${wf}" "${cfg}" ;;
+        gcov|gcov_workflow_default)
+            # Launcher applies the GDAL 3.12 save_raster workaround required
+            # for GTiff-mode output at NISAR freqA nominal scale (see the
+            # docstring in run_gcov_nisar.py). Transparent for HDF5-mode runs.
+            printf '%s\n' python "${BENCH_ROOT}/scripts/run_gcov_nisar.py" "${cfg}" ;;
         cslc_s1_workflow_default)
             printf '%s\n' s1_cslc.py "${cfg}" --grid "${compass_grid}" ;;
         crossmul_s1)
