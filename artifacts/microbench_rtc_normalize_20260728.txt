@@ -1,0 +1,35 @@
+# RTC _normalizeRtcArea microbenchmark — plain OMP vs Eigen variants
+#
+# Context: isce-framework/isce3#341. Question under test: would an
+# Eigen-expression implementation (idiomatic, since isce3::core::Matrix
+# derives from Eigen::Array) beat the plain-OMP fix filed in the issue?
+#
+# Bench: poc/rtc_normalize_microbench/ @ isce3-benchmark branch
+# feat/microbench-rtc-normalize. Container-side, conda GCC 13.3,
+# -O2 -g -DNDEBUG (same toolchain/flags as the isce3 RelWithDebInfo
+# build used for the #341 measurements). Inputs: deterministic
+# hash-initialized arrays, 5% exact zeros in the denominator.
+#
+# Answer: no. v1 (plain OMP, the #341 fix) and v2 (OMP + per-row Eigen
+# select) are indistinguishable — both saturate memory bandwidth
+# (7.44 GB / 0.127 s = 58.6 GB/s vs 57.4 GB/s parallel-memcpy roof).
+# Vectorization cannot help a bandwidth-bound pass. A naive whole-array
+# Eigen rewrite (v3) would be a 7x regression vs the fix because Eigen
+# does not thread coefficient-wise expressions — though still 38x
+# faster than develop's dynamic+atomic loop (v0).
+#
+# All four variants produce bit-identical output (asserted vs v0).
+
+OMP_NUM_THREADS=16
+host: c579faa0d9c5, date: 2026-07-28T13:12:06Z
+isce3 src: e53666f94
+
+grid: 29240 x 21232 (2.48 GB/array), threads: 16
+reps: v0=3, v1/v2/v3=5
+
+v0_develop (dynamic+atomic)    median    34.118 s  (34.084, 34.118, 34.138)  bit-identical vs v0: YES
+v1_plain_omp (#341 fix)        median     0.127 s  (0.127, 0.128, 0.130, 0.126, 0.125)  bit-identical vs v0: YES
+v2_omp_eigen (rows+select)     median     0.126 s  (0.126, 0.130, 0.129, 0.124, 0.125)  bit-identical vs v0: YES
+v3_eigen_whole (1 thread)      median     0.908 s  (0.959, 0.795, 0.959, 0.908, 0.887)  bit-identical vs v0: YES
+
+parallel memcpy restore: median 0.086 s -> 57.4 GB/s effective (2x2.48 GB moved)
