@@ -2,16 +2,21 @@
 
 Public home of the reproduction assets for the finding tracked in
 [issue #26](https://github.com/s-sasaki-earthsea-wizard/isce3-benchmark/issues/26):
-the CPU-vs-GPU difference of the NISAR RIFG `pixelOffsets` layer
-(a smooth ~3.6e-2 px RMS degree-2 surface) is caused by a **single
-one-quantum (1/32 px) subpixel-peak disagreement in one
-high-correlation Ampcor window**, amplified discontinuously by the
-sequential worst-outlier removal of the production rubbersheet fit
+the CPU-vs-GPU difference of the NISAR RIFG `pixelOffsets` layer is
+a smooth ~3.6e-2 px RMS degree-2 surface, and in a **controlled
+replay** of the production rubbersheet fit
 (`isce3.math.offsets_polyfit.polyfit_offsets`, default
-`crit_value=0.1`). The amplifier is an endgame *membership* effect:
-the removal chain forks near its end and the final inlier elite —
-the set that defines the fit — changes wholesale (1,677 vs 1,535
-survivors, 985 common, on the real 40k sample set).
+`crit_value=0.1`), transplanting **one isolated CPU-Ampcor sample —
+a high-correlation window whose subpixel peak moved by exactly one
+quantum (1/32 px) — into the GPU baseline is necessary and
+sufficient** to reproduce the observed coefficient difference to
+the available production log precision. The amplifier is an endgame
+*membership* effect of the sequential worst-outlier removal: the
+chain forks near its end and the final inlier elite — the set that
+defines the fit — changes wholesale (1,677 vs 1,535 survivors, 985
+common, on the real 40k sample set). The actual production CPU raw
+offsets were not reconstructed, so actual-run node provenance
+remains a recorded reservation (see Scope).
 
 The investigation ran in a private working repo; the artifacts here
 are verbatim copies of its recorded results plus fresh verification
@@ -20,24 +25,32 @@ The upstream-facing issue will link this directory.
 
 ## Mechanism in one inequality
 
-At a high-quality window (corr_peak w = 0.9485) the w-test stop
-tolerance of the production fit is
+The exact w-test stop tolerance at a sample is
+`crit_value * sigma * sqrt(1/w^2 - h_ii)`; ignoring the leverage
+term gives the upper bound `crit_value * sigma / w`. At the driver
+window's quality (corr_peak w = 0.9485) the bound is
 
     crit_value * sigmaL / w = 0.1 * 0.1247 / 0.9485 = 0.0132 px
 
-which is **below the input quantization floor** q/2 = 1/64 =
-0.0156 px of the Ampcor correlation grid. The purge therefore digs
-into the high-weight elite (95.8% of the 40k production samples are
-removed) and the final membership sits on a knife edge: a one-quantum
-input flip can re-route the endgame chain. The response is
-piecewise-constant — most perturbations are benign, but a flip that
-crosses an endgame membership boundary jumps the fitted surface by
-orders of magnitude more than any continuous response
-(3.6e-2 px vs ~1e-5 px scale on the real data).
+which sits **below the half-bin bound q/2 = 1/64 = 0.0156 px** on
+the nearest-grid quantization error of the Ampcor correlation grid
+— such a sample can fail the stop test on quantization error alone.
+This is a high-weight-tail property, not an elite-wide one: at the
+survivor-median weight 0.56 the bound is 0.0223 px and the
+inequality reverses. The observed production purge (95.8% of the
+40k samples removed; the fit decided by a ~4% elite) shows the
+susceptibility was realized on this data, leaving the final
+membership on a knife edge. The fit response to an input offset is
+piecewise-smooth — linear in the offsets while the removal chain is
+unchanged, and exactly constant in a perturbed sample's value once
+that sample is purged — with discontinuous jumps at membership
+boundaries; across such a boundary the jump is neither proportional
+nor monotone in the perturbation (3.6e-2 px from one quantum here,
+vs a ~1e-5 px continuous-response scale).
 
 ## Files
 
-Real-40k replay (L1, exact reproduction of the production fits):
+Real-40k replay (L1, controlled replay of the production fits):
 
 - `replay_real40k.json` — gate, legs, factorial, microscope and
   single-node hybrid probes. Headline: swapping only the raw
@@ -45,7 +58,8 @@ Real-40k replay (L1, exact reproduction of the production fits):
   coefficient difference with cosine 1-6e-15 (residual induced field
   9e-9 px vs the 3.6e-2 px target); the minimal destructive set is
   ONE node (sample row 22961, corr_peak 0.9485, dAz exactly
-  -1/32 px), necessary and sufficient.
+  -1/32 px), necessary and sufficient within the observed
+  difference sets.
 - `replay_gate_omp16.json` — cross-thread determinism control
   (OMP=1 vs 16 bit-identical).
 - `replay_real40k_quicklook.png` — amplification curve (the chains
@@ -75,19 +89,20 @@ Verification runs in this repository (fresh, not copied):
 
 - `repro_run_host.txt` / `repro_run_host.json` — host run of
   `scripts/repro_polyfit_quantum_membership.py` (file import from
-  the surrounding isce3 checkout, numpy 2.2.6): 7/7 checks PASS.
+  the surrounding isce3 checkout, numpy 2.2.6): 8/8 checks PASS.
 - `repro_run_container.txt` / `repro_run_container.json` — the same
   inside the `isce3-benchmark:dev` container (isce3
-  0.26.0-dev+2919e1c97 from-source build, numpy 1.26.4): 7/7 PASS.
+  0.26.0-dev+2919e1c97 from-source build, numpy 1.26.4): 8/8 PASS.
   The discrete outcome (removal counts, driver removal iteration,
-  fork iteration, final membership) is **identical** across the two
-  environments; only the float tails of the coefficients differ
-  (~2 ULP, numpy/BLAS version difference).
+  fork iteration, final membership) was **identical in the two
+  tested software environments on the same host**; coefficient
+  tails differed by up to ~2 ULP (numpy/BLAS version difference).
+  Other CPU architectures / BLAS implementations are untested.
 
 ## Reproducing
 
-The synthetic reproducer needs nothing but isce3 (or its source
-tree) and numpy:
+The synthetic reproducer runs in any isce3 Python environment
+(NumPy, and SciPy transitively via the module under test):
 
 ```
 # host (imports the surrounding checkout when isce3 is not installed)
@@ -105,22 +120,44 @@ were produced with (subcommands: `pure`, `replay`, `minrepro`,
 to the standalone script (verified across both repos and both
 environments).
 
-The `replay` and `probe` subcommands need the NISAR-derived local
-inputs (raw dense-offsets rasters of the three Ampcor runs, RIFG/
-RSLC HDF5, production insar.log files) which are **not** included
-here — they live on the measurement host, and the per-run input
-md5s are recorded inside `replay_real40k.json`. The 14.5 MB npz
-with the extracted 40k sample matrices is also withheld for now
-pending a redistribution check of NISAR-derived data.
+**Reproducibility split**: the synthetic L0 is fully reproducible
+from this repository alone. The real-40k L1 results are **recorded
+evidence** — the `replay` and `probe` subcommands need the
+NISAR-derived local inputs (raw dense-offsets rasters of the three
+Ampcor runs, RIFG/RSLC HDF5, production insar.log files), which are
+not included here, so a third party cannot independently replay
+them without those rasters or the extracted-sample npz. Provenance
+remains recorded: per-run input md5s live inside
+`replay_real40k.json`, and the withheld npz (14.5 MB, NISAR-derived
+40k sample matrices; redistribution decision pending) is pinned as
+
+    replay_real40k.npz  SHA-256
+    000401caabc1fefedac6111d972773cf0f06c76ec3c8dc34fc2301c21a15c2c5
+
+with 22 arrays (`samples_{G,A,B}`, `removed_*`, `stop_margin_*`,
+`selection_margin_*`, `coef_log_{L,P}_*`, `amp_curve_*`) produced
+deterministically by the harness `replay` subcommand.
 
 ## Scope and limitations
 
 - Single dataset, single pair (NISAR L-SAR ASC 139/019, CPU vs GPU
   InSAR workflows); the replay determinism claims are same-
   environment claims.
-- The synthetic case is an existence proof at 900 samples, found by
-  a documented 40-seed hunt; prevalence would need a separate seed
-  ensemble.
+- **Actual-run reservation (L2a)**: the L1 evidence is a controlled
+  substitution on recorded rasters; the actual production CPU run's
+  raw offsets were not reconstructed, so "the one flip existed in
+  the actual CPU run" is inferred (strongly — the replayed
+  coefficients land on the CPU run's logged values to 5e-8) but not
+  directly observed.
+- The synthetic case is an existence proof at 900 samples under
+  production kwargs, found by a documented 40-seed hunt; its
+  two-population weight structure is a simplification of the
+  production corr_peak distribution, not a quantitative match
+  (qualitatively consistent: real survivor-median peak 0.56 falls
+  inside the synthetic coherent range 0.3-0.8).
 - The origin of the one-quantum Ampcor argmax flip itself (why the
   CPU and GPU correlation surfaces rank neighboring quanta
-  differently in that window) is not part of this evidence set.
+  differently in that one window) is out of scope here.
+- Most perturbations are benign: 11 of the 12 real flipped nodes
+  and all 38.5k weight epsilons re-converged harmlessly; the
+  mechanism requires crossing an endgame membership boundary.
