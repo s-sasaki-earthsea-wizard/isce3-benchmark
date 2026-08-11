@@ -57,11 +57,17 @@ Real-40k replay (L1, controlled replay of the production fits):
   dense-offsets input reproduces the observed CPU-minus-GPU
   coefficient difference with cosine 1-6e-15 (residual induced field
   9e-9 px vs the 3.6e-2 px target); the minimal destructive set is
-  ONE node (sample row 22961, corr_peak 0.9485, dAz exactly
+  ONE sample row (22961, corr_peak 0.9485, dAz exactly
   -1/32 px), necessary and sufficient within the observed
   difference sets.
 - `replay_gate_omp16.json` — cross-thread determinism control
   (OMP=1 vs 16 bit-identical).
+- `membership_summary_real40k.json` — aggregate endgame-membership
+  summary (final inlier counts per chain, pairwise common inliers
+  and first divergences, the driver row's removal iteration 36,565)
+  derived from the removal sequences recorded in the withheld npz
+  (SHA-256 pinned below) by the harness `membership` subcommand.
+  Aggregate counts only, no sample data.
 - `replay_real40k_quicklook.png` — amplification curve (the chains
   differ by 1e-5..1e-3 px mid-run and explode over the last ~2,000
   iterations) and the replayed degree-2 azimuth difference surface.
@@ -116,9 +122,11 @@ docker compose run --rm dev \
 
 `scripts/polyfit_sensitivity.py` is the full harness the numbers
 were produced with (subcommands: `pure`, `replay`, `minrepro`,
-`probe`); its `minrepro` subcommand produces bit-identical results
-to the standalone script (verified across both repos and both
-environments).
+`probe`, `membership`); its `minrepro` subcommand produces
+bit-identical results to the standalone script (verified across
+both repos and both environments), and its `membership` subcommand
+derives `membership_summary_real40k.json` from a recorded replay
+npz without running any fit.
 
 **Reproducibility split**: the synthetic L0 is fully reproducible
 from this repository alone. The real-40k L1 results are **recorded
@@ -158,6 +166,8 @@ deterministically by the harness `replay` subcommand.
 - The origin of the one-quantum Ampcor argmax flip itself (why the
   CPU and GPU correlation surfaces rank neighboring quanta
   differently in that one window) is out of scope here.
-- Most perturbations are benign: 11 of the 12 real flipped nodes
-  and all 38.5k weight epsilons re-converged harmlessly; the
-  mechanism requires crossing an endgame membership boundary.
+- Most perturbations are benign: 11 of the 12 real changed rows
+  (the union across the two recorded CPU-Ampcor runs; run A differs
+  from the GPU baseline in 10 rows, run B in 9, 7 common) and all
+  38.5k weight epsilons re-converged harmlessly; the mechanism
+  requires crossing an endgame membership boundary.

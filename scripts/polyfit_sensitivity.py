@@ -42,7 +42,11 @@ Scenarios:
   position forks the endgame membership and jumps the fitted surface
   by the target-class ~1e-2 px, exactly as observed on the real data;
 * ``probe`` — the replay-based follow-up probes (transplants, delta
-  and crit_value sweeps at the driver row) as a subcommand.
+  and crit_value sweeps at the driver row) as a subcommand;
+* ``membership`` — aggregate endgame-membership summary (final
+  inlier counts, common inliers, the driver's removal iteration)
+  derived from the removal sequences recorded in a ``replay`` npz;
+  no fits are run and no sample data is emitted.
 
 CLI usage::
 
@@ -55,6 +59,8 @@ CLI usage::
     python scripts/polyfit_sensitivity.py probe [--json out.json]
         [--row 22961] [--peak-only] [--pair] [--complement]
         [--deltas -1/32,-1e-4] [--quanta -2,1,2] [--crits 0.2,0.5]
+    python scripts/polyfit_sensitivity.py membership --npz replay.npz
+        [--driver-id 22961] [--json out.json]
 """
 
 import argparse
@@ -1618,6 +1624,73 @@ def run_probe_scenario(args):
     return result
 
 
+# --- membership scenario: summary of recorded removal sequences ----
+
+
+def file_sha256(path, block=1 << 22):
+    """Streaming sha256 hex digest of a file."""
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while chunk := f.read(block):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def run_membership_scenario(args):
+    """Aggregate endgame-membership summary from a recorded replay npz.
+
+    Derives the membership figures cited in the report (final inlier
+    counts per chain, pairwise common-inlier counts and first
+    divergences, the driver row's removal iteration) from the
+    ``removed_*`` / ``samples_*`` arrays a ``replay`` run recorded.
+    Pure counting over recorded sequences — no fits are run, and the
+    output carries aggregate numbers only (no sample data), so it can
+    be published even while the source npz is withheld.
+    """
+    z = np.load(args.npz)
+    keys = sorted(k[len("removed_"):] for k in z.files
+                  if k.startswith("removed_"))
+    if not keys:
+        sys.exit("membership: no removed_* arrays in the npz")
+    removed = {k: z[f"removed_{k}"].astype(int).tolist() for k in keys}
+    inliers = {k: set(z[f"samples_{k}"][:, 0].astype(int).tolist())
+               - set(removed[k]) for k in keys}
+    chains = {}
+    for k in keys:
+        driver_removed = args.driver_id in set(removed[k])
+        chains[k] = {
+            "n_samples": int(z[f"samples_{k}"].shape[0]),
+            "n_removed": len(removed[k]),
+            "n_final_inliers": len(inliers[k]),
+            "driver_removed": driver_removed,
+            "driver_removal_iteration": (
+                removed[k].index(args.driver_id)
+                if driver_removed else None),
+        }
+        log(f"membership: {k} inliers {chains[k]['n_final_inliers']} "
+            f"driver_iter {chains[k]['driver_removal_iteration']}")
+    pairs = {
+        f"{a}_vs_{b}": {
+            "common_final_inliers": len(inliers[a] & inliers[b]),
+            "first_divergence": first_divergence(removed[a],
+                                                 removed[b]),
+        }
+        for i, a in enumerate(keys) for b in keys[i + 1:]
+    }
+    return {
+        "scenario": "membership",
+        "npz": args.npz.name,
+        "npz_sha256": file_sha256(args.npz),
+        "driver_id": args.driver_id,
+        "iteration_convention":
+            "0-based index into the recorded removal sequence",
+        "chains": chains,
+        "pairs": pairs,
+        "environment": environment_provenance(load_offsets_polyfit()),
+    }
+
+
 def log(message):
     """Progress line on stderr (stdout carries the result JSON)."""
     print(message, file=sys.stderr, flush=True)
@@ -1682,6 +1755,13 @@ def main():
                        default=[],
                        help="comma list of crit_value sweep points")
     probe.add_argument("--json", type=pathlib.Path)
+    membership = sub.add_parser(
+        "membership",
+        help="aggregate membership summary from a recorded replay npz")
+    membership.add_argument("--npz", type=pathlib.Path, required=True,
+                            help="npz written by the replay scenario")
+    membership.add_argument("--driver-id", type=int, default=22961)
+    membership.add_argument("--json", type=pathlib.Path)
     args = ap.parse_args()
 
     if args.scenario == "pure":
@@ -1690,6 +1770,8 @@ def main():
         result, arrays = run_replay_scenario(args)
     elif args.scenario == "minrepro":
         result, arrays = run_min_repro_scenario(args), {}
+    elif args.scenario == "membership":
+        result, arrays = run_membership_scenario(args), {}
     else:
         result, arrays = run_probe_scenario(args), {}
     text = json.dumps(result, indent=2)

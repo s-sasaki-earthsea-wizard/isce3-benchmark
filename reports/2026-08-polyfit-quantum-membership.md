@@ -50,10 +50,13 @@ host and the dev container).
 
 1. **Quantizer (Ampcor subpixel argmax).** The correlation-surface
    argmax rectifies float-epsilon differences into "exactly 0 or at
-   least one quantum (1/32 px)". Of the 40k samples in the
-   controlled CPU-Ampcor vs GPU-Ampcor sets extracted on the
-   production sample grid, 39,990 are bit-identical; the 10 that
-   differ all differ by at least one quantum.
+   least one quantum (1/32 px)". In the controlled sample sets
+   extracted on the production sample grid, two independent
+   CPU-Ampcor runs were each compared against the GPU-Ampcor
+   baseline: 39,990 of the 40,000 sample rows are bit-identical in
+   the first comparison (10 rows differ; the second run differs in
+   9 rows; the union is 12 changed rows, 7 common to both), and
+   every differing offset differs by at least one quantum.
 2. **Membership amplifier (sequential worst-outlier removal).** Each
    iteration refits and removes the worst standardized residual;
    flipping a single removal decision re-routes the rest of the
@@ -99,9 +102,16 @@ L1 — controlled replay of the production fits (real 40k samples):
 | Determinism controls | A/A bit-identical; OMP=1 vs 16 bit-identical; traced mirror bit-equivalent |
 | Full-input swap (CPU raw offsets into the GPU baseline) | reproduces the observed CPU-minus-GPU coefficient target: cosine 1-6e-15, residual field 9e-9 px vs a 3.6e-2 px target; the replayed coefficients match the CPU run's logged values directly at max |d| 5.0e-8 |
 | Channel attribution | offsets-only = full target; weights-only (38.5k float32 epsilons) forks at iter 468 and re-converges benignly (2.4e-9 px) |
-| Minimal destructive set | ONE node: sample row 22961, corr_peak 0.9485, dAz exactly -1/32 px — necessary (complement transplants = exactly zero) and sufficient (single transplant = full target) within the observed difference sets; the other 11 flipped nodes, incl. a +5.6/-13.9 px monster, change nothing |
+| Minimal destructive set | ONE sample row: 22961, corr_peak 0.9485, dAz exactly -1/32 px — necessary (complement transplants = exactly zero) and sufficient (single transplant = full target) within the observed difference sets; the other 11 changed rows of the 12-row union, including a 5.6/13.9 px (azimuth/range) outlier row, change nothing |
 | Perturbation basin at the driver | only the exact -1/32 px value lands in the target basin; -1e-5 doesn't fork, -1e-4 / sub-quantum / ±2-quantum deltas fork benignly |
 | Endgame membership | final inliers 1,677 (GPU baseline) vs 1,535 (CPU-offsets), 985 common; driver removed at iteration 36,565 of 38,465 (95.1% of the chain); amplification curve stays at 1e-5..1e-3 px mid-run and explodes over the last ~2,000 iterations |
+
+The endgame-membership figures (final inlier counts per chain,
+pairwise common inliers and first divergences, the driver's removal
+iteration) are recorded in
+[`membership_summary_real40k.json`](../artifacts/polyfit-membership-20260811/membership_summary_real40k.json),
+derived from the recorded removal sequences by the harness
+`membership` subcommand (aggregate counts only).
 
 L0 — minimal synthetic reproducer (public, this repo): a 30x30
 two-population case (coherent elite + junk majority, 1/32 px
@@ -203,7 +213,7 @@ judgment belongs to the maintainers):
   actual CPU run" is strongly supported (the replayed coefficients
   land on the CPU run's logged values at 5.0e-8) but not directly
   observed.
-- Pairwise interaction of the 12 flipped nodes was not enumerated
+- Pairwise interaction of the 12 changed rows was not enumerated
   (the complement probes close the necessity question for the
   observed sets).
 - The synthetic two-population weight structure is a simplification

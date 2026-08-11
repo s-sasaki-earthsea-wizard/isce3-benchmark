@@ -1,0 +1,56 @@
+{
+  "scenario": "membership",
+  "npz": "replay_real40k.npz",
+  "npz_sha256": "000401caabc1fefedac6111d972773cf0f06c76ec3c8dc34fc2301c21a15c2c5",
+  "driver_id": 22961,
+  "iteration_convention": "0-based index into the recorded removal sequence",
+  "chains": {
+    "A": {
+      "n_samples": 40000,
+      "n_removed": 38465,
+      "n_final_inliers": 1535,
+      "driver_removed": true,
+      "driver_removal_iteration": 36565
+    },
+    "B": {
+      "n_samples": 40000,
+      "n_removed": 38465,
+      "n_final_inliers": 1535,
+      "driver_removed": true,
+      "driver_removal_iteration": 36565
+    },
+    "G": {
+      "n_samples": 40000,
+      "n_removed": 38323,
+      "n_final_inliers": 1677,
+      "driver_removed": false,
+      "driver_removal_iteration": null
+    }
+  },
+  "pairs": {
+    "A_vs_B": {
+      "common_final_inliers": 1535,
+      "first_divergence": 2260
+    },
+    "A_vs_G": {
+      "common_final_inliers": 985,
+      "first_divergence": 468
+    },
+    "B_vs_G": {
+      "common_final_inliers": 985,
+      "first_divergence": 468
+    }
+  },
+  "environment": {
+    "python": "3.13.11",
+    "numpy": "2.2.6",
+    "scipy": "1.18.0",
+    "isce3_version": null,
+    "offsets_polyfit_file": "/mnt/nas/Projects/third-party-projects/isce3/python/packages/isce3/math/offsets_polyfit.py",
+    "threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
+  }
+}
