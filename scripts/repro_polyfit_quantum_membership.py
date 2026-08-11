@@ -1,40 +1,50 @@
 #!/usr/bin/env python3
 """
 Self-contained minimal reproducer: a single one-quantum (-1/32 px)
-input flip discontinuously jumps the isce3 rubbersheet offsets polyfit.
+input flip can discontinuously jump the isce3 rubbersheet offsets
+polyfit.
 
 The NISAR InSAR rubbersheet step fits two degree-2 surfaces to the
 dense-offsets field with `isce3.math.offsets_polyfit.polyfit_offsets`
 (corr_peak-weighted LSQ + sequential worst-outlier removal, w-test
 stop `max|w| <= crit_value`, production default crit_value = 0.1).
 On a real NISAR L-SAR pair (ASC 139/019) processed once with the CPU
-and once with the GPU InSAR workflow, the two
-runs' RIFG `pixelOffsets` layers differed by a smooth ~3.6e-2 px RMS
-degree-2 surface, and the entire difference was traced to ONE
-high-correlation window whose subpixel peak moved by exactly one
-Ampcor correlation-grid quantum (1/32 px): the sequential rejection
-chain forks near its end and the final inlier membership — the set
-that defines the fit — changes wholesale.
+and once with the GPU InSAR workflow, the two runs' RIFG
+`pixelOffsets` layers differed by a smooth ~3.6e-2 px RMS degree-2
+surface. In a controlled replay of the production fit, transplanting
+ONE isolated CPU-Ampcor sample — a high-correlation window whose
+subpixel peak moved by exactly one Ampcor correlation-grid quantum
+(1/32 px) — into the GPU baseline was necessary and sufficient to
+reproduce the observed coefficient difference to the available
+production log precision: the sequential rejection chain forks near
+its end and the final inlier membership — the set that defines the
+fit — changes wholesale.
 
-This script reproduces that mechanism with 900 synthetic samples and
-nothing beyond numpy and the upstream isce3 module under test. The
-sample set imitates the production composition: a small coherent
-elite (high correlation peaks, ~0.02 px scatter around a smooth
-degree-2 truth) inside a junk majority (low peaks, offsets scattered
-over the Ampcor search-window scale), all offsets quantized to the
-1/32 px correlation grid and stored through the production float32
-path. One coherent sample — the *driver* — sits at the grid node
-nearest the real driver's radar position (line 23405 of 41040, pixel
-42589 of 52906), carries the real driver's correlation peak (0.9485)
-and measures the truth surface exactly. The fit uses the production
-kwargs (crit 0.1, NISAR ASC 139/019 sensor priors giving sigmaL =
-0.1247 px / sigmaP = 0.0833 px, full-radar-grid normalization).
+This script reproduces that mechanism with 900 synthetic samples
+inside an isce3 Python environment (NumPy, and SciPy transitively
+via the module under test) — nothing else. The sample set imitates
+the production composition: a small coherent elite (high correlation
+peaks, ~0.02 px scatter around a smooth degree-2 truth) inside a
+junk majority (low peaks, offsets scattered over the Ampcor
+search-window scale), all offsets quantized to the 1/32 px
+correlation grid and stored through the production float32 path.
+One coherent sample — the *driver* — sits at the grid node nearest
+the real driver's radar position (line 23405 of 41040, pixel 42589
+of 52906), carries the real driver's correlation peak (0.9485) and
+measures the truth surface exactly. The fit uses the values the
+production workflow passes to polyfit_offsets, rebuilt from the
+RIFG/RSLC files (crit 0.1, sigmaL = 0.12470527678472171 px /
+sigmaP = 0.08333333333333334 px, full-radar-grid normalization).
 
-The structural condition is the same inequality as production: at the
-driver's weight the w-test stop tolerance crit * sigmaL / 0.9485 =
-0.0132 px is SMALLER than the input quantization floor q/2 =
-0.0156 px, so the endgame purge digs into the high-weight elite and
-the final membership sits on a knife edge.
+The structural condition is the same inequality as production: the
+exact w-test stop tolerance at a sample is
+crit * sigma * sqrt(1/w^2 - h_ii), which at the driver's weight is
+at most crit * sigmaL / 0.9485 = 0.0132 px — below the half-bin
+bound q/2 = 0.0156 px on the nearest-grid quantization error of its
+input. A high-weight sample can therefore fail the stop test on
+quantization error alone; the observed 95.8% production purge shows
+that susceptibility was realized on the real data, leaving the
+final membership on a knife edge.
 
 Expected output (pinned seed 29; identical numbers are produced by
 the `minrepro` subcommand of scripts/polyfit_sensitivity.py):
@@ -44,7 +54,7 @@ the `minrepro` subcommand of scripts/polyfit_sensitivity.py):
                chain), first fork at iteration 83, final inliers
                32 vs 30 with 25 common
     jump     : induced azimuth surface RMS 2.75e-2 px, max 0.106 px
-    checks   : 6/6 PASS
+    checks   : 8/8 PASS
 
 The pinned seed is an existence proof of the mechanism at 900
 samples, found by a documented 40-seed calibration hunt (7/40 seeds
@@ -70,9 +80,12 @@ import sys
 
 import numpy as np
 
-# Production fit configuration (NISAR ASC 139/019 reference RSLC).
-PROD_SENSOR = {"prf": 1520.0, "abw": 1263.6805555555557,
-               "rsr": 47998723.51694915, "rbw": 40000000.0}
+# Production fit configuration — the exact values the NISAR ASC
+# 139/019 workflow passes to polyfit_offsets, rebuilt from the
+# RIFG/RSLC files (abw = processedAzimuthBandwidth; rsr =
+# c / (2 * slantRangeSpacing), exactly 48 MHz).
+PROD_SENSOR = {"prf": 1520.0, "abw": 1263.68013808518,
+               "rsr": 48000000.0, "rbw": 40000000.0}
 PROD_GRID_SHAPE = (41040, 52906)
 PROD_DEGREE = 2
 PROD_CRIT_VALUE = 0.1
@@ -155,8 +168,11 @@ def make_case(op, seed):
         truth_p + rng.uniform(-JUNK_SCATTER, JUNK_SCATTER, n))
     peak = np.where(coherent, rng.uniform(*COHERENT_PEAK_RANGE, n),
                     rng.uniform(*JUNK_PEAK_RANGE, n))
-    # The driver measures the truth exactly; after quantization its
-    # residual is pure quantization error (|e| <= 1/64 px).
+    # The driver measures the truth exactly: after quantization its
+    # measurement error w.r.t. the generating truth is pure
+    # nearest-grid quantization error (|e| <= 1/64 px). (This is not
+    # the w-test residual, which is taken against the currently
+    # fitted surface.)
     d_l[driver_id] = truth_l[driver_id]
     d_p[driver_id] = truth_p[driver_id]
     peak[driver_id] = DRIVER_PEAK
@@ -227,6 +243,12 @@ def main():
         (i for i, (a, b) in enumerate(zip(base["removed_indices"],
                                           flip["removed_indices"]))
          if a != b), None)
+    if first_div is None and (len(base["removed_indices"])
+                              != len(flip["removed_indices"])):
+        # One sequence is a proper prefix of the other: the chains
+        # fork where the shorter one stops.
+        first_div = min(len(base["removed_indices"]),
+                        len(flip["removed_indices"]))
     jump = induced_field(op, flip["coefL"] - base["coefL"],
                          flip["coefP"] - base["coefP"])
     sigma_l = 0.15 / (PROD_SENSOR["prf"] / PROD_SENSOR["abw"])
@@ -237,14 +259,45 @@ def main():
             driver_id not in base["removed_indices"],
         "baseline_retention_in_band": 0.03 <= retention <= 0.05,
         "flip_driver_removed": driver_removed,
+        # Endgame guard: a driver purged early in the chain would
+        # pass the other checks without exercising the observed
+        # late-membership mechanism.
+        "flip_removal_in_endgame": (
+            driver_removed
+            and removal_iteration / len(flip["removed_indices"])
+            >= 0.9),
         "chain_forks": first_div is not None,
         "membership_changed_beyond_driver": len(membership_delta) >= 1,
         "target_class_jump": jump["rms"] >= 0.01,
     }
+    import platform
+    import scipy
+    try:
+        import isce3
+        isce3_version = getattr(isce3, "__version__", None)
+    except ImportError:
+        isce3_version = None
+    module_file = getattr(op, "__file__", None)
+    if module_file:
+        # Home-relative so committed artifacts carry no username.
+        module_file = module_file.replace(str(pathlib.Path.home()),
+                                          "~")
     result = {
         "seed": args.seed, "n_samples": n, "driver_id": driver_id,
         "driver_peak": DRIVER_PEAK,
-        "stop_tolerance_at_driver_px":
+        "environment": {
+            "python": platform.python_version(),
+            "numpy": np.__version__,
+            "scipy": scipy.__version__,
+            "isce3_version": isce3_version,
+            "offsets_polyfit_file": module_file,
+            "threads": {k: os.environ.get(k) for k in
+                        ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                         "MKL_NUM_THREADS")},
+        },
+        # Leverage-ignoring upper bound of the exact stop tolerance
+        # crit * sigmaL * sqrt(1/w^2 - h_ii) at the driver's weight.
+        "stop_tolerance_bound_at_driver_px":
             PROD_CRIT_VALUE * sigma_l / DRIVER_PEAK,
         "half_quantum_px": OFFSET_QUANTUM / 2,
         "baseline": {"n_removed": len(base["removed_indices"]),

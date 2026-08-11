@@ -48,20 +48,32 @@
     "minP": 0,
     "maxP": 52906,
     "prf": 1520.0,
-    "abw": 1263.6805555555557,
-    "rsr": 47998723.51694915,
+    "abw": 1263.68013808518,
+    "rsr": 48000000.0,
     "rbw": 40000000.0
+  },
+  "environment": {
+    "python": "3.13.11",
+    "numpy": "2.2.6",
+    "scipy": "1.18.0",
+    "isce3_version": null,
+    "offsets_polyfit_file": "/mnt/nas/Projects/third-party-projects/isce3-v0.25.16/python/packages/isce3/math/offsets_polyfit.py",
+    "threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
   },
   "aa_identical": true,
   "mirror_equivalent": true,
-  "stop_tolerance_at_driver_px": 0.0131476350007861,
+  "stop_tolerance_bound_at_driver_px": 0.013147630657324376,
   "offset_quantum_px": 0.03125,
   "half_quantum_px": 0.015625,
   "baseline": {
     "n_removed": 868,
     "retention": 0.03555555555555556,
     "n_inliers": 32,
-    "final_stop_margin": -0.0032238971211196177,
+    "final_stop_margin": -0.0032213234473632696,
     "coefL": [
       0.4871782253822447,
       1.116869942717585,
@@ -127,6 +139,7 @@
     "baseline_driver_survives": true,
     "baseline_retention_in_band": true,
     "flip_driver_removed": true,
+    "flip_removal_in_endgame": true,
     "chain_forks": true,
     "membership_changed_beyond_driver": true,
     "target_class_jump": true

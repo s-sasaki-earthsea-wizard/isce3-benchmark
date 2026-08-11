@@ -3,7 +3,19 @@
   "n_samples": 900,
   "driver_id": 533,
   "driver_peak": 0.9485,
-  "stop_tolerance_at_driver_px": 0.0131476350007861,
+  "environment": {
+    "python": "3.13.11",
+    "numpy": "2.2.6",
+    "scipy": "1.18.0",
+    "isce3_version": null,
+    "offsets_polyfit_file": "/mnt/nas/Projects/third-party-projects/isce3/python/packages/isce3/math/offsets_polyfit.py",
+    "threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
+  },
+  "stop_tolerance_bound_at_driver_px": 0.013147630657324376,
   "half_quantum_px": 0.015625,
   "baseline": {
     "n_removed": 868,
@@ -60,6 +72,7 @@
     "baseline_driver_survives": true,
     "baseline_retention_in_band": true,
     "flip_driver_removed": true,
+    "flip_removal_in_endgame": true,
     "chain_forks": true,
     "membership_changed_beyond_driver": true,
     "target_class_jump": true

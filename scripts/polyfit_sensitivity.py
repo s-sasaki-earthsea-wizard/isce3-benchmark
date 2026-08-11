@@ -66,11 +66,16 @@ import sys
 
 import numpy as np
 
-# Production parameters of the NISAR ASC 139/019 fit (measured from
-# the reference RSLC; rubbersheet.py passes these to polyfit_offsets,
-# giving sigmaL = 0.1247 px and sigmaP = 0.0833 px).
-PROD_SENSOR = {"prf": 1520.0, "abw": 1263.6805555555557,
-               "rsr": 47998723.51694915, "rbw": 40000000.0}
+# Production parameters of the NISAR ASC 139/019 fit — the exact
+# values the workflow passes to polyfit_offsets, as rebuilt from the
+# RIFG/RSLC files by build_replay_coordinates (abw =
+# processedAzimuthBandwidth; rsr = c / (2 * slantRangeSpacing),
+# exactly 48 MHz). They give sigmaL = 0.12470527678472171 px and
+# sigmaP = 0.08333333333333334 px. (The earlier Phase-1 constants
+# abw 1263.6805555555557 / rsr 47998723.51694915 were near-production
+# approximations from other metadata and are retired.)
+PROD_SENSOR = {"prf": 1520.0, "abw": 1263.68013808518,
+               "rsr": 48000000.0, "rbw": 40000000.0}
 PROD_GRID_SHAPE = (41040, 52906)
 PROD_DEGREE = 2
 PROD_CRIT_VALUE = 0.1
@@ -1240,8 +1245,9 @@ def judge_min_repro(op, data, driver_id, fit_kwargs,
     The criteria are the VECR design pins of the minimal reproducer:
     the baseline retains 3-5% of the samples with the driver among
     the final inliers; flipping the driver's azimuth offset by one
-    Ampcor quantum removes it, forks the removal chain, changes the
-    final membership beyond the driver itself, and jumps the fitted
+    Ampcor quantum removes it — in the endgame of the chain, as on
+    the real data — forks the removal chain, changes the final
+    membership beyond the driver itself, and jumps the fitted
     azimuth surface by a target-class amount.
 
     Args:
@@ -1280,6 +1286,13 @@ def judge_min_repro(op, data, driver_id, fit_kwargs,
         "baseline_retention_in_band":
             retention_band[0] <= retention <= retention_band[1],
         "flip_driver_removed": driver_removed,
+        # Endgame guard: a driver purged early in the chain would
+        # pass the other checks without exercising the observed
+        # late-membership mechanism.
+        "flip_removal_in_endgame": (
+            driver_removed
+            and removal_iteration / len(flip_res["removed_indices"])
+            >= 0.9),
         "chain_forks": first_div is not None,
         "membership_changed_beyond_driver": len(membership_delta) >= 1,
         "target_class_jump": stats["l"]["rms"] >= jump_min,
@@ -1309,6 +1322,40 @@ def judge_min_repro(op, data, driver_id, fit_kwargs,
         },
         "checks": checks,
         "passed": all(checks.values()),
+    }
+
+
+def environment_provenance(op):
+    """Software environment of a run, for result-JSON provenance.
+
+    Args:
+        op: The upstream offsets_polyfit module (its file path and,
+            when importable, the isce3 version are recorded).
+
+    Returns:
+        dict: Interpreter, numpy/scipy, module and thread info.
+    """
+    import platform
+    import scipy
+    try:
+        import isce3
+        isce3_version = getattr(isce3, "__version__", None)
+    except ImportError:
+        isce3_version = None
+    module_file = getattr(op, "__file__", None)
+    if module_file:
+        # Home-relative so committed artifacts carry no username.
+        module_file = module_file.replace(str(pathlib.Path.home()),
+                                          "~")
+    return {
+        "python": platform.python_version(),
+        "numpy": np.__version__,
+        "scipy": scipy.__version__,
+        "isce3_version": isce3_version,
+        "offsets_polyfit_file": module_file,
+        "threads": {k: os.environ.get(k) for k in
+                    ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                     "MKL_NUM_THREADS")},
     }
 
 
@@ -1371,12 +1418,16 @@ def run_min_repro_scenario(args):
         "synthetic": info,
         "fit_kwargs": {k: (float(v) if isinstance(v, float) else v)
                        for k, v in fit_kwargs.items()},
+        "environment": environment_provenance(op),
         "aa_identical": aa_identical,
         "mirror_equivalent": mirror_equivalent,
-        # The structural inequality driving the endgame purge: the
-        # stop tolerance at the driver's weight is below the input
-        # quantization floor.
-        "stop_tolerance_at_driver_px":
+        # The structural inequality behind the endgame purge:
+        # crit * sigmaL / w is a leverage-ignoring UPPER BOUND on the
+        # exact stop tolerance crit * sigmaL * sqrt(1/w^2 - h_ii),
+        # and at the driver's weight even the bound sits below the
+        # half-quantum bound q/2 of the nearest-grid quantization
+        # error of the input.
+        "stop_tolerance_bound_at_driver_px":
             PROD_CRIT_VALUE * sigma_l / MIN_REPRO_DRIVER_PEAK,
         "offset_quantum_px": OFFSET_QUANTUM,
         "half_quantum_px": OFFSET_QUANTUM / 2,
