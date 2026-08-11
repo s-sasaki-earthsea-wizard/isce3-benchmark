@@ -1,0 +1,135 @@
+{
+  "scenario": "minrepro",
+  "synthetic": {
+    "seed": 29,
+    "n_az": 30,
+    "n_rg": 30,
+    "n_samples": 900,
+    "n_coherent": 73,
+    "driver_id": 533,
+    "driver_node": {
+      "line": 24057.0,
+      "pixel": 41959.0
+    },
+    "driver_peak": 0.9485,
+    "coef_l_true": [
+      0.4,
+      1.2,
+      -0.6,
+      0.3,
+      -0.2,
+      0.15
+    ],
+    "coef_p_true": [
+      -0.2,
+      0.5,
+      0.8,
+      -0.25,
+      0.1,
+      -0.3
+    ],
+    "coherent_fraction": 0.08,
+    "coherent_noise_std": 0.02,
+    "coherent_peak_range": [
+      0.3,
+      0.8
+    ],
+    "junk_scatter": 20.0,
+    "junk_peak_range": [
+      0.02,
+      0.15
+    ]
+  },
+  "fit_kwargs": {
+    "degree": 2,
+    "crit_value": 0.1,
+    "minL": 0,
+    "maxL": 41040,
+    "minP": 0,
+    "maxP": 52906,
+    "prf": 1520.0,
+    "abw": 1263.6805555555557,
+    "rsr": 47998723.51694915,
+    "rbw": 40000000.0
+  },
+  "aa_identical": true,
+  "mirror_equivalent": true,
+  "stop_tolerance_at_driver_px": 0.0131476350007861,
+  "offset_quantum_px": 0.03125,
+  "half_quantum_px": 0.015625,
+  "baseline": {
+    "n_removed": 868,
+    "retention": 0.03555555555555556,
+    "n_inliers": 32,
+    "final_stop_margin": -0.0032238971211196177,
+    "coefL": [
+      0.4871782253822447,
+      1.116869942717585,
+      -0.8683617614738549,
+      0.2970290659011261,
+      -0.023634490767994603,
+      0.2759312306453433
+    ],
+    "coefP": [
+      -0.2288671224692106,
+      0.5252659233769875,
+      0.9183371556867205,
+      -0.26555859583909114,
+      0.0988770752206269,
+      -0.4154512696278382
+    ]
+  },
+  "flip": {
+    "delta_quanta": -1,
+    "n_removed": 870,
+    "n_inliers": 30,
+    "driver_removal_iteration": 832,
+    "driver_removal_chain_fraction": 0.9563218390804598,
+    "first_divergence": 83,
+    "n_common_inliers": 25,
+    "membership_delta_beyond_driver": 11,
+    "dcoefL": [
+      -0.03616027815893863,
+      0.10983828306860555,
+      0.041333152385315874,
+      -0.03750845124981861,
+      -0.18570240336633775,
+      0.1006474104579757
+    ],
+    "dcoefP": [
+      0.002303919452184361,
+      -0.003966224463678447,
+      -0.001168540986607236,
+      -0.006829966808165222,
+      0.029300308228615665,
+      -0.01951346656021763
+    ],
+    "induced_offset": {
+      "l": {
+        "mean": 0.014151390061170267,
+        "median": 0.0074560746329886485,
+        "rms": 0.027514387133898418,
+        "p99_abs": 0.08805583576268675,
+        "max_abs": 0.10582028468435295,
+        "peak_to_peak": 0.14198056284329158
+      },
+      "p": {
+        "mean": -0.0017634363942128192,
+        "median": -0.00037840461396953964,
+        "rms": 0.004017125341391624,
+        "p99_abs": 0.01435352857120155,
+        "max_abs": 0.018378088094640505,
+        "peak_to_peak": 0.020682007546824865
+      }
+    }
+  },
+  "checks": {
+    "baseline_driver_survives": true,
+    "baseline_retention_in_band": true,
+    "flip_driver_removed": true,
+    "chain_forks": true,
+    "membership_changed_beyond_driver": true,
+    "target_class_jump": true
+  },
+  "passed": true
+}

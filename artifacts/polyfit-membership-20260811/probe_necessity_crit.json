@@ -1,0 +1,167 @@
+{
+  "row": 22961,
+  "base_seconds": 111.3,
+  "complement_A": {
+    "judgment_vs_target": {
+      "all": {
+        "norm": 0.0,
+        "target_norm": 0.5443563676318022,
+        "norm_ratio": 0.0,
+        "cosine": null
+      },
+      "L": {
+        "norm": 0.0,
+        "target_norm": 0.5373646790344163,
+        "norm_ratio": 0.0,
+        "cosine": null
+      },
+      "P": {
+        "norm": 0.0,
+        "target_norm": 0.08696583643896323,
+        "norm_ratio": 0.0,
+        "cosine": null
+      }
+    },
+    "induced_rms_l": 0.0,
+    "first_divergence": 794,
+    "n_removed": 38323,
+    "seconds": 117.8,
+    "n_transplanted": 9
+  },
+  "complement_B": {
+    "judgment_vs_target": {
+      "all": {
+        "norm": 0.0,
+        "target_norm": 0.5443563676318022,
+        "norm_ratio": 0.0,
+        "cosine": null
+      },
+      "L": {
+        "norm": 0.0,
+        "target_norm": 0.5373646790344163,
+        "norm_ratio": 0.0,
+        "cosine": null
+      },
+      "P": {
+        "norm": 0.0,
+        "target_norm": 0.08696583643896323,
+        "norm_ratio": 0.0,
+        "cosine": null
+      }
+    },
+    "induced_rms_l": 0.0,
+    "first_divergence": 794,
+    "n_removed": 38323,
+    "seconds": 115.0,
+    "n_transplanted": 8
+  },
+  "driver_local_sweep": [
+    {
+      "judgment_vs_target": {
+        "all": {
+          "norm": 0.0007354014895836939,
+          "target_norm": 0.5443563676318022,
+          "norm_ratio": 0.0013509559790455376,
+          "cosine": 0.04416610194873452
+        },
+        "L": {
+          "norm": 9.835611808309726e-05,
+          "target_norm": 0.5373646790344163,
+          "norm_ratio": 0.0001830342073465493,
+          "cosine": -0.7869320057216387
+        },
+        "P": {
+          "norm": 0.0007287945011575894,
+          "target_norm": 0.08696583643896323,
+          "norm_ratio": 0.008380239080079361,
+          "cosine": 0.9351875258139619
+        }
+      },
+      "induced_rms_l": 7.86549677282009e-06,
+      "first_divergence": 1321,
+      "n_removed": 38324,
+      "delta_quanta": -2,
+      "seconds": 111.6
+    },
+    {
+      "judgment_vs_target": {
+        "all": {
+          "norm": 0.0007354014895836939,
+          "target_norm": 0.5443563676318022,
+          "norm_ratio": 0.0013509559790455376,
+          "cosine": 0.04416610194873452
+        },
+        "L": {
+          "norm": 9.835611808309726e-05,
+          "target_norm": 0.5373646790344163,
+          "norm_ratio": 0.0001830342073465493,
+          "cosine": -0.7869320057216387
+        },
+        "P": {
+          "norm": 0.0007287945011575894,
+          "target_norm": 0.08696583643896323,
+          "norm_ratio": 0.008380239080079361,
+          "cosine": 0.9351875258139619
+        }
+      },
+      "induced_rms_l": 7.86549677282009e-06,
+      "first_divergence": 2211,
+      "n_removed": 38324,
+      "delta_quanta": 1,
+      "seconds": 119.3
+    },
+    {
+      "judgment_vs_target": {
+        "all": {
+          "norm": 0.0007354014895836939,
+          "target_norm": 0.5443563676318022,
+          "norm_ratio": 0.0013509559790455376,
+          "cosine": 0.04416610194873452
+        },
+        "L": {
+          "norm": 9.835611808309726e-05,
+          "target_norm": 0.5373646790344163,
+          "norm_ratio": 0.0001830342073465493,
+          "cosine": -0.7869320057216387
+        },
+        "P": {
+          "norm": 0.0007287945011575894,
+          "target_norm": 0.08696583643896323,
+          "norm_ratio": 0.008380239080079361,
+          "cosine": 0.9351875258139619
+        }
+      },
+      "induced_rms_l": 7.86549677282009e-06,
+      "first_divergence": 2211,
+      "n_removed": 38324,
+      "delta_quanta": 2,
+      "seconds": 114.4
+    }
+  ],
+  "crit_transition": [
+    {
+      "crit_value": 0.2,
+      "n_removed_base": 35223,
+      "inlier_fraction": 0.119425,
+      "flip_response_induced_rms_l": 0.00022340610741035619,
+      "flip_first_divergence": 1321,
+      "seconds": 230.5
+    },
+    {
+      "crit_value": 0.25,
+      "n_removed_base": 33428,
+      "inlier_fraction": 0.1643,
+      "flip_response_induced_rms_l": 0.00012279115131473182,
+      "flip_first_divergence": 1321,
+      "seconds": 221.0
+    },
+    {
+      "crit_value": 0.3,
+      "n_removed_base": 31622,
+      "inlier_fraction": 0.20945000000000003,
+      "flip_response_induced_rms_l": 0.00011588370559263522,
+      "flip_first_divergence": 1321,
+      "seconds": 220.5
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "scenario": "minrepro_hunt",
+  "n_seeds": 40,
+  "n_passed": 7,
+  "candidates": [
+    {
+      "seed": 0,
+      "retention": 0.0344444444444445,
+      "baseline_driver_survives": true,
+      "passed": true,
+      "jump_rms_l": 0.0216102248569773,
+      "driver_removal_chain_fraction": 0.9518348623853211
+    },
+    {
+      "seed": 1,
+      "retention": 0.0377777777777778,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 2,
+      "retention": 0.03555555555555556,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 3,
+      "retention": 0.033333333333333326,
+      "baseline_driver_survives": true,
+      "passed": true,
+      "jump_rms_l": 0.02678271969180465,
+      "driver_removal_chain_fraction": 0.9529816513761468
+    },
+    {
+      "seed": 4,
+      "retention": 0.02777777777777779,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 5,
+      "retention": 0.040000000000000036,
+      "baseline_driver_survives": true,
+      "passed": true,
+      "jump_rms_l": 0.010819920861273688,
+      "driver_removal_chain_fraction": 0.9572254335260115
+    },
+    {
+      "seed": 6,
+      "retention": 0.033333333333333326,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 7,
+      "retention": 0.03888888888888886,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 8,
+      "retention": 0.036666666666666625,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 9,
+      "retention": 0.0377777777777778,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 10,
+      "retention": 0.0411111111111111,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 11,
+      "retention": 0.0411111111111111,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 12,
+      "retention": 0.03555555555555556,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 13,
+      "retention": 0.0344444444444445,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 14,
+      "retention": 0.04222222222222227,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 15,
+      "retention": 0.043333333333333335,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 16,
+      "retention": 0.0411111111111111,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 17,
+      "retention": 0.04222222222222227,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 18,
+      "retention": 0.036666666666666625,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 19,
+      "retention": 0.0344444444444445,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 20,
+      "retention": 0.0344444444444445,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 21,
+      "retention": 0.036666666666666625,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 22,
+      "retention": 0.03888888888888886,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 23,
+      "retention": 0.040000000000000036,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 24,
+      "retention": 0.03888888888888886,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 25,
+      "retention": 0.033333333333333326,
+      "baseline_driver_survives": true,
+      "passed": true,
+      "jump_rms_l": 0.022176419302012113,
+      "driver_removal_chain_fraction": 0.9839080459770115
+    },
+    {
+      "seed": 26,
+      "retention": 0.03555555555555556,
+      "baseline_driver_survives": true,
+      "passed": true,
+      "jump_rms_l": 0.015818102403050364,
+      "driver_removal_chain_fraction": 0.9541809851088202
+    },
+    {
+      "seed": 27,
+      "retention": 0.03555555555555556,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 28,
+      "retention": 0.0377777777777778,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 29,
+      "retention": 0.03555555555555556,
+      "baseline_driver_survives": true,
+      "passed": true,
+      "jump_rms_l": 0.027514387133898418,
+      "driver_removal_chain_fraction": 0.9563218390804598
+    },
+    {
+      "seed": 30,
+      "retention": 0.03222222222222226,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 31,
+      "retention": 0.03888888888888886,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 32,
+      "retention": 0.04222222222222227,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 33,
+      "retention": 0.036666666666666625,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 34,
+      "retention": 0.030000000000000027,
+      "baseline_driver_survives": true,
+      "passed": true,
+      "jump_rms_l": 0.011207686536767658,
+      "driver_removal_chain_fraction": 0.9541809851088202
+    },
+    {
+      "seed": 35,
+      "retention": 0.0344444444444445,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 36,
+      "retention": 0.0344444444444445,
+      "baseline_driver_survives": false,
+      "passed": false
+    },
+    {
+      "seed": 37,
+      "retention": 0.030000000000000027,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 38,
+      "retention": 0.0377777777777778,
+      "baseline_driver_survives": true,
+      "passed": false
+    },
+    {
+      "seed": 39,
+      "retention": 0.040000000000000036,
+      "baseline_driver_survives": true,
+      "passed": false
+    }
+  ]
+}
