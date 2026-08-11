@@ -1,0 +1,81 @@
+{
+  "seed": 29,
+  "n_samples": 900,
+  "driver_id": 533,
+  "driver_peak": 0.9485,
+  "environment": {
+    "python": "3.12.13",
+    "numpy": "1.26.4",
+    "scipy": "1.12.0",
+    "isce3_version": "0.26.0-dev+2919e1c97",
+    "offsets_polyfit_file": "/opt/isce3-build/install/packages/isce3/math/offsets_polyfit.py",
+    "threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
+  },
+  "stop_tolerance_bound_at_driver_px": 0.013147630657324376,
+  "half_quantum_px": 0.015625,
+  "baseline": {
+    "n_removed": 868,
+    "retention": 0.03555555555555556,
+    "n_inliers": 32,
+    "coefL": [
+      0.4871782253822444,
+      1.1168699427175857,
+      -0.8683617614738549,
+      0.29702906590112554,
+      -0.023634490767994603,
+      0.2759312306453433
+    ],
+    "coefP": [
+      -0.2288671224692105,
+      0.5252659233769867,
+      0.9183371556867205,
+      -0.2655585958390903,
+      0.0988770752206269,
+      -0.4154512696278382
+    ]
+  },
+  "flip": {
+    "delta_px": -0.03125,
+    "n_removed": 870,
+    "n_inliers": 30,
+    "driver_removal_iteration": 832,
+    "first_divergence": 83,
+    "n_common_inliers": 25,
+    "membership_delta_beyond_driver": 11,
+    "induced_azimuth_field_px": {
+      "rms": 0.027514387133897703,
+      "max_abs": 0.10582028468434918
+    },
+    "dcoefL": [
+      -0.03616027815893602,
+      0.10983828306860022,
+      0.04133315238531354,
+      -0.037508451249818164,
+      -0.18570240336632743,
+      0.10064741045797165
+    ],
+    "dcoefP": [
+      0.00230391945218289,
+      -0.003966224463674339,
+      -0.0011685409866054597,
+      -0.006829966808166554,
+      0.029300308228609726,
+      -0.019513466560215853
+    ]
+  },
+  "checks": {
+    "aa_identical": true,
+    "baseline_driver_survives": true,
+    "baseline_retention_in_band": true,
+    "flip_driver_removed": true,
+    "flip_removal_in_endgame": true,
+    "chain_forks": true,
+    "membership_changed_beyond_driver": true,
+    "target_class_jump": true
+  },
+  "passed": true
+}

@@ -1,0 +1,81 @@
+{
+  "seed": 29,
+  "n_samples": 900,
+  "driver_id": 533,
+  "driver_peak": 0.9485,
+  "environment": {
+    "python": "3.13.11",
+    "numpy": "2.2.6",
+    "scipy": "1.18.0",
+    "isce3_version": null,
+    "offsets_polyfit_file": "/mnt/nas/Projects/third-party-projects/isce3/python/packages/isce3/math/offsets_polyfit.py",
+    "threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
+  },
+  "stop_tolerance_bound_at_driver_px": 0.013147630657324376,
+  "half_quantum_px": 0.015625,
+  "baseline": {
+    "n_removed": 868,
+    "retention": 0.03555555555555556,
+    "n_inliers": 32,
+    "coefL": [
+      0.4871782253822447,
+      1.116869942717585,
+      -0.8683617614738549,
+      0.2970290659011261,
+      -0.023634490767994603,
+      0.2759312306453433
+    ],
+    "coefP": [
+      -0.2288671224692106,
+      0.5252659233769875,
+      0.9183371556867205,
+      -0.26555859583909114,
+      0.0988770752206269,
+      -0.4154512696278382
+    ]
+  },
+  "flip": {
+    "delta_px": -0.03125,
+    "n_removed": 870,
+    "n_inliers": 30,
+    "driver_removal_iteration": 832,
+    "first_divergence": 83,
+    "n_common_inliers": 25,
+    "membership_delta_beyond_driver": 11,
+    "induced_azimuth_field_px": {
+      "rms": 0.027514387133898418,
+      "max_abs": 0.10582028468435295
+    },
+    "dcoefL": [
+      -0.03616027815893863,
+      0.10983828306860555,
+      0.041333152385315874,
+      -0.03750845124981861,
+      -0.18570240336633775,
+      0.1006474104579757
+    ],
+    "dcoefP": [
+      0.002303919452184361,
+      -0.003966224463678447,
+      -0.001168540986607236,
+      -0.006829966808165222,
+      0.029300308228615665,
+      -0.01951346656021763
+    ]
+  },
+  "checks": {
+    "aa_identical": true,
+    "baseline_driver_survives": true,
+    "baseline_retention_in_band": true,
+    "flip_driver_removed": true,
+    "flip_removal_in_endgame": true,
+    "chain_forks": true,
+    "membership_changed_beyond_driver": true,
+    "target_class_jump": true
+  },
+  "passed": true
+}

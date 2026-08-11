@@ -1,0 +1,18 @@
+# Container verification run: repro_polyfit_quantum_membership.py
+# date: 2026-08-11T09:21:53Z  image: isce3-benchmark:dev
+# cmd: docker compose run --rm dev python3 scripts/repro_polyfit_quantum_membership.py
+# (OMP/OPENBLAS/MKL_NUM_THREADS=1)
+
+# isce3 0.26.0-dev+2919e1c97  numpy 1.26.4
+baseline : n_removed 868/900 (retention 3.6%), driver SURVIVES
+flip     : driver removed at iteration 832 of 870, first fork at iteration 83, final inliers 32 vs 30 with 25 common
+jump     : induced azimuth RMS 2.751e-02 px, max 1.058e-01 px
+checks   : 8/8 PASS
+  [x] aa_identical
+  [x] baseline_driver_survives
+  [x] baseline_retention_in_band
+  [x] flip_driver_removed
+  [x] flip_removal_in_endgame
+  [x] chain_forks
+  [x] membership_changed_beyond_driver
+  [x] target_class_jump

@@ -12,6 +12,7 @@ logs_*/
 *.json
 !reports/**/*.csv
 !reports/**/*.json
+!artifacts/polyfit-membership-20260811/*.json
 
 # Local environment overrides
 .env
