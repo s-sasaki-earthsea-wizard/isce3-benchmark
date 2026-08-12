@@ -100,7 +100,7 @@ L1 — controlled replay of the production fits (real 40k samples):
 |---|---|
 | Self-consistency gate | replayed fit reproduces the on-disk culled surfaces to 6.1e-15 px and the logged coefficients to print precision (4.1e-9) |
 | Determinism controls | A/A bit-identical; OMP=1 vs 16 bit-identical; traced mirror bit-equivalent |
-| Full-input swap (CPU raw offsets into the GPU baseline) | reproduces the observed CPU-minus-GPU coefficient target: cosine 1-6e-15, residual field 9e-9 px vs a 3.6e-2 px target; the replayed coefficients match the CPU run's logged values directly at max |d| 5.0e-8 |
+| Full-input swap (controlled CPU-Ampcor offset set into the GPU baseline) | reproduces the observed CPU-minus-GPU coefficient target: cosine 1-6e-15, residual field 9e-9 px vs a 3.6e-2 px target; the replayed coefficients match the CPU run's logged values directly at max |d| 5.0e-8 |
 | Channel attribution | offsets-only = full target; weights-only (38.5k float32 epsilons) forks at iter 468 and re-converges benignly (2.4e-9 px) |
 | Minimal destructive set | ONE sample row: 22961, corr_peak 0.9485, dAz exactly -1/32 px — necessary (complement transplants = exactly zero) and sufficient (single transplant = full target) within the observed difference sets; the other 11 changed rows of the 12-row union, including a 5.6/13.9 px (azimuth/range) outlier row, change nothing |
 | Perturbation basin at the driver | only the exact -1/32 px value lands in the target basin; -1e-5 doesn't fork, -1e-4 / sub-quantum / ±2-quantum deltas fork benignly |
