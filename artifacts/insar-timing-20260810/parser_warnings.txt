@@ -1,0 +1,2 @@
+warning [CPU]: Ionosphere #1: reported 92.720 s < nested children 356.300 s — timer excludes its children; row kept as self time
+warning [GPU-5080]: Ionosphere #1: reported 65.809 s < nested children 198.645 s — timer excludes its children; row kept as self time
