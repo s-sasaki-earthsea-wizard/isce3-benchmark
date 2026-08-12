@@ -1,0 +1,246 @@
+{
+  "CPU": [
+    {
+      "stage": "bandpass_insar",
+      "occurrence": 1,
+      "seconds": 0.127
+    },
+    {
+      "stage": "rdr2geo",
+      "occurrence": 1,
+      "seconds": 991.338
+    },
+    {
+      "stage": "geo2rdr",
+      "occurrence": 1,
+      "seconds": 183.533
+    },
+    {
+      "stage": "prepare_insar_hdf5",
+      "occurrence": 1,
+      "seconds": 557.409
+    },
+    {
+      "stage": "resample",
+      "occurrence": 1,
+      "seconds": 327.496
+    },
+    {
+      "stage": "dense_offsets",
+      "occurrence": 1,
+      "seconds": 608.686
+    },
+    {
+      "stage": "polyfit rubbersheet",
+      "occurrence": 1,
+      "seconds": 218.257
+    },
+    {
+      "stage": "resample",
+      "occurrence": 2,
+      "seconds": 497.892
+    },
+    {
+      "stage": "crossmul",
+      "occurrence": 1,
+      "seconds": 542.276
+    },
+    {
+      "stage": "crossmul",
+      "occurrence": 2,
+      "seconds": 514.734
+    },
+    {
+      "stage": "phase unwrapping",
+      "occurrence": 1,
+      "seconds": 1441.911
+    },
+    {
+      "stage": "split_spectrum",
+      "occurrence": 1,
+      "seconds": 0.0
+    },
+    {
+      "stage": "rdr2geo",
+      "occurrence": 2,
+      "seconds": 126.298
+    },
+    {
+      "stage": "geo2rdr",
+      "occurrence": 2,
+      "seconds": 25.154
+    },
+    {
+      "stage": "prepare_insar_hdf5",
+      "occurrence": 2,
+      "seconds": 189.814
+    },
+    {
+      "stage": "resample",
+      "occurrence": 3,
+      "seconds": 62.471
+    },
+    {
+      "stage": "crossmul",
+      "occurrence": 3,
+      "seconds": 48.011
+    },
+    {
+      "stage": "phase unwrapping",
+      "occurrence": 2,
+      "seconds": 56.004
+    },
+    {
+      "stage": "Ionosphere",
+      "occurrence": 1,
+      "seconds": 92.72
+    },
+    {
+      "stage": "geocode",
+      "occurrence": 1,
+      "seconds": 214.315
+    },
+    {
+      "stage": "geocode",
+      "occurrence": 2,
+      "seconds": 41.116
+    },
+    {
+      "stage": "solid earth tides",
+      "occurrence": 1,
+      "seconds": 15.545
+    },
+    {
+      "stage": "baseline",
+      "occurrence": 1,
+      "seconds": 26.252
+    },
+    {
+      "stage": "INSAR",
+      "occurrence": 1,
+      "seconds": 6175.717
+    }
+  ],
+  "GPU-5080": [
+    {
+      "stage": "bandpass_insar",
+      "occurrence": 1,
+      "seconds": 0.116
+    },
+    {
+      "stage": "rdr2geo",
+      "occurrence": 1,
+      "seconds": 265.852
+    },
+    {
+      "stage": "geo2rdr",
+      "occurrence": 1,
+      "seconds": 128.285
+    },
+    {
+      "stage": "prepare_insar_hdf5",
+      "occurrence": 1,
+      "seconds": 562.531
+    },
+    {
+      "stage": "resample",
+      "occurrence": 1,
+      "seconds": 183.098
+    },
+    {
+      "stage": "dense_offsets",
+      "occurrence": 1,
+      "seconds": 164.773
+    },
+    {
+      "stage": "polyfit rubbersheet",
+      "occurrence": 1,
+      "seconds": 407.561
+    },
+    {
+      "stage": "resample",
+      "occurrence": 2,
+      "seconds": 472.206
+    },
+    {
+      "stage": "crossmul",
+      "occurrence": 1,
+      "seconds": 208.99
+    },
+    {
+      "stage": "crossmul",
+      "occurrence": 2,
+      "seconds": 184.713
+    },
+    {
+      "stage": "phase unwrapping",
+      "occurrence": 1,
+      "seconds": 1090.137
+    },
+    {
+      "stage": "split_spectrum",
+      "occurrence": 1,
+      "seconds": 0.0
+    },
+    {
+      "stage": "rdr2geo",
+      "occurrence": 2,
+      "seconds": 40.329
+    },
+    {
+      "stage": "geo2rdr",
+      "occurrence": 2,
+      "seconds": 10.363
+    },
+    {
+      "stage": "prepare_insar_hdf5",
+      "occurrence": 2,
+      "seconds": 89.225
+    },
+    {
+      "stage": "resample",
+      "occurrence": 3,
+      "seconds": 44.637
+    },
+    {
+      "stage": "crossmul",
+      "occurrence": 3,
+      "seconds": 23.034
+    },
+    {
+      "stage": "phase unwrapping",
+      "occurrence": 2,
+      "seconds": 41.749
+    },
+    {
+      "stage": "Ionosphere",
+      "occurrence": 1,
+      "seconds": 65.809
+    },
+    {
+      "stage": "geocode",
+      "occurrence": 1,
+      "seconds": 80.995
+    },
+    {
+      "stage": "geocode",
+      "occurrence": 2,
+      "seconds": 31.987
+    },
+    {
+      "stage": "solid earth tides",
+      "occurrence": 1,
+      "seconds": 13.033
+    },
+    {
+      "stage": "baseline",
+      "occurrence": 1,
+      "seconds": 30.26
+    },
+    {
+      "stage": "INSAR",
+      "occurrence": 1,
+      "seconds": 3959.694
+    }
+  ]
+}
