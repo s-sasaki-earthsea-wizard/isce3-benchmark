@@ -1,0 +1,247 @@
+Filename: /gunw/product.h5
+File information
+	# of unique groups: 45
+	# of unique datasets: 217
+	# of unique named datatypes: 1
+	# of unique links: 0
+	# of unique other: 0
+	Max. # of links to object: 1
+	Max. # of objects in group: 43
+File space information for file metadata (in bytes):
+	Superblock: 48
+	Superblock extension: 186
+	User block: 0
+	Object headers: (total/unused)
+		Groups: 2272/0
+		Datasets(exclude compact data): 106848/9632
+		Datatypes: 152/0
+	Groups:
+		B-tree/List: 43504
+		Heap: 10856
+	Attributes:
+		B-tree/List: 0
+		Heap: 0
+	Chunked datasets:
+		Index: 179936
+	Datasets:
+		Heap: 0
+	Shared Messages:
+		Header: 0
+		B-tree/List: 0
+		Heap: 0
+	Free-space managers:
+		Header: 8657
+		Amount of free space: 66440359
+Small groups (with 0 to 9 links):
+	# of groups with 1 link(s): 6
+	# of groups with 2 link(s): 7
+	# of groups with 3 link(s): 3
+	# of groups with 4 link(s): 6
+	# of groups with 5 link(s): 6
+	# of groups with 6 link(s): 2
+	# of groups with 7 link(s): 5
+	# of groups with 8 link(s): 4
+	# of groups with 9 link(s): 1
+	Total # of small groups: 40
+Group bins:
+	# of groups with 1 - 9 links: 40
+	# of groups with 10 - 99 links: 5
+	Total # of groups: 45
+Dataset dimension information:
+	Max. rank of datasets: 3
+	Dataset ranks:
+		# of dataset with rank 0: 146
+		# of dataset with rank 1: 33
+		# of dataset with rank 2: 24
+		# of dataset with rank 3: 14
+1-D Dataset information:
+	Max. dimension size of 1-D datasets: 15138
+	Small 1-D datasets (with dimension sizes 0 to 9):
+		# of datasets with dimension sizes 1: 10
+		# of datasets with dimension sizes 2: 2
+		Total # of small datasets: 12
+	1-D Dataset dimension bins:
+		# of datasets with dimension size 1 - 9: 12
+		# of datasets with dimension size 10 - 99: 5
+		# of datasets with dimension size 100 - 999: 4
+		# of datasets with dimension size 1000 - 9999: 8
+		# of datasets with dimension size 10000 - 99999: 4
+		Total # of datasets: 33
+Dataset storage information:
+	Total raw data size: 1544152776
+	Total external raw data size: 0
+Dataset layout information:
+	Dataset layout counts[COMPACT]: 0
+	Dataset layout counts[CONTIG]: 190
+	Dataset layout counts[CHUNKED]: 27
+	Dataset layout counts[VIRTUAL]: 0
+	Number of external files : 0
+Dataset filters information:
+	Number of datasets with:
+		NO filter: 192
+		GZIP filter: 25
+		SHUFFLE filter: 25
+		FLETCHER32 filter: 0
+		SZIP filter: 0
+		NBIT filter: 0
+		SCALEOFFSET filter: 0
+		USER-DEFINED filter: 0
+Dataset datatype information:
+	# of unique datatypes used by datasets: 38
+	Dataset datatype #0:
+		Count (total/named) = (64/0)
+		Size (desc./elmt) = (22/8)
+	Dataset datatype #1:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/2)
+	Dataset datatype #2:
+		Count (total/named) = (20/0)
+		Size (desc./elmt) = (22/4)
+	Dataset datatype #3:
+		Count (total/named) = (25/0)
+		Size (desc./elmt) = (14/4)
+	Dataset datatype #4:
+		Count (total/named) = (3/0)
+		Size (desc./elmt) = (14/2)
+	Dataset datatype #5:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (130/8)
+	Dataset datatype #6:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/10)
+	Dataset datatype #7:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/7)
+	Dataset datatype #8:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/3)
+	Dataset datatype #9:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/93)
+	Dataset datatype #10:
+		Count (total/named) = (6/0)
+		Size (desc./elmt) = (10/9)
+	Dataset datatype #11:
+		Count (total/named) = (3/0)
+		Size (desc./elmt) = (10/13)
+	Dataset datatype #12:
+		Count (total/named) = (6/0)
+		Size (desc./elmt) = (10/6)
+	Dataset datatype #13:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/54)
+	Dataset datatype #14:
+		Count (total/named) = (17/0)
+		Size (desc./elmt) = (10/4)
+	Dataset datatype #15:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/8)
+	Dataset datatype #16:
+		Count (total/named) = (3/0)
+		Size (desc./elmt) = (10/7)
+	Dataset datatype #17:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/21)
+	Dataset datatype #18:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/38)
+	Dataset datatype #19:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/132)
+	Dataset datatype #20:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/42)
+	Dataset datatype #21:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (22/8)
+	Dataset datatype #22:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/3)
+	Dataset datatype #23:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/194)
+	Dataset datatype #24:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/94)
+	Dataset datatype #25:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/39)
+	Dataset datatype #26:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/102)
+	Dataset datatype #27:
+		Count (total/named) = (17/0)
+		Size (desc./elmt) = (10/5)
+	Dataset datatype #28:
+		Count (total/named) = (4/0)
+		Size (desc./elmt) = (14/8)
+	Dataset datatype #29:
+		Count (total/named) = (8/0)
+		Size (desc./elmt) = (10/29)
+	Dataset datatype #30:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/18373)
+	Dataset datatype #31:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/2086)
+	Dataset datatype #32:
+		Count (total/named) = (5/0)
+		Size (desc./elmt) = (10/15)
+	Dataset datatype #33:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/1)
+	Dataset datatype #34:
+		Count (total/named) = (1/0)
+		Size (desc./elmt) = (10/19)
+	Dataset datatype #35:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (14/1)
+	Dataset datatype #36:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/18)
+	Dataset datatype #37:
+		Count (total/named) = (2/0)
+		Size (desc./elmt) = (10/17)
+	Total dataset datatype count: 217
+Small # of attributes (objects with 1 to 10 attributes):
+	# of objects with 1 attributes: 101
+	# of objects with 2 attributes: 53
+	# of objects with 3 attributes: 14
+	# of objects with 5 attributes: 3
+	# of objects with 6 attributes: 7
+	# of objects with 7 attributes: 17
+	# of objects with 8 attributes: 6
+	# of objects with 9 attributes: 8
+	# of objects with 10 attributes: 2
+	Total # of objects with small # of attributes: 211
+Attribute bins:
+	# of objects with 1 - 9 attributes: 209
+	# of objects with 10 - 99 attributes: 9
+	Total # of objects with attributes: 218
+	Max. # of attributes to objects: 14
+Free-space persist: TRUE
+Free-space section threshold: 1 bytes
+Small size free-space sections (< 10 bytes):
+	# of sections of size 1: 10
+	# of sections of size 2: 1
+	# of sections of size 4: 1
+	# of sections of size 6: 1
+	# of sections of size 7: 1
+	Total # of small size sections: 14
+Free-space section bins:
+	# of sections of size 1 - 9: 14
+	# of sections of size 10 - 99: 22
+	# of sections of size 100 - 999: 102
+	# of sections of size 1000 - 9999: 191
+	# of sections of size 10000 - 99999: 27
+	# of sections of size 100000 - 999999: 111
+	# of sections of size 1000000 - 9999999: 2
+	Total # of sections: 469
+File space management strategy: H5F_FSPACE_STRATEGY_PAGE
+File space page size: 4194304 bytes
+Summary of file space information:
+  File metadata: 352459 bytes
+  Raw data: 1544152776 bytes
+  Amount/Percent of tracked free space: 66440359 bytes/4.1%
+  Unaccounted space: 16444358 bytes
+Total space: 1627389952 bytes
