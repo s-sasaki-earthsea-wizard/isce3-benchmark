@@ -59,6 +59,41 @@ resolved module path is echoed in each run log).
   (the stage is CPU/GPU parity). To be confirmed by an in-workflow
   A/B before any upstream headline number.
 
+## In-workflow (E2E) A/B — added same day
+
+Full `python3 -m nisar.workflows.insar` GPU runs (run2 environment:
+v0.25.16 build, NVMe out/scratch, same runconfig; NO py-spy). Both
+runs use the copy-overlay so the only difference is the `utils.py`
+content (pristine vs patched; the run logs echo the resolved module
+path and a `_subswath_numbers` marker count of 0 / 3).
+
+| journal stage | control | treatment | delta |
+|---|---|---|---|
+| prepare_insar_hdf5 #1 (freq A) | 464.222 s | **87.516 s** | -376.7 s (**5.30x**) |
+| prepare_insar_hdf5 #2 (iono, incl. nested rdr2geo/geo2rdr) | 87.834 s | 73.480 s | -14.4 s |
+| INSAR total | 3864.966 s | 3687.217 s | **-177.7 s** (1.05x) |
+
+The gap between the -376.7 s stage delta and the -177.7 s
+end-to-end delta is run-to-run variance on stages the patch cannot
+touch: rubbersheet 406.9 -> 534.6 s (+128 s; documented 224-408 s
+variance stage) and geo2rdr 120.4 -> 180.3 s (+60 s). Every other
+stage sits at ~1.0x (full bracket table:
+`table_e2e_control_treat.md`; accounting closure symmetric at ~1.3 %
+in both runs). Holding those two stages at control values, the
+end-to-end delta reproduces the stage delta (~ -365 s).
+
+**E2E product equivalence**: all 558 datasets across the RIFG/RUNW
+skeletons and the final GUNW compared bitwise between the two full
+pipeline runs — every science dataset identical (interferograms,
+coherence, offsets, unwrapped phase, all masks; NaN positions
+identical). Only `processingDateTime` and the repr-address
+`runConfigurationContents` differ, as between any two runs. This
+doubles as a same-host GPU pipeline determinism check.
+
+Reference walls from the 2026-08-10 report (same environment):
+GPU 3959 s, prepare#1 562.5 s — both control values here sit within
+the documented run-to-run variance of those.
+
 ## Files
 
 | file | what |
@@ -68,6 +103,9 @@ resolved module path is echoed in each run log).
 | `time_v_{control,treat}.txt` | wall clock + peak RSS (`/usr/bin/time -v`) |
 | `pyspy_{control,treat}.collapsed.txt.gz` | py-spy raw (100 Hz, nonblocking) |
 | `attribution_{control,treat}.txt` | digests via `../prepare-insar-profile-20260813/analyze_prepare_collapsed.py` |
+| `insar_e2e_{control,treat}.log.gz` | E2E journal logs (INSAR 3864.966 s / 3687.217 s) |
+| `time_v_e2e_{control,treat}.txt` | E2E wall clock + peak RSS |
+| `table_e2e_control_treat.md` | full per-stage bracket table (`tools/parse_insar_timing.py`) |
 
 ## Regenerate
 
