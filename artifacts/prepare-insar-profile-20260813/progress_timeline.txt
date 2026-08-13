@@ -1,0 +1,27 @@
+13:25:10 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:25:25 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:25:40 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:25:55 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:26:10 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:26:25 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:26:40 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:26:55 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:27:10 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:27:25 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:27:40 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:27:55 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:28:10 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:28:25 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:28:40 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:28:55 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:29:10 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:29:25 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:29:40 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:29:55 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:30:10 | 14 35.0233   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11323 4305 journal (isce.cuda.geometry.Topo):  -- Total convergence: 65212102 out of 72374040 
+13:30:25 | 20 journal (isce.geometry.makeGeolocationGridCubes):  -- cube length: 419  -- cube width: 341 journal (isce.geometry.makeGeolocationGridCubes):  -- EPSG: 32654 
+13:30:41 |  out of 383135 journal (isce.cuda.geometry.Topo):  -- Processing block: 0   --   - line start: 0  --   - line end  : 1000  --   - dopplers near mid far: 0 0 0  
+13:30:56 | 369 34.8703   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11521 4856 journal (isce.cuda.geometry.Topo):  -- Total convergence: 9405039 out of 10436985 
+13:31:11 | 369 34.8703   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11521 4856 journal (isce.cuda.geometry.Topo):  -- Total convergence: 9405039 out of 10436985 
+13:31:26 | 369 34.8703   -- Spacing: 0.000277778 -0.000277778  -- Dimensions: 11521 4856 journal (isce.cuda.geometry.Topo):  -- Total convergence: 9405039 out of 10436985 
+13:31:41 | 00000  -- start Y: 3994500.000000  -- end Y: 3740500.000000  -- spacing X: 500.000000  -- spacing Y: -500.000000  -- width: 618  -- length: 508  -- epsg: 32654 

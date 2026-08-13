@@ -48,3 +48,6 @@ configs/insar_s1_boso_cslc_sec_gpu.yaml
 
 # PoC build artifacts
 poc/geocode_slc/geocode_slc_poc
+
+# Local from-source isce3 build for the v0.25.16 tree (issue #32 reruns)
+isce3-build-v0.25.16/
