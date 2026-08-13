@@ -1,0 +1,50 @@
+TOTAL samples: 40340
+
+== stage attribution ==
+  35650  88.4%  generate_insar_mask
+   1219   3.0%  generate_dem_rdr (topo interp)
+   1181   2.9%  radar grid cubes (L2)
+    818   2.0%  save_to_hdf5_ds (dem rdr->h5)
+    607   1.5%  compute_stats
+    500   1.2%  geolocation grid cubes (L1)
+    292   0.7%  other
+     73   0.2%  imports/startup
+
+== (product writer, group, function) ==
+  28746  71.3%  ('RIFG', 'mask:igram', 'generate_insar_mask')
+   5402  13.4%  ('RUNW', 'mask:igram', 'generate_insar_mask')
+   1183   2.9%  ('GUNW', 'other', 'misc')
+   1020   2.5%  ('RIFG', 'mask:igram', 'generate_dem_rdr (topo interp)')
+    782   1.9%  ('RIFG', 'mask:offsets', 'generate_insar_mask')
+    720   1.8%  ('RUNW', 'mask:offsets', 'generate_insar_mask')
+    716   1.8%  ('RIFG', 'mask:igram', 'save_to_hdf5_ds (dem rdr->h5)')
+    622   1.5%  ('?', 'other', 'misc')
+    523   1.3%  ('RIFG', 'mask:igram', 'compute_stats')
+    144   0.4%  ('RIFG', 'mask:igram', 'misc')
+    131   0.3%  ('RUNW', 'mask:igram', 'generate_dem_rdr (topo interp)')
+     98   0.2%  ('RUNW', 'mask:igram', 'save_to_hdf5_ds (dem rdr->h5)')
+     80   0.2%  ('RUNW', 'mask:igram', 'compute_stats')
+     39   0.1%  ('RIFG', 'mask:offsets', 'generate_dem_rdr (topo interp)')
+     37   0.1%  ('RUNW', 'other', 'misc')
+     30   0.1%  ('RIFG', 'other', 'misc')
+     29   0.1%  ('RUNW', 'mask:offsets', 'generate_dem_rdr (topo interp)')
+     13   0.0%  ('RUNW', 'mask:igram', 'misc')
+     12   0.0%  ('RIFG', 'mask:offsets', 'misc')
+      3   0.0%  ('RIFG', 'mask:offsets', 'compute_stats')
+
+== top 15 leaf frames ==
+   5989  14.8%  generate_insar_mask (nisar/products/insar/utils.py:599)
+   5385  13.3%  generate_insar_mask (nisar/products/insar/utils.py:592)
+   4222  10.5%  generate_insar_mask (nisar/products/insar/utils.py:596)
+   4108  10.2%  generate_insar_mask (nisar/products/insar/utils.py:595)
+   4095  10.2%  generate_insar_mask (nisar/products/insar/utils.py:585)
+   3358   8.3%  _compute_subswath_mask_id (nisar/products/insar/utils.py:373)
+   1952   4.8%  __getitem__ (h5py/_hl/dataset.py:872)
+   1190   2.9%  generate_dem_rdr (nisar/products/insar/utils.py:489)
+    991   2.5%  generate_insar_mask (nisar/products/insar/utils.py:584)
+    837   2.1%  BandRasterIONumPy (osgeo/gdal_array.py:266)
+    793   2.0%  write_direct (h5py/_hl/dataset.py:1160)
+    739   1.8%  generate_insar_mask (nisar/products/insar/utils.py:597)
+    655   1.6%  generate_insar_mask (nisar/products/insar/utils.py:586)
+    648   1.6%  generate_insar_mask (nisar/products/insar/utils.py:587)
+    642   1.6%  generate_insar_mask (nisar/products/insar/utils.py:598)
