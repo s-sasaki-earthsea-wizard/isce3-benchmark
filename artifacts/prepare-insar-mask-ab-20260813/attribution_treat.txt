@@ -1,0 +1,50 @@
+TOTAL samples: 7562
+
+== stage attribution ==
+   3001  39.7%  generate_insar_mask
+   1205  15.9%  generate_dem_rdr (topo interp)
+   1201  15.9%  radar grid cubes (L2)
+    783  10.4%  save_to_hdf5_ds (dem rdr->h5)
+    591   7.8%  geolocation grid cubes (L1)
+    509   6.7%  compute_stats
+    222   2.9%  other
+     50   0.7%  imports/startup
+
+== (product writer, group, function) ==
+   1370  18.1%  ('RIFG', 'mask:igram', 'generate_insar_mask')
+   1206  15.9%  ('GUNW', 'other', 'misc')
+    980  13.0%  ('RIFG', 'mask:igram', 'generate_dem_rdr (topo interp)')
+    705   9.3%  ('?', 'other', 'misc')
+    666   8.8%  ('RIFG', 'mask:igram', 'save_to_hdf5_ds (dem rdr->h5)')
+    639   8.5%  ('RUNW', 'mask:igram', 'generate_insar_mask')
+    517   6.8%  ('RIFG', 'mask:offsets', 'generate_insar_mask')
+    475   6.3%  ('RUNW', 'mask:offsets', 'generate_insar_mask')
+    446   5.9%  ('RIFG', 'mask:igram', 'compute_stats')
+    158   2.1%  ('RUNW', 'mask:igram', 'generate_dem_rdr (topo interp)')
+    114   1.5%  ('RUNW', 'mask:igram', 'save_to_hdf5_ds (dem rdr->h5)')
+     63   0.8%  ('RIFG', 'mask:igram', 'misc')
+     58   0.8%  ('RUNW', 'mask:igram', 'compute_stats')
+     39   0.5%  ('RIFG', 'mask:offsets', 'generate_dem_rdr (topo interp)')
+     37   0.5%  ('RIFG', 'other', 'misc')
+     28   0.4%  ('RUNW', 'mask:offsets', 'generate_dem_rdr (topo interp)')
+     18   0.2%  ('RUNW', 'mask:igram', 'misc')
+     16   0.2%  ('RUNW', 'other', 'misc')
+     14   0.2%  ('RIFG', 'mask:offsets', 'misc')
+      3   0.0%  ('RUNW', 'mask:offsets', 'compute_stats')
+
+== top 15 leaf frames ==
+   1829  24.2%  __getitem__ (h5py/_hl/dataset.py:872)
+   1178  15.6%  generate_dem_rdr (nisar/products/insar/utils.py:489)
+    755  10.0%  write_direct (h5py/_hl/dataset.py:1160)
+    529   7.0%  add_radar_grid_cubes_to_hdf5 (nisar/workflows/h5_prep.py:888)
+    477   6.3%  BandRasterIONumPy (osgeo/gdal_array.py:266)
+    438   5.8%  read_direct (h5py/_hl/dataset.py:1135)
+    392   5.2%  add_radar_grid_cubes (nisar/products/insar/InSAR_L2_writer.py:187)
+    320   4.2%  add_geolocation_grid_cubes (nisar/products/insar/InSAR_L1_writer.py:93)
+    267   3.5%  add_geolocation_grid_cubes_to_hdf5 (nisar/workflows/h5_prep.py:1106)
+    264   3.5%  _load_exception_mask (nisar/products/insar/utils.py:607)
+    151   2.0%  add_radar_grid_cubes (nisar/products/insar/InSAR_L2_writer.py:287)
+    122   1.6%  add_secondary_radar_grid_cube (nisar/products/insar/InSAR_L2_writer.py:144)
+     78   1.0%  __setitem__ (h5py/_hl/dataset.py:1110)
+     60   0.8%  _subswath_numbers (nisar/products/insar/utils.py:543)
+     51   0.7%  _subswath_numbers (nisar/products/insar/utils.py:544)
