@@ -115,17 +115,22 @@ numbers `s_i = sqrt(diag_Qe)_i`, and standardized statistics
 - **C4+C3**: batch mechanics over the C3-eligible (non-compliant) set
   with the C3 stop rule, `k` per C4b (`max(2, floor(n/2500))`) so the
   combination is non-degenerate on synthetic-900.
-- **C5 — convex robust loss (evaluation-only reference).** Huber-IRLS:
-  joint standardized residual `r_i = sqrt(wL_i² + wP_i²)` (one weight
-  vector serves both bands, matching the upstream structure); Huber
-  factor `u_i = min(1, c / r_i)` with tuning constant `c = 1.345`;
-  fixed scale = the a-priori sigmas (no scale re-estimation); total
-  weight per iteration = `corr_peak_i · u_i` clipped to upstream's
-  `[eps, 1]`; iterate to convergence: max abs coefficient change
-  `< 1e-12` (both bands) or 200 iterations. Reported "retention"
-  substitute: Kish effective sample size `(Σu)²/Σu²` and the downweight
-  distribution. Implementation timebox: one working day; if exceeded,
-  C5 is dropped and the drop is recorded. Not a PR candidate.
+- **C5 — convex robust loss (evaluation-only reference).** Huber-IRLS
+  (as amended A1): the standardization `s0_i` is computed once from
+  the base fit (weights = `corr_peak`, upstream iteration-0
+  redundancy) and held fixed; joint standardized residual
+  `r_i = sqrt((eL_i/(s0_i·sigmaL))² + (eP_i/(s0_i·sigmaP))²)` (one
+  robust factor serves both bands, matching the upstream structure);
+  Huber factor `u_i = min(1, c / r_i)` with tuning constant
+  `c = 1.345`; fixed scale = the a-priori sigmas (no scale
+  re-estimation); LS weight per refit = `corr_peak_i · sqrt(u_i)`
+  clipped to upstream's `[eps, 1]`, so the squared-weight normal
+  equations apply the robust weight `u_i`; iterate to convergence:
+  max abs coefficient change `< 1e-12` (both bands) or 200
+  iterations. Reported "retention" substitute: Kish effective sample
+  size `(Σu)²/Σu²` and the downweight distribution. Implementation
+  timebox: one working day; if exceeded, C5 is dropped and the drop
+  is recorded. Not a PR candidate.
 - **C6 — no-rejection weighted LS.** The iteration-0 weighted fit
   (upstream first iterate) reported as a candidate row. Anchors the
   junk-retention extreme of the frontier.
@@ -241,4 +246,20 @@ literal-C4 result.
 
 ## 8. Amendments
 
-(none)
+- **A1 (2026-08-19, before any confirmatory run): C5 spec corrected
+  to the convex form.** As originally frozen, C5 applied the Huber
+  factor as `weight = corr_peak · u` inside the squared-weight normal
+  equations (effective robust weight `u²` — a redescending,
+  non-convex estimator) and re-derived the standardization from the
+  current weights each refit (a feedback loop on the redundancy
+  numbers). Both contradict the frozen intent stated in the same
+  item ("convex", "fixed scale"): during Phase-A implementation the
+  original wording failed to converge on the two-population
+  discovery case (200 refits, coefficient oscillation ~1e-1). Fix:
+  LS weight `corr_peak · sqrt(u)` (squared weights then apply `u`,
+  the textbook convex Huber IRLS) and standardization `s0` fixed at
+  the base-fit (iteration-0) redundancy. The Huber constant, the
+  convergence tolerance, the budget, and every reported quantity are
+  unchanged. This amendment was made from a convergence failure on
+  discovery data only — no comparative candidate results existed at
+  the time.
