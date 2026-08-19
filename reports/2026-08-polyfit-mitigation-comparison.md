@@ -65,9 +65,9 @@ Confirmatory ensemble, 200 seeds, per-band L (azimuth) figures:
 
 | estimand | n flips | material rate | response p50 | p90 | p99 | max |
 |---|---|---|---|---|---|---|
-| uniform | 2,000 | 0.017 | 0 (exact) | 0 (exact) | 1.06e-2 | 2.29e-2 |
-| stratified | 2,000 | 0.021 | 0 (exact) | 0 (exact) | 1.17e-2 | 2.27e-2 |
-| driver | 200 | **0.265** | 3.39e-3 | 1.38e-2 | 2.68e-2 | 3.20e-2 |
+| uniform | 2,000 | 0.017 (34/2,000) | 0 (exact) | 0 (exact) | 1.06e-2 | 2.29e-2 |
+| stratified | 2,000 | 0.0215 (43/2,000) | 0 (exact) | 0 (exact) | 1.17e-2 | 2.27e-2 |
+| driver | 200 | **0.265** (53/200) | 3.39e-3 | 1.38e-2 | 2.68e-2 | 3.20e-2 |
 
 The p50/p90 zeros are *exact*: in more than 90% of random flips the
 perturbed sample is purged at the same position in the removal
@@ -85,9 +85,9 @@ flips; azimuth band):
 
 | cand | material U | material S | driver rate | driver p99 | drift p50 | truth p50 | retention p50 |
 |---|---|---|---|---|---|---|---|
-| C0 | 0.017 | 0.021 | 0.265 | 2.68e-2 | 0 | 1.21e-2 | 0.037 |
+| C0 | 0.017 | 0.0215 | 0.265 | 2.68e-2 | 0 | 1.21e-2 | 0.037 |
 | C3 | 0.013 | 0.015 | 0.210 | 2.56e-2 | 4.8e-3 | 1.17e-2 | 0.040 |
-| C4 | 0.017 | 0.021 | 0.265 | 2.68e-2 | 0 † | 1.21e-2 | 0.037 |
+| C4 | 0.017 | 0.0215 | 0.265 | 2.68e-2 | 0 † | 1.21e-2 | 0.037 |
 | C4b | 0.020 | 0.024 | 0.290 | 2.67e-2 | 2.3e-3 | 1.22e-2 | 0.036 |
 | C4+C3 | 0.009 | 0.015 | 0.235 | 2.74e-2 | 5.2e-3 | 1.17e-2 | 0.040 |
 | C2b | 0.001 | 0.000 | 0.005 | 6.4e-3 | 2.7e-2 | **2.63e-2** | 0.250 |
@@ -152,7 +152,9 @@ C3/C4b relocate rather than remove in every cell (C4b reaches 0.56
 driver rate in the elite-low cell). C2b and C5 keep the class
 suppressed (≤0.02) in all cells. Termination health is perfect
 everywhere: zero errors, zero rank failures, all stop reasons as
-designed, in 8,800 confirmatory-plus-robustness fits.
+designed, across the 70,400 mirror fits of the confirmatory-plus-
+robustness campaign (400 seeds × 22 fits = 8,800 per candidate ×
+8 candidates) plus the 16 case-study fits.
 
 ## Pre-registered decision
 
