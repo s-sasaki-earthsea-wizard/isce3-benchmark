@@ -6,24 +6,33 @@ plus the ``real40k.json`` case study and produces, per candidate:
 
 * flip-response distributions (p50/p90/p99/max per band) separately
   per estimand (uniform / stratified / driver), with the frozen
-  material-jump exceedance rates and counts;
+  material-jump exceedance rates and counts, exact-zero-in-both-bands
+  counts, seed-paired material-rate differences vs C0 with
+  cluster-bootstrap 95% CIs, and paired transition counts
+  (persistent / resolved / introduced material events vs C0);
 * unperturbed drift and truth-error distributions over seeds;
-* termination-health, runtime, membership-Jaccard and retention
-  summaries;
+* the pre-registered always-reported diagnostics (normal-matrix
+  condition number, spatial coverage, final-batch overshoot, Kish
+  ESS where defined), termination health including flip stop
+  reasons, runtime, membership-Jaccard and retention summaries;
 * the pre-registered decision-gate evaluation
   (``docs/polyfit-mitigation-prereg.md`` section 7) against the C0
-  reference and the 40k case study.
+  reference and the 40k case study — gate g4 covers base AND flip
+  stop reasons;
+* a machine-readable provenance distribution (HEAD × dirty counts
+  and the tracked generating-input blob IDs per observed HEAD).
 
 Quantiles are the frozen report set; ranking statistics are the
 pre-registered p99 and the material-jump exceedance rate — sample
-maxima are reported, never ranked on. All statistics treat the seed
-as the resampling cluster (rates are pooled over flips, but the
-per-seed material counts are retained for cluster-aware intervals).
+maxima are reported, never ranked on. The seed is the resampling
+cluster: rates are pooled over flips, per-seed counts are retained,
+and the bootstrap resamples seeds.
 """
 
 import argparse
 import json
 import pathlib
+import subprocess
 import sys
 
 import numpy as np
@@ -35,8 +44,16 @@ GATE_DRIFT_RMS = 3.6e-2       # px, seed-median and 40k
 GATE_TRUTH_FACTOR = 1.05      # x C0 seed-median
 GATE_RUNTIME_FACTOR = 1.5     # x C0 on the 40k case
 QUANTILES = (0.5, 0.9, 0.99)
+BOOTSTRAP_B = 10000
+BOOTSTRAP_SEED = 20260819     # fixed: the bootstrap must be replayable
 
 ESTIMANDS = ("uniform", "stratified", "driver")
+# Tracked inputs whose blob identity across observed HEADs supports
+# treating a commit-spanning archive as one scheduled run.
+GENERATING_INPUTS = ("scripts/polyfit_sensitivity.py",
+                     "scripts/polyfit_mitigation.py",
+                     "scripts/run_mitigation_ensemble.py",
+                     "docs/polyfit-mitigation-prereg.md")
 
 
 def _quantile_block(values):
@@ -54,12 +71,47 @@ def load_seed_files(directory):
     return [json.loads(p.read_text()) for p in files]
 
 
-def aggregate_candidate(seed_results, name):
+def _flip_key(flip):
+    return (flip["node"], flip["band"], flip["sign"])
+
+
+def collect_flip_events(seed_results, name):
+    """Per-seed flip records: response, material set, stop reasons."""
+    events = {}
+    for seed_result in seed_results:
+        cand = seed_result["candidates"].get(name)
+        if cand is None or "error" in cand["base"]:
+            continue
+        seed = seed_result["seed"]
+        per_est = {e: {"rms_l": [], "rms_p": [], "material": set(),
+                       "zero_both": 0, "n": 0, "errors": 0,
+                       "stop_reasons": {}} for e in ESTIMANDS}
+        for flip in cand["flips"]:
+            bucket = per_est[flip["estimand"]]
+            if "error" in flip:
+                bucket["errors"] += 1
+                continue
+            bucket["rms_l"].append(flip["response_rms_l"])
+            bucket["rms_p"].append(flip["response_rms_p"])
+            bucket["n"] += 1
+            reason = str(flip.get("stop_reason"))
+            bucket["stop_reasons"][reason] = \
+                bucket["stop_reasons"].get(reason, 0) + 1
+            if flip["material"]:
+                bucket["material"].add(_flip_key(flip))
+            if (flip["response_rms_l"] == 0.0
+                    and flip["response_rms_p"] == 0.0):
+                bucket["zero_both"] += 1
+        events[seed] = per_est
+    return events
+
+
+def aggregate_candidate(seed_results, name, c0_events=None):
     """Frozen per-candidate statistics over one seed ensemble."""
-    flips = {e: {"rms_l": [], "rms_p": [], "material": 0, "n": 0,
-                 "per_seed_material": []} for e in ESTIMANDS}
+    events = collect_flip_events(seed_results, name)
     drift_l, drift_p, truth_l, truth_p = [], [], [], []
     jaccard, retention, seconds, refits = [], [], [], []
+    cond, bbox, overshoot, ess, ridge = [], [], [], [], []
     stop_reasons, base_errors, flip_errors = {}, 0, 0
 
     for seed_result in seed_results:
@@ -79,50 +131,126 @@ def aggregate_candidate(seed_results, name):
         refits.append(base["refits"])
         if base.get("jaccard_vs_c0") is not None:
             jaccard.append(base["jaccard_vs_c0"])
+        if base.get("normal_matrix_cond") is not None:
+            cond.append(base["normal_matrix_cond"])
+        coverage = base.get("spatial_coverage") or {}
+        if coverage.get("bbox_area_frac") is not None:
+            bbox.append(coverage["bbox_area_frac"])
+        if base.get("final_batch_overshoot") is not None:
+            overshoot.append(base["final_batch_overshoot"])
+        if base.get("ess_kish") is not None:
+            ess.append(base["ess_kish"])
+        if base.get("ridge_fallbacks") is not None:
+            ridge.append(base["ridge_fallbacks"])
         reason = str(base.get("stop_reason"))
         stop_reasons[reason] = stop_reasons.get(reason, 0) + 1
 
-        seed_material = {e: 0 for e in ESTIMANDS}
-        for flip in cand["flips"]:
-            if "error" in flip:
-                flip_errors += 1
-                continue
-            bucket = flips[flip["estimand"]]
-            bucket["rms_l"].append(flip["response_rms_l"])
-            bucket["rms_p"].append(flip["response_rms_p"])
-            bucket["n"] += 1
-            if flip["material"]:
-                bucket["material"] += 1
-                seed_material[flip["estimand"]] += 1
-        for estimand in ESTIMANDS:
-            flips[estimand]["per_seed_material"].append(
-                seed_material[estimand])
-
-    out = {"n_seeds": len(drift_l), "base_errors": base_errors,
-           "flip_errors": flip_errors, "stop_reasons": stop_reasons,
-           "drift_rms_l": _quantile_block(drift_l),
-           "drift_rms_p": _quantile_block(drift_p),
-           "truth_rms_l": _quantile_block(truth_l),
-           "truth_rms_p": _quantile_block(truth_p),
-           "retention": _quantile_block(retention),
-           "seconds": _quantile_block(seconds),
-           "refits": _quantile_block(refits),
-           "jaccard_vs_c0": _quantile_block(jaccard),
-           "estimands": {}}
+    flip_stop_reasons = {}
+    out_estimands = {}
     for estimand in ESTIMANDS:
-        bucket = flips[estimand]
-        if bucket["n"] == 0:
-            out["estimands"][estimand] = None
+        rms_l, rms_p = [], []
+        n_flips = n_material = n_zero = 0
+        per_seed_material = {}
+        transitions = ({"persistent": 0, "resolved": 0,
+                        "introduced": 0} if c0_events is not None
+                       else None)
+        for seed, per_est in events.items():
+            bucket = per_est[estimand]
+            flip_errors += bucket["errors"]
+            rms_l.extend(bucket["rms_l"])
+            rms_p.extend(bucket["rms_p"])
+            n_flips += bucket["n"]
+            n_material += len(bucket["material"])
+            n_zero += bucket["zero_both"]
+            per_seed_material[str(seed)] = len(bucket["material"])
+            for reason, count in bucket["stop_reasons"].items():
+                flip_stop_reasons[reason] = \
+                    flip_stop_reasons.get(reason, 0) + count
+            if c0_events is not None and seed in c0_events:
+                ref = c0_events[seed][estimand]["material"]
+                cur = bucket["material"]
+                transitions["persistent"] += len(ref & cur)
+                transitions["resolved"] += len(ref - cur)
+                transitions["introduced"] += len(cur - ref)
+        if n_flips == 0:
+            out_estimands[estimand] = None
             continue
-        out["estimands"][estimand] = {
-            "response_rms_l": _quantile_block(bucket["rms_l"]),
-            "response_rms_p": _quantile_block(bucket["rms_p"]),
-            "n_flips": bucket["n"],
-            "n_material": bucket["material"],
-            "material_rate": bucket["material"] / bucket["n"],
-            "per_seed_material": bucket["per_seed_material"],
+        out_estimands[estimand] = {
+            "response_rms_l": _quantile_block(rms_l),
+            "response_rms_p": _quantile_block(rms_p),
+            "n_flips": n_flips,
+            "n_material": n_material,
+            "material_rate": n_material / n_flips,
+            "n_exact_zero_both": n_zero,
+            "per_seed_material": per_seed_material,
+            "transitions_vs_c0": transitions,
         }
-    return out
+
+    return {"n_seeds": len(drift_l), "base_errors": base_errors,
+            "flip_errors": flip_errors,
+            "stop_reasons": stop_reasons,
+            "flip_stop_reasons": flip_stop_reasons,
+            "drift_rms_l": _quantile_block(drift_l),
+            "drift_rms_p": _quantile_block(drift_p),
+            "truth_rms_l": _quantile_block(truth_l),
+            "truth_rms_p": _quantile_block(truth_p),
+            "retention": _quantile_block(retention),
+            "seconds": _quantile_block(seconds),
+            "refits": _quantile_block(refits),
+            "jaccard_vs_c0": _quantile_block(jaccard),
+            "normal_matrix_cond": _quantile_block(cond),
+            "bbox_area_frac": _quantile_block(bbox),
+            "final_batch_overshoot": _quantile_block(overshoot),
+            "ess_kish": _quantile_block(ess),
+            "ridge_fallbacks_total": int(sum(ridge)),
+            "estimands": out_estimands}
+
+
+def rate_diff_bootstrap(agg, c0, rng):
+    """Seed-paired cluster bootstrap of material-rate differences.
+
+    Pools flips within each resampled seed set; returns the observed
+    difference and the percentile 95% CI, in percentage points, for
+    each estimand and for uniform+stratified combined.
+    """
+    results = {}
+    combos = {e: (e,) for e in ESTIMANDS}
+    combos["combined"] = ("uniform", "stratified")
+    for label, members in combos.items():
+        counts = []
+        for estimand in members:
+            own = agg["estimands"].get(estimand)
+            ref = c0["estimands"].get(estimand)
+            if own is None or ref is None:
+                counts = None
+                break
+            own_ps, ref_ps = (own["per_seed_material"],
+                              ref["per_seed_material"])
+            seeds = sorted(set(own_ps) & set(ref_ps))
+            flips_per_seed = own["n_flips"] / max(len(own_ps), 1)
+            counts.append((np.array([own_ps[s] for s in seeds]),
+                           np.array([ref_ps[s] for s in seeds]),
+                           flips_per_seed))
+        if not counts:
+            results[label] = None
+            continue
+        n_seeds = len(counts[0][0])
+        total_flips = sum(c[2] for c in counts) * n_seeds
+        own_all = sum(c[0].sum() for c in counts)
+        ref_all = sum(c[1].sum() for c in counts)
+        observed = (own_all - ref_all) / total_flips * 100.0
+        idx = rng.integers(0, n_seeds, size=(BOOTSTRAP_B, n_seeds))
+        boot = np.zeros(BOOTSTRAP_B)
+        for own_counts, ref_counts, _ in counts:
+            boot += (own_counts[idx].sum(axis=1)
+                     - ref_counts[idx].sum(axis=1))
+        boot = boot / total_flips * 100.0
+        lo, hi = np.percentile(boot, [2.5, 97.5])
+        results[label] = {"diff_pp": float(observed),
+                          "ci95_pp": [float(lo), float(hi)],
+                          "n_seeds": int(n_seeds),
+                          "bootstrap_b": BOOTSTRAP_B}
+    return results
 
 
 def evaluate_gates(agg, c0, real40k, name):
@@ -166,11 +294,14 @@ def evaluate_gates(agg, c0, real40k, name):
         and agg["truth_rms_p"]["p50"]
         <= GATE_TRUTH_FACTOR * c0["truth_rms_p"]["p50"])
 
-    reasons = agg["stop_reasons"]
+    # g4 covers base AND flip terminations (frozen: no case may end
+    # by max_refits or a rank/factorization failure).
+    bad = {"rank_failure", "max_refits"}
     gates["g4_termination"] = bool(
         agg["base_errors"] == 0 and agg["flip_errors"] == 0
-        and reasons.get("rank_failure", 0) == 0
-        and reasons.get("max_refits", 0) == 0)
+        and all(agg["stop_reasons"].get(b, 0) == 0 for b in bad)
+        and all(agg["flip_stop_reasons"].get(b, 0) == 0
+                for b in bad))
 
     runtime40 = base40.get("seconds")
     runtime40_c0 = base40_c0.get("seconds")
@@ -184,32 +315,63 @@ def evaluate_gates(agg, c0, real40k, name):
     return gates
 
 
+def provenance_distribution(seed_results, repo_root=None):
+    """HEAD x dirty counts plus generating-input blob IDs per HEAD."""
+    cells = {}
+    for seed_result in seed_results:
+        prov = seed_result.get("provenance") or {}
+        head = str(prov.get("generator_commit"))
+        dirty = bool(prov.get("worktree_dirty"))
+        cells.setdefault(head, {"clean": 0, "dirty": 0})
+        cells[head]["dirty" if dirty else "clean"] += 1
+    blobs = {}
+    root = repo_root or pathlib.Path(__file__).resolve().parent.parent
+    for head in cells:
+        try:
+            out = subprocess.run(
+                ["git", "ls-tree", head, "--"] + list(GENERATING_INPUTS),
+                cwd=root, capture_output=True, text=True, check=True)
+            blobs[head] = {line.split("\t")[1]: line.split()[2]
+                           for line in out.stdout.splitlines()}
+        except (OSError, subprocess.CalledProcessError, IndexError):
+            blobs[head] = None
+    known = [b for b in blobs.values() if b]
+    return {"cells": cells,
+            "generating_input_blobs": blobs,
+            "generating_inputs_identical": bool(
+                known and all(b == known[0] for b in known)),
+            "n_dirty": sum(c["dirty"] for c in cells.values()),
+            "dirty_paths_recorded": False}
+
+
 def markdown_table(summary):
     """Compact frontier table for the report."""
     lines = ["| cand | material U | material S | driver p99 L "
              "| drift p50 L | truth p50 L | retention p50 "
-             "| gates |",
-             "|---|---|---|---|---|---|---|---|"]
+             "| ESS p50 | gates |",
+             "|---|---|---|---|---|---|---|---|---|"]
     for name, block in summary["candidates"].items():
         agg, gates = block["ensemble"], block.get("gates", {})
         if agg["n_seeds"] == 0:
-            lines.append(f"| {name} | (no seeds) | | | | | | |")
+            lines.append(f"| {name} | (no seeds) | | | | | | | |")
             continue
         est_u = agg["estimands"].get("uniform")
         est_s = agg["estimands"].get("stratified")
         est_d = agg["estimands"].get("driver")
+        ess = agg.get("ess_kish")
         gate_str = ("PASS" if gates.get("all_pass") else
                     ",".join(k[:2] for k, v in gates.items()
                              if k.startswith("g") and not v) or "-")
         lines.append(
             f"| {name} "
-            f"| {est_u['material_rate']:.3f} "
-            f"| {est_s['material_rate']:.3f} "
+            f"| {est_u['material_rate']:.4f} "
+            f"| {est_s['material_rate']:.4f} "
             f"| {est_d['response_rms_l']['p99']:.2e} "
             f"| {agg['drift_rms_l']['p50']:.2e} "
             f"| {agg['truth_rms_l']['p50']:.2e} "
             f"| {agg['retention']['p50']:.3f} "
-            f"| {gate_str} |")
+            + (f"| {ess['p50']:.1f} " if ess else "| - ")
+            + f"| {gate_str} |")
     return "\n".join(lines)
 
 
@@ -221,13 +383,19 @@ def build_summary(confirmatory_dir, real40k_path=None,
     names = list(seed_results[0]["candidates"].keys())
     real40k = (json.loads(pathlib.Path(real40k_path).read_text())
                if real40k_path else None)
+    rng = np.random.default_rng(BOOTSTRAP_SEED)
 
     candidates = {}
+    c0_events = collect_flip_events(seed_results, "C0")
     c0 = aggregate_candidate(seed_results, "C0")
     for name in names:
         agg = (c0 if name == "C0"
-               else aggregate_candidate(seed_results, name))
+               else aggregate_candidate(seed_results, name,
+                                        c0_events=c0_events))
         block = {"ensemble": agg}
+        if name != "C0":
+            block["rate_diff_vs_c0"] = rate_diff_bootstrap(agg, c0,
+                                                           rng)
         block["gates"] = evaluate_gates(agg, c0, real40k, name)
         if real40k and name in real40k.get("candidates", {}):
             entry = real40k["candidates"][name]
@@ -239,14 +407,15 @@ def build_summary(confirmatory_dir, real40k_path=None,
             }
         candidates[name] = block
 
+    all_results = list(seed_results)
     summary = {
         "confirmatory_dir": str(confirmatory_dir),
         "n_seeds": len(seed_results),
         "seed_range": [seed_results[0]["seed"],
                        seed_results[-1]["seed"]],
         "material_jump_rms": MATERIAL_JUMP_RMS,
+        "bootstrap": {"b": BOOTSTRAP_B, "seed": BOOTSTRAP_SEED},
         "candidates": candidates,
-        "provenance_sample": seed_results[0].get("provenance"),
     }
     if robustness_dirs:
         summary["robustness"] = {}
@@ -254,12 +423,19 @@ def build_summary(confirmatory_dir, real40k_path=None,
             cell_results = load_seed_files(directory)
             if not cell_results:
                 continue
+            all_results.extend(cell_results)
+            cell_c0_events = collect_flip_events(cell_results, "C0")
             summary["robustness"][cell] = {
                 "n_seeds": len(cell_results),
                 "candidates": {
-                    name: aggregate_candidate(cell_results, name)
+                    name: aggregate_candidate(
+                        cell_results, name,
+                        c0_events=(None if name == "C0"
+                                   else cell_c0_events))
                     for name in names},
             }
+    summary["provenance_distribution"] = provenance_distribution(
+        all_results)
     return summary
 
 
