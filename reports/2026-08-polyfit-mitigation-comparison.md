@@ -33,7 +33,7 @@ per-seed provenance recorded in every artifact JSON.
    disappearing and appearing.** The quantization deadband (C3) and
    the min-batch-2 variant (C4b) both suppress the *recorded*
    real-data jump (driver-flip response 3.60e-2 px → below 8e-4 px
-   in either band) — yet C3 retains 72–74% of the baseline
+   in both bands) — yet C3 retains 72–74% of the baseline
    random-flip material rate (combined paired difference −0.53 pp,
    95% cluster-bootstrap CI [−0.95, −0.10]), far above the frozen
    ≥10× gate, and C4b *introduces more new material events than it
@@ -172,7 +172,7 @@ recorded driver flip (row 22961, −1/32 px azimuth):
 Two observations that must be read together:
 
 - **On this one case, C3 and C4b suppress the recorded CPU-vs-GPU
-  product difference** (response below 8e-4 px in either band) at
+  product difference** (response below 8e-4 px in both bands) at
   2.7e-3 / 4.0e-6 px azimuth drift — case-level suppression.
 - **The ensemble shows it is not class-level removal**: the same
   candidates leave the fresh-seed material rates near baseline
