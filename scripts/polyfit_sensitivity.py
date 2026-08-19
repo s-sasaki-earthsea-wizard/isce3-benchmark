@@ -1150,7 +1150,9 @@ def make_min_repro_case(seed=MIN_REPRO_SEED, n_az=30, n_rg=30,
                         coherent_noise_std=0.02,
                         coherent_peak_range=(0.3, 0.8),
                         junk_scatter=20.0,
-                        junk_peak_range=(0.02, 0.15)):
+                        junk_peak_range=(0.02, 0.15),
+                        quant_phase=0.0,
+                        driver_radar=None):
     """Build the two-population minimal-reproducer sample set.
 
     The structure imitates the real production sample set at 900
@@ -1178,6 +1180,12 @@ def make_min_repro_case(seed=MIN_REPRO_SEED, n_az=30, n_rg=30,
         coherent_peak_range: Coherent correlation-peak range.
         junk_scatter: Junk-population uniform scatter half-width [px].
         junk_peak_range: Junk correlation-peak range.
+        quant_phase: Offset of the quantizer grid [px] (robustness
+            block; 0.0 keeps the exact original code path).
+        driver_radar: (line, pixel) radar position whose nearest grid
+            node hosts the driver (default: the published position).
+            Placement consumes no RNG draws, so varying it leaves
+            every random draw unchanged.
 
     Returns:
         tuple: (data (N, 6) float64 array, info dict). ``info``
@@ -1186,10 +1194,12 @@ def make_min_repro_case(seed=MIN_REPRO_SEED, n_az=30, n_rg=30,
     """
     rng = np.random.default_rng(seed)
     op = load_offsets_polyfit()
+    if driver_radar is None:
+        driver_radar = MIN_REPRO_DRIVER_RADAR
     lines = np.linspace(0, grid_shape[0] - 1, n_az).round()
     pixels = np.linspace(0, grid_shape[1] - 1, n_rg).round()
-    az_idx = int(np.argmin(np.abs(lines - MIN_REPRO_DRIVER_RADAR[0])))
-    rg_idx = int(np.argmin(np.abs(pixels - MIN_REPRO_DRIVER_RADAR[1])))
+    az_idx = int(np.argmin(np.abs(lines - driver_radar[0])))
+    rg_idx = int(np.argmin(np.abs(pixels - driver_radar[1])))
     driver_id = az_idx * n_rg + rg_idx
     ll, pp = np.meshgrid(lines, pixels, indexing="ij")
     ll, pp = ll.ravel(), pp.ravel()
@@ -1220,8 +1230,14 @@ def make_min_repro_case(seed=MIN_REPRO_SEED, n_az=30, n_rg=30,
     d_p[driver_id] = truth_p[driver_id]
     peak[driver_id] = MIN_REPRO_DRIVER_PEAK
 
-    d_l = np.round(d_l / OFFSET_QUANTUM) * OFFSET_QUANTUM
-    d_p = np.round(d_p / OFFSET_QUANTUM) * OFFSET_QUANTUM
+    if quant_phase:
+        d_l = (np.round((d_l - quant_phase) / OFFSET_QUANTUM)
+               * OFFSET_QUANTUM + quant_phase)
+        d_p = (np.round((d_p - quant_phase) / OFFSET_QUANTUM)
+               * OFFSET_QUANTUM + quant_phase)
+    else:
+        d_l = np.round(d_l / OFFSET_QUANTUM) * OFFSET_QUANTUM
+        d_p = np.round(d_p / OFFSET_QUANTUM) * OFFSET_QUANTUM
     d_l = d_l.astype(np.float32).astype(np.float64)
     d_p = d_p.astype(np.float32).astype(np.float64)
     peak = peak.astype(np.float32).astype(np.float64)
@@ -1240,6 +1256,8 @@ def make_min_repro_case(seed=MIN_REPRO_SEED, n_az=30, n_rg=30,
         "coherent_peak_range": list(coherent_peak_range),
         "junk_scatter": junk_scatter,
         "junk_peak_range": list(junk_peak_range),
+        "quant_phase": quant_phase,
+        "driver_radar": list(driver_radar),
     }
     return data, info
 
