@@ -38,6 +38,12 @@ refit: ``min_inliers``, then ``max_rejections``.
 The C6 reference (no-rejection weighted LS) is ``Policy()`` with
 ``max_iterations=0``: the loop returns the iteration-0 fit, which is
 bit-identical to upstream under the same budget.
+
+The C5 reference (convex robust loss, evaluation-only) is
+``huber_irls_fit``: no membership decisions at all — every sample is
+kept and continuously downweighted by a Huber factor on the joint
+standardized residual, with the scale fixed at the a-priori sigmas
+(frozen spec, pre-registration section 3).
 """
 
 import dataclasses
@@ -107,6 +113,79 @@ CANDIDATES = {
     "C4+C3": Policy(deadband_q=OFFSET_QUANTUM,
                     batch_divisor=2500.0, batch_min=2),
 }
+
+
+# Dedicated RNG substream tag for flip manifests (pre-registration
+# section 5): rng = default_rng([case_seed, MANIFEST_STREAM]).
+MANIFEST_STREAM = 351
+
+
+def build_flip_manifest(case_seed, weights, q=OFFSET_QUANTUM,
+                        n_uniform=10, n_stratified=10):
+    """Build the frozen per-case flip manifest (pre-reg section 5).
+
+    One manifest per case, generated from the case seed by a
+    dedicated RNG stream and shared by all candidates (common random
+    numbers). Two estimands: ``uniform`` (nodes drawn uniformly over
+    all samples) and ``stratified`` (one node per weight decile,
+    deciles computed from the input weights only). Within each
+    estimand the first half of the draws flips band L and the second
+    half band P, signs alternating +q/-q within each band group —
+    the assignment uses only the inputs and the manifest RNG, never
+    a candidate or upstream outcome.
+
+    Args:
+        case_seed: The case (generator) seed.
+        weights: (N,) input correlation-peak weights of the case.
+        q: Offset quantum [px].
+        n_uniform: Flips in the uniform estimand.
+        n_stratified: Flips in the stratified estimand (= number of
+            weight strata).
+
+    Returns:
+        dict: ``{"case_seed", "q", "flips", "sha256"}`` where flips
+        is a list of ``{"estimand", "node", "band", "sign",
+        "delta"}`` and the hash covers the canonical JSON of
+        everything but itself.
+    """
+    import hashlib
+    import json
+
+    weights = np.asarray(weights, dtype=float)
+    n = weights.size
+    if n < max(n_uniform, n_stratified):
+        raise ValueError("case smaller than the manifest draw")
+    rng = np.random.default_rng([int(case_seed), MANIFEST_STREAM])
+
+    uniform_nodes = [int(i) for i in
+                     rng.choice(n, size=n_uniform, replace=False)]
+    order = np.argsort(weights, kind="stable")
+    strata = np.array_split(order, n_stratified)
+    stratified_nodes = [int(rng.choice(group)) for group in strata]
+
+    flips = []
+    for estimand, nodes in (("uniform", uniform_nodes),
+                            ("stratified", stratified_nodes)):
+        half = len(nodes) // 2
+        for j, node in enumerate(nodes):
+            band = "L" if j < half else "P"
+            sign = 1 if j % 2 == 0 else -1
+            flips.append({"estimand": estimand, "node": node,
+                          "band": band, "sign": sign,
+                          "delta": sign * q})
+    body = {"case_seed": int(case_seed), "q": q, "flips": flips}
+    digest = hashlib.sha256(
+        json.dumps(body, sort_keys=True,
+                   separators=(",", ":")).encode()).hexdigest()
+    return {**body, "sha256": digest}
+
+
+def apply_flip(data, flip):
+    """Return a copy of the case with one manifest flip applied."""
+    flipped = np.asarray(data, dtype=float).copy()
+    column = 3 if flip["band"] == "L" else 4
+    flipped[flip["node"], column] += flip["delta"]
+    return flipped
 
 
 def batch_size(n_current, policy):
@@ -385,5 +464,151 @@ def _result(xL, xP, data, removed_indices, degree, nunk, stop_reason,
         "batch_compliant_removed": batch_compliant,
         "final_batch_overshoot": batch_compliant[-1] if batch_compliant
                                  else 0,
+        "seconds": time.perf_counter() - t0,
+    }
+
+
+def huber_irls_fit(op, data, c=1.345, tol=1e-12, max_iterations=200,
+                   degree=PROD_DEGREE, minL=None, maxL=None,
+                   minP=None, maxP=None, prf=None, abw=None,
+                   rsr=None, rbw=None):
+    """C5 reference: convex Huber-IRLS fit with no membership decisions.
+
+    Every sample is kept; outlyingness is handled by continuous
+    downweighting instead of hard deletion. Frozen spec
+    (pre-registration section 3, as amended A1): the standardization
+    ``s0_i`` is computed ONCE from the base fit (weights =
+    ``corr_peak``, the upstream iteration-0 redundancy numbers) and
+    held fixed; per refit the joint standardized residual is
+    ``r_i = sqrt((eL_i/(s0_i*sigmaL))**2 + (eP_i/(s0_i*sigmaP))**2)``
+    with the a-priori sigmas (fixed scale, no re-estimation); the
+    Huber factor is ``u_i = min(1, c / r_i)`` and the LS weight is
+    ``clip(corr_peak_i * sqrt(u_i), eps, 1)`` (the upstream clip
+    range) so the squared-weight normal equations apply the robust
+    weight ``u`` — the textbook convex Huber IRLS. Iterate until the
+    maximum absolute coefficient change of both bands is below
+    ``tol`` or ``max_iterations`` refits.
+
+    (The originally frozen wording — weight ``corr_peak * u`` and
+    per-refit re-standardization — is a redescending, non-convex
+    estimator under squared weights and does not converge on the
+    two-population case; see amendment A1 in the pre-registration.)
+
+    Args:
+        op: The upstream offsets_polyfit module.
+        data: (N, 6) input array (copied internally).
+        c: Huber tuning constant on the joint standardized residual.
+        tol: Convergence threshold on the max abs coefficient change.
+        max_iterations: Refit budget.
+        degree, minL, maxL, minP, maxP, prf, abw, rsr, rbw: As in
+            upstream ``polyfit_offsets``.
+
+    Returns:
+        dict: Upstream-shaped result (``inliers`` = all samples,
+        ``removed_indices`` = []) plus ``stop_reason``
+        (``irls_converged`` | ``irls_max_iterations``), ``converged``,
+        ``refits``, ``coef_delta`` (final iteration's max abs
+        coefficient change), ``ess_kish`` (effective sample size
+        ``(sum u)**2 / sum(u**2)`` over the Huber factors),
+        ``downweight_quantiles`` (p10/p50/p90 and min of ``u``),
+        ``n_downweighted`` (samples with ``u < 1``),
+        ``normal_matrix_cond``, ``design_rank``,
+        ``spatial_coverage`` and ``seconds``.
+
+    Raises:
+        ValueError: When ``Nobs <= Nunk`` (upstream behavior).
+    """
+    data = np.asarray(data, dtype=float).copy()
+
+    sigmaL = 0.15 / ((prf / abw) if (None not in [prf, abw]) else 1.1)
+    sigmaP = 0.10 / ((rsr / rbw) if (None not in [rsr, rbw]) else 1.1)
+    maxL = data[:, 1].max() if maxL is None else maxL
+    minL = data[:, 1].min() if minL is None else minL
+    maxP = data[:, 2].max() if maxP is None else maxP
+    minP = data[:, 2].min() if minP is None else minP
+
+    nunk = op.ncoeffs(degree)
+    eps = np.sqrt(np.finfo(float).eps)
+    nobs = data.shape[0]
+    if nobs <= nunk:
+        raise ValueError(
+            "No sufficient points for the rubbersheet polyfitting")
+
+    A = op.build_design_matrix(data[:, 1], data[:, 2], degree,
+                               minL, maxL, minP, maxP)
+    yL, yP = data[:, 3:4], data[:, 4:5]
+    peak = data[:, 5]
+    u = np.ones(nobs)
+    u_fit = u
+    s0 = None
+    prev = None
+    coef_delta = float("nan")
+    t0 = time.perf_counter()
+
+    for iteration in range(max_iterations):
+        w = np.clip(peak * np.sqrt(u), eps, 1.0)
+        W = w[:, None]
+        A_til = A * W
+        At = A_til.T
+        Nmat = At @ A_til
+        rhsL, rhsP = At @ (yL * W), At @ (yP * W)
+        try:
+            xL, Lc = op.cholesky_solve(Nmat, rhsL)
+            xP, _ = op.cholesky_solve(Nmat, rhsP)
+        except np.linalg.LinAlgError:
+            I = np.eye(Nmat.shape[0])
+            xL, Lc = op.cholesky_solve(Nmat + eps * I, rhsL)
+            xP, _ = op.cholesky_solve(Nmat + eps * I, rhsP)
+
+        eL, eP = yL - A @ xL, yP - A @ xP
+        if s0 is None:
+            # Fixed standardization from the base fit (u = 1, weights
+            # = corr_peak): the upstream iteration-0 redundancy.
+            Qx_hat = op.invert_from_cholesky(Lc)
+            Qy_diag = 1.0 / (w * w)
+            Qyhat_diag = np.einsum("ij,jk,ik->i", A, Qx_hat, A)
+            s0 = np.sqrt(np.clip(Qy_diag - Qyhat_diag, eps, None))
+
+        u_fit = u  # the Huber factors that produced this fit
+        if prev is not None:
+            coef_delta = max(np.abs(xL - prev[0]).max(),
+                             np.abs(xP - prev[1]).max())
+            if coef_delta < tol:
+                stop_reason = "irls_converged"
+                break
+        prev = (xL, xP)
+
+        wL = eL[:, 0] / (s0 * sigmaL)
+        wP = eP[:, 0] / (s0 * sigmaP)
+        r = np.sqrt(wL * wL + wP * wP)
+        u = np.ones(nobs)
+        outlying = r > c
+        u[outlying] = c / r[outlying]
+    else:
+        stop_reason = "irls_max_iterations"
+
+    q10, q50, q90 = np.quantile(u_fit, [0.1, 0.5, 0.9])
+    return {
+        "coefL": xL[:, 0], "coefP": xP[:, 0],
+        "inliers": data,
+        "removed_indices": [],
+        "degree": degree, "design_nunk": nunk,
+        "stop_reason": stop_reason,
+        "converged": stop_reason == "irls_converged",
+        "n_initial": int(nobs),
+        "n_inliers": int(nobs),
+        "n_removed": 0,
+        "retention": 1.0,
+        "refits": iteration + 1,
+        "coef_delta": float(coef_delta),
+        "ess_kish": float(u.sum() ** 2 / (u * u).sum()),
+        "downweight_quantiles": {"p10": float(q10), "p50": float(q50),
+                                 "p90": float(q90),
+                                 "min": float(u.min())},
+        "n_downweighted": int((u < 1.0).sum()),
+        "normal_matrix_cond": float(np.linalg.cond(Nmat)),
+        "design_rank": int(np.linalg.matrix_rank(Nmat)),
+        "spatial_coverage": _spatial_coverage(data, minL, maxL,
+                                              minP, maxP),
         "seconds": time.perf_counter() - t0,
     }
