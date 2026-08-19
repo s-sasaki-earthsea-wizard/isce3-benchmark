@@ -11,10 +11,12 @@ import numpy as np
 import pytest
 
 from polyfit_sensitivity import (load_offsets_polyfit,
+                                 make_min_repro_case,
                                  make_pure_synthetic,
                                  production_fit_kwargs)
-from polyfit_mitigation import (CANDIDATES, Policy, batch_size,
-                                polyfit_candidate)
+from polyfit_mitigation import (CANDIDATES, Policy, apply_flip,
+                                batch_size, build_flip_manifest,
+                                huber_irls_fit, polyfit_candidate)
 
 try:
     op = load_offsets_polyfit()
@@ -25,6 +27,8 @@ pytestmark = pytest.mark.skipif(
     op is None, reason="upstream offsets_polyfit not importable")
 
 KWARGS = production_fit_kwargs()
+# huber_irls_fit has no crit_value (no w-test stop).
+IRLS_KWARGS = {k: v for k, v in KWARGS.items() if k != "crit_value"}
 
 
 @pytest.fixture(scope="module")
@@ -319,3 +323,110 @@ def test_instrumentation_keys(noisy_case):
     assert res["design_rank"] == 6
     assert res["normal_matrix_cond"] >= 1.0
     assert len(res["batch_sizes"]) == res["refits"] - 1
+
+
+# ------------------------------------------------------------------
+# C5 Huber-IRLS reference (frozen spec as amended A1)
+
+def test_c5_infinite_c_equals_c6(noisy_case):
+    """With c -> inf every u stays 1: the fit is the C6 base fit."""
+    c6, _ = polyfit_candidate(op, noisy_case, policy=Policy(),
+                              max_iterations=0, **KWARGS)
+    res = huber_irls_fit(op, noisy_case, c=1e12, **IRLS_KWARGS)
+    np.testing.assert_array_equal(c6["coefL"], res["coefL"])
+    np.testing.assert_array_equal(c6["coefP"], res["coefP"])
+    assert res["n_downweighted"] == 0
+    assert res["converged"]
+
+
+def test_c5_clean_case_no_downweighting():
+    """Clean quantized input: all r stay below c, u == 1 throughout."""
+    data, _ = make_pure_synthetic(seed=7)
+    res = huber_irls_fit(op, data, **IRLS_KWARGS)
+    assert res["converged"]
+    assert res["refits"] <= 3
+    assert res["n_downweighted"] == 0
+    assert res["ess_kish"] == pytest.approx(len(data))
+
+
+def test_c5_two_population_converges_and_downweights():
+    """The discovery-shaped junk majority is strongly downweighted
+    and the convex iteration converges (the original non-convex
+    wording did not — pre-registration amendment A1)."""
+    data, _ = make_min_repro_case()
+    res = huber_irls_fit(op, data, **IRLS_KWARGS)
+    assert res["converged"]
+    assert res["refits"] < 200
+    assert res["n_downweighted"] > 500
+    assert res["downweight_quantiles"]["min"] < 0.1
+    assert 0 < res["ess_kish"] < len(data)
+    # No membership decisions, ever.
+    assert res["removed_indices"] == []
+    assert res["retention"] == 1.0
+
+
+def test_c5_aa_determinism():
+    data, _ = make_min_repro_case()
+    r1 = huber_irls_fit(op, data, **IRLS_KWARGS)
+    r2 = huber_irls_fit(op, data, **IRLS_KWARGS)
+    np.testing.assert_array_equal(r1["coefL"], r2["coefL"])
+    np.testing.assert_array_equal(r1["coefP"], r2["coefP"])
+    assert r1["refits"] == r2["refits"]
+
+
+# ------------------------------------------------------------------
+# Flip manifest (pre-registration section 5)
+
+def test_manifest_deterministic_and_hashed():
+    data, _ = make_min_repro_case()
+    m1 = build_flip_manifest(1000, data[:, 5])
+    m2 = build_flip_manifest(1000, data[:, 5])
+    assert m1 == m2
+    m3 = build_flip_manifest(1001, data[:, 5])
+    assert m3["sha256"] != m1["sha256"]
+    assert len(m1["sha256"]) == 64
+
+
+def test_manifest_structure():
+    data, _ = make_min_repro_case()
+    m = build_flip_manifest(1000, data[:, 5])
+    flips = m["flips"]
+    assert len(flips) == 20
+    q = 1.0 / 32.0
+    for estimand in ("uniform", "stratified"):
+        group = [f for f in flips if f["estimand"] == estimand]
+        assert len(group) == 10
+        bands = [f["band"] for f in group]
+        assert bands == ["L"] * 5 + ["P"] * 5
+        for sub in (group[:5], group[5:]):
+            signs = [f["sign"] for f in sub]
+            assert signs in ([1, -1, 1, -1, 1], [-1, 1, -1, 1, -1])
+            assert {abs(f["delta"]) for f in sub} == {q}
+    uniform_nodes = [f["node"] for f in flips
+                     if f["estimand"] == "uniform"]
+    assert len(set(uniform_nodes)) == 10
+
+
+def test_manifest_stratified_one_node_per_decile():
+    data, _ = make_min_repro_case()
+    weights = data[:, 5]
+    m = build_flip_manifest(1000, weights)
+    nodes = [f["node"] for f in m["flips"]
+             if f["estimand"] == "stratified"]
+    order = np.argsort(weights, kind="stable")
+    strata = np.array_split(order, 10)
+    for node, stratum in zip(nodes, strata):
+        assert node in stratum
+
+
+def test_apply_flip_touches_one_cell():
+    data, _ = make_min_repro_case()
+    m = build_flip_manifest(1000, data[:, 5])
+    flip = m["flips"][0]
+    flipped = apply_flip(data, flip)
+    diff = flipped - data
+    assert np.count_nonzero(diff) == 1
+    column = 3 if flip["band"] == "L" else 4
+    assert diff[flip["node"], column] == pytest.approx(flip["delta"])
+    # The original case is untouched (copy semantics).
+    assert not np.shares_memory(flipped, data)
