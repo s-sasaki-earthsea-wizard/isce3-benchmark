@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from aggregate_mitigation_results import (aggregate_candidate,
+                                          validate_archive,
                                           build_summary,
                                           collect_flip_events,
                                           evaluate_gates,
@@ -52,7 +53,7 @@ def _seed(seed, cands, commit="6350809ab", dirty=False):
 def _make_ensemble():
     """Two seeds. C0: 2 material uniform flips (nodes 5, 6), 1
     stratified (node 15), driver material. GOOD: resolves all of
-    them, introduces one uniform material at node 7 in seed 1001.
+    them, introduces one uniform material at node 1 in seed 1001.
     BAD_DRIFT: stable but drifts beyond the gate."""
     seeds = []
     for seed in (1000, 1001):
@@ -71,7 +72,7 @@ def _make_ensemble():
                for n in (11, 12, 13, 14, 15)]
             + [_flip("driver", 99, 1e-4, False)])
         if seed == 1001:
-            good_flips[0] = _flip("uniform", 7, 2e-2, True)
+            good_flips[0] = _flip("uniform", 1, 2e-2, True)
         seeds.append(_seed(seed, {
             "C0": {"base": _base(), "flips": c0_flips},
             "GOOD": {"base": _base(drift=1e-3, truth=0.02,
@@ -90,20 +91,23 @@ REAL40K = {"candidates": {
                     "retention": 0.042, "refits": 38324},
            "driver_flip": {"response_rms_l": 3.6e-2,
                            "response_rms_p": 1e-5,
-                           "material": True}},
+                           "material": True,
+                           "stop_reason": "w_test"}},
     "GOOD": {"base": {"seconds": 120.0, "drift_rms_l": 1e-3,
                       "drift_rms_p": 1e-3, "stop_reason": "w_test",
                       "retention": 0.05, "refits": 9000},
              "driver_flip": {"response_rms_l": 1e-4,
                              "response_rms_p": 1e-5,
-                             "material": False}},
+                             "material": False,
+                             "stop_reason": "w_test"}},
     "BAD_DRIFT": {"base": {"seconds": 120.0, "drift_rms_l": 5e-2,
                            "drift_rms_p": 5e-2,
                            "stop_reason": "w_test",
                            "retention": 0.3, "refits": 5000},
                   "driver_flip": {"response_rms_l": 1e-4,
                                   "response_rms_p": 1e-5,
-                                  "material": False}},
+                                  "material": False,
+                                  "stop_reason": "w_test"}},
 }}
 
 
@@ -135,7 +139,7 @@ def test_paired_transitions():
     good = aggregate_candidate(seeds, "GOOD", c0_events=c0_events)
     tr = good["estimands"]["uniform"]["transitions_vs_c0"]
     # C0 material: nodes 5,6 per seed (4 events); GOOD resolves all
-    # of them and introduces node 7 in seed 1001.
+    # of them and introduces node 1 in seed 1001.
     assert tr == {"persistent": 0, "resolved": 4, "introduced": 1}
     tr_d = good["estimands"]["driver"]["transitions_vs_c0"]
     assert tr_d == {"persistent": 0, "resolved": 2, "introduced": 0}
@@ -221,3 +225,76 @@ def test_build_summary_and_markdown(tmp_path):
     assert "ESS p50" in table
     # Material rates carry four decimals (0.021 vs 0.0215 class).
     assert "0.4000" in table
+
+# ------------------------------------------------------------------
+# Fail-closed archive validation and termination allow-lists
+
+def test_validate_archive_accepts_complete_fixture():
+    validate_archive(_make_ensemble())
+
+
+def test_validate_archive_rejects_missing_candidate():
+    seeds = _make_ensemble()
+    del seeds[1]["candidates"]["GOOD"]
+    with pytest.raises(ValueError, match="candidate set"):
+        validate_archive(seeds)
+
+
+def test_validate_archive_rejects_manifest_mismatch():
+    seeds = _make_ensemble()
+    seeds[0]["candidates"]["GOOD"]["flips"][0]["node"] = 777
+    with pytest.raises(ValueError, match="flip keys differ"):
+        validate_archive(seeds)
+
+
+def test_validate_archive_rejects_missing_flip():
+    seeds = _make_ensemble()
+    seeds[0]["candidates"]["GOOD"]["flips"].pop(0)
+    with pytest.raises(ValueError, match="flip keys differ"):
+        validate_archive(seeds)
+
+
+def test_validate_archive_requires_successful_c0():
+    seeds = _make_ensemble()
+    seeds[0]["candidates"]["C0"]["base"] = {"error": "boom"}
+    with pytest.raises(ValueError, match="successful C0"):
+        validate_archive(seeds)
+
+
+def test_g4_rejects_budget_stop_and_unknown_and_missing():
+    seeds = _make_ensemble()
+    c0 = aggregate_candidate(seeds, "C0")
+    # Known budget stop (IRLS) is never healthy for a w-test family.
+    seeds_b = _make_ensemble()
+    seeds_b[0]["candidates"]["GOOD"]["flips"][2]["stop_reason"] = \
+        "irls_max_iterations"
+    good_b = aggregate_candidate(seeds_b, "GOOD")
+    assert not evaluate_gates(good_b, c0, REAL40K,
+                              "GOOD")["g4_termination"]
+    # Unknown stop reason fails closed.
+    seeds_u = _make_ensemble()
+    seeds_u[0]["candidates"]["GOOD"]["flips"][2]["stop_reason"] = \
+        "mystery"
+    good_u = aggregate_candidate(seeds_u, "GOOD")
+    assert not evaluate_gates(good_u, c0, REAL40K,
+                              "GOOD")["g4_termination"]
+    # Missing real40k driver stop reason fails closed.
+    import copy
+    real = copy.deepcopy(REAL40K)
+    del real["candidates"]["GOOD"]["driver_flip"]["stop_reason"]
+    good = aggregate_candidate(seeds, "GOOD")
+    assert not evaluate_gates(good, c0, real,
+                              "GOOD")["g4_termination"]
+
+
+def test_provenance_partial_resolution_fails_closed():
+    # One resolvable HEAD plus one bogus HEAD must not assert blob
+    # identity (fail closed on partial resolution).
+    seeds = [_seed(1, {"C0": {"base": _base(), "flips": []}},
+                   commit="HEAD"),
+             _seed(2, {"C0": {"base": _base(), "flips": []}},
+                   commit="0" * 40)]
+    prov = provenance_distribution(seeds)
+    assert prov["generating_input_blobs"]["HEAD"] is not None
+    assert prov["generating_inputs_identical"] is False
+    assert prov["scope"] == "seed_records_only"

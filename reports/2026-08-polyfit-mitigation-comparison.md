@@ -2,7 +2,8 @@
 
 Companion to [isce-framework/isce3#351](https://github.com/isce-framework/isce3/issues/351).
 Protocol: [`docs/polyfit-mitigation-prereg.md`](../docs/polyfit-mitigation-prereg.md),
-frozen at `d234d13` **before any candidate result was computed**; one
+frozen at `d234d13` **before any confirmatory or comparative result
+was computed**; one
 amendment (A1, C5 convexity correction, `a94f474`) was made from a
 convergence failure on discovery data only, before any comparative
 result existed. All confirmatory numbers below come from a **single
@@ -85,12 +86,12 @@ Confirmatory ensemble, 200 seeds, azimuth (L) band:
 For the random-flip estimands the empirical p50 and p90 are exactly
 zero: 94.65% of uniform (1,893/2,000) and 94.20% of stratified
 (1,884/2,000) flips produced *exactly zero* response in both bands,
-while the tail reaches several 1e-2 px — the
-piecewise-constant-with-rare-boundary-crossings behavior of the
-original report, measured as a distribution. (Per-flip removal
+while the tail reaches several 1e-2 px — a point mass at exact
+zero with a rare boundary-crossing tail, consistent with the
+discrete-membership mechanism of the original report. (Per-flip removal
 chains are not archived, so the zero responses are reported as
-observed outcomes, not as a mechanism claim.) The driver
-distribution is non-zero throughout. Baseline retention: median
+observed outcomes, not as a mechanism claim.) The driver distribution's p50 and p90 are non-zero (54/200 driver
+flips still produce exactly zero response). Baseline retention: median
 3.7% (the ~4% high-weight-elite regime of the recorded production
 case reproduces on fresh seeds).
 
@@ -176,8 +177,9 @@ Two observations that must be read together:
   2.7e-3 / 4.0e-6 px azimuth drift — case-level suppression.
 - **The ensemble shows it is not class-level removal**: the same
   candidates leave the fresh-seed material rates near baseline
-  (C4b above it), and the paired transitions show the boundary
-  events moving rather than disappearing. Batch removal moves
+  (C4b above it), and the paired transitions show sampled boundary
+  events being both resolved and introduced rather than uniformly
+  eliminated. Batch removal moves
   membership boundaries to the kth/(k+1)th cutoff and the deadband
   moves the stop surface.
 
@@ -206,10 +208,14 @@ fit stopped by the w-test or the candidate's own guard/convergence
 rule (C6 terminates at `max_refits` by design and fails gate g4
 accordingly).
 
-## Always-reported diagnostics
+## Always-reported diagnostics (base fits)
 
 Aggregates of the pre-registered per-fit diagnostics (confirmatory,
-seed medians): normal-matrix condition number 8.5e2–1.1e3 across all
+seed medians; the flip fits archived only response/material/stop
+reason, so the per-fit diagnostics below cover base fits only — a
+deviation from the pre-registration's per-fit wording that cannot
+be reconstructed from the frozen archive): normal-matrix condition
+number 8.5e2–1.1e3 across all
 candidates (final-iterate values; ~3 digits of float64's ~16
 consumed), final-inlier bbox coverage 0.965 for the hard-deletion
 family and ≈1.0 for the high-retention candidates, final-batch
@@ -219,8 +225,11 @@ confirmatory seeds — nonzero because the stop test is componentwise
 while removal ranks the combined score, the very asymmetry C3's
 eligibility rule addresses — C5 Kish ESS median 384.8/900 (42.8%;
 retention 1.0 by construction — different quantities, reported
-separately), and zero ridge fallbacks anywhere. Exact blocks per
-candidate are in `summary.json`.
+separately; median 817/900 samples downweighted, median smallest
+Huber factor 0.034), minimum-quadrant inlier count median 6 for the
+hard-deletion family (all four quadrants stay populated), and zero
+ridge fallbacks in any base fit (flip-level counts were not
+archived). Exact blocks per candidate are in `summary.json`.
 
 ## Pre-registered decision
 
@@ -282,7 +291,8 @@ hypothesis, not an identified unique root lever.
   captured, so their exact worktree states cannot be reconstructed.
   We treat this archive as a single scheduled run with identical
   tracked generating inputs, **not** as a fully clean, commit-pinned
-  run.
+  run. The provenance distribution covers the 400 seed records;
+  `real40k.json` carries its own provenance block.
 
 ## Reproduction
 

@@ -22,7 +22,14 @@ Contents:
   re-run the aggregator.
 - `SHA256SUMS` — hashes of the three files above.
 
-Provenance note: `generator_commit` spans `6350809`/`ee802b2`
-(the aggregator was committed in the same worktree during the run);
-`git diff 6350809 ee802b2` touches only the aggregator and its
-tests — the generator/runner/mirror code was identical throughout.
+Provenance note: `generator_commit` spans `6350809` (31 clean / 41
+dirty records) and `ee802b2` (323 clean / 5 dirty) — the results
+aggregator and its tests were committed in the same worktree during
+the run. The *tracked* generator/protocol blobs are identical across
+both HEADs (blob IDs in `summary.json`'s
+`provenance_distribution`), but the 46 `worktree_dirty=true` records
+carry no dirty paths or diffs, so their exact worktree states cannot
+be reconstructed. Treat this archive as a single scheduled run with
+identical tracked generating inputs, not as a fully clean,
+commit-pinned run. The distribution covers the 400 seed records;
+`real40k.json` carries its own provenance block.

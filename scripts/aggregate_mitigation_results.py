@@ -55,6 +55,69 @@ GENERATING_INPUTS = ("scripts/polyfit_sensitivity.py",
                      "scripts/run_mitigation_ensemble.py",
                      "docs/polyfit-mitigation-prereg.md")
 
+# Candidate-aware healthy terminations for gate g4: anything outside
+# the allow-list (including missing or unknown stop reasons) fails
+# the gate. Guard stops are healthy only for the guard candidate;
+# budget exhaustion (max_refits, irls_max_iterations) and
+# rank/factorization failures are never healthy.
+HEALTHY_STOPS = {
+    "C0": {"w_test"},
+    "C2b": {"w_test", "min_inliers", "max_rejections"},
+    "C3": {"w_test"},
+    "C4": {"w_test"},
+    "C4b": {"w_test"},
+    "C4+C3": {"w_test"},
+    "C5": {"irls_converged"},
+    "C6": {"w_test"},
+}
+DEFAULT_HEALTHY = {"w_test"}
+
+
+def validate_archive(seed_results):
+    """Fail closed on incomplete or inconsistent archives.
+
+    Requires every seed file to carry the same candidate set, a
+    successful C0 base per seed, and — for every candidate whose
+    base fit succeeded — flip keysets per estimand identical to
+    C0's manifest keys for that seed. A favorable subset must never
+    be able to pass the gates silently.
+
+    Raises:
+        ValueError: On any missing candidate, missing flip, or
+            manifest mismatch.
+    """
+    if not seed_results:
+        raise ValueError("empty archive")
+    names = set(seed_results[0]["candidates"].keys())
+    for seed_result in seed_results:
+        seed = seed_result.get("seed")
+        present = set(seed_result["candidates"].keys())
+        if present != names:
+            raise ValueError(
+                f"seed {seed}: candidate set {sorted(present)} != "
+                f"{sorted(names)}")
+        c0 = seed_result["candidates"].get("C0")
+        if c0 is None or "error" in c0["base"]:
+            raise ValueError(f"seed {seed}: no successful C0 base")
+        ref_keys = {e: set() for e in ESTIMANDS}
+        for flip in c0["flips"]:
+            if "error" not in flip:
+                ref_keys[flip["estimand"]].add(_flip_key(flip))
+        for name in names:
+            cand = seed_result["candidates"][name]
+            if "error" in cand["base"]:
+                continue
+            keys = {e: set() for e in ESTIMANDS}
+            for flip in cand["flips"]:
+                if "error" not in flip:
+                    keys[flip["estimand"]].add(_flip_key(flip))
+            for estimand in ESTIMANDS:
+                if keys[estimand] != ref_keys[estimand]:
+                    raise ValueError(
+                        f"seed {seed}, candidate {name}: "
+                        f"{estimand} flip keys differ from the C0 "
+                        f"manifest")
+
 
 def _quantile_block(values):
     values = np.asarray(values, dtype=float)
@@ -112,6 +175,7 @@ def aggregate_candidate(seed_results, name, c0_events=None):
     drift_l, drift_p, truth_l, truth_p = [], [], [], []
     jaccard, retention, seconds, refits = [], [], [], []
     cond, bbox, overshoot, ess, ridge = [], [], [], [], []
+    quad_min, dw_p50, dw_min, n_down = [], [], [], []
     stop_reasons, base_errors, flip_errors = {}, 0, 0
 
     for seed_result in seed_results:
@@ -136,10 +200,18 @@ def aggregate_candidate(seed_results, name, c0_events=None):
         coverage = base.get("spatial_coverage") or {}
         if coverage.get("bbox_area_frac") is not None:
             bbox.append(coverage["bbox_area_frac"])
+        if coverage.get("quadrant_counts"):
+            quad_min.append(min(coverage["quadrant_counts"]))
         if base.get("final_batch_overshoot") is not None:
             overshoot.append(base["final_batch_overshoot"])
         if base.get("ess_kish") is not None:
             ess.append(base["ess_kish"])
+        downweight = base.get("downweight_quantiles")
+        if downweight:
+            dw_p50.append(downweight["p50"])
+            dw_min.append(downweight["min"])
+        if base.get("n_downweighted") is not None:
+            n_down.append(base["n_downweighted"])
         if base.get("ridge_fallbacks") is not None:
             ridge.append(base["ridge_fallbacks"])
         reason = str(base.get("stop_reason"))
@@ -200,8 +272,12 @@ def aggregate_candidate(seed_results, name, c0_events=None):
             "jaccard_vs_c0": _quantile_block(jaccard),
             "normal_matrix_cond": _quantile_block(cond),
             "bbox_area_frac": _quantile_block(bbox),
+            "quadrant_min": _quantile_block(quad_min),
             "final_batch_overshoot": _quantile_block(overshoot),
             "ess_kish": _quantile_block(ess),
+            "downweight_p50": _quantile_block(dw_p50),
+            "downweight_min": _quantile_block(dw_min),
+            "n_downweighted": _quantile_block(n_down),
             "ridge_fallbacks_total": int(sum(ridge)),
             "estimands": out_estimands}
 
@@ -294,14 +370,18 @@ def evaluate_gates(agg, c0, real40k, name):
         and agg["truth_rms_p"]["p50"]
         <= GATE_TRUTH_FACTOR * c0["truth_rms_p"]["p50"])
 
-    # g4 covers base AND flip terminations (frozen: no case may end
-    # by max_refits or a rank/factorization failure).
-    bad = {"rank_failure", "max_refits"}
+    # g4: every termination — synthetic base and flip fits AND the
+    # 40k case-study base and driver-flip fits — must be on the
+    # candidate's healthy allow-list. Missing or unknown stop
+    # reasons fail the gate (fail closed).
+    healthy = HEALTHY_STOPS.get(name, DEFAULT_HEALTHY)
+    seen = set(agg["stop_reasons"]) | set(agg["flip_stop_reasons"])
+    if r40 is not None:
+        seen.add(str(base40.get("stop_reason")))
+        seen.add(str(flip40.get("stop_reason")))
     gates["g4_termination"] = bool(
         agg["base_errors"] == 0 and agg["flip_errors"] == 0
-        and all(agg["stop_reasons"].get(b, 0) == 0 for b in bad)
-        and all(agg["flip_stop_reasons"].get(b, 0) == 0
-                for b in bad))
+        and seen and seen <= healthy)
 
     runtime40 = base40.get("seconds")
     runtime40_c0 = base40_c0.get("seconds")
@@ -335,11 +415,18 @@ def provenance_distribution(seed_results, repo_root=None):
                            for line in out.stdout.splitlines()}
         except (OSError, subprocess.CalledProcessError, IndexError):
             blobs[head] = None
-    known = [b for b in blobs.values() if b]
-    return {"cells": cells,
+    # Fail closed: identity is asserted only when EVERY observed
+    # HEAD resolves EVERY generating-input path and all blob maps
+    # are equal. A single unresolved HEAD forfeits the claim.
+    complete = [b for b in blobs.values()
+                if b is not None
+                and set(b) == set(GENERATING_INPUTS)]
+    identical = bool(cells and len(complete) == len(cells)
+                     and all(b == complete[0] for b in complete))
+    return {"scope": "seed_records_only",
+            "cells": cells,
             "generating_input_blobs": blobs,
-            "generating_inputs_identical": bool(
-                known and all(b == known[0] for b in known)),
+            "generating_inputs_identical": identical,
             "n_dirty": sum(c["dirty"] for c in cells.values()),
             "dirty_paths_recorded": False}
 
@@ -380,6 +467,7 @@ def build_summary(confirmatory_dir, real40k_path=None,
     seed_results = load_seed_files(confirmatory_dir)
     if not seed_results:
         raise SystemExit(f"no seed files in {confirmatory_dir}")
+    validate_archive(seed_results)
     names = list(seed_results[0]["candidates"].keys())
     real40k = (json.loads(pathlib.Path(real40k_path).read_text())
                if real40k_path else None)
@@ -423,6 +511,7 @@ def build_summary(confirmatory_dir, real40k_path=None,
             cell_results = load_seed_files(directory)
             if not cell_results:
                 continue
+            validate_archive(cell_results)
             all_results.extend(cell_results)
             cell_c0_events = collect_flip_events(cell_results, "C0")
             summary["robustness"][cell] = {
