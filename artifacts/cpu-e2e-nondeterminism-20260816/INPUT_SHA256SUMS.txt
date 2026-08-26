@@ -1,0 +1,15 @@
+# SHA-256 of the HDF5 products the analysis scripts read (inputs, NOT in
+# this repo — ~7.5 GiB total). Paths relative to /home/<user>/scratch on
+# host ew-s-sasaki-beacon-NucBox-EVO-T1 (NVMe). run2 out/product.h5 has a
+# NAS mirror at /mnt/nas/Projects/nisar-displacement/out/gunw_cpu_run2/.
+# Hashed 2026-08-26 immediately before the outputs here were regenerated.
+a7d380a1a5c2d372b13459723d2d05e2cece661c95bc500ba545efb5b01b8098  cpu_e2e_ab_20260816/control/out/product.h5
+eb137ad0fffa3537dfc5163248ba46455e01bb1e5c945771f94ca23f7c02153f  cpu_e2e_ab_20260816/control/scratch/RUNW.h5
+42fbcd5e8d669011e668c2795b4198479086430e8b94d2cfe4b7ad15cefe3d46  cpu_e2e_ab_20260816/control/scratch/RIFG.h5
+366287c7af46ead8650d0f39096a3171972a3a8d70d481950359eba7c75fec8e  cpu_e2e_ab_20260816/treat/out/product.h5
+db3c895bbdee8313c21f5a504879498a756b60b4cae0e1b719f5615bbc27db96  cpu_e2e_ab_20260816/treat/scratch/RUNW.h5
+bd0b0b9f66c8fbf5674d46e09c60772bea88e619a6d079c870049309514d4ddc  cpu_e2e_ab_20260816/treat/scratch/RIFG.h5
+34caad42e8aca5c2c1bcc3c867618ed4ab658fd3ddf8069e384ee788929d0647  gunw_cpu_run2_out/product.h5
+3c0ba1de0dad9856506b75cb093adfe517c8ad18ca48fb830978ad68bab4e4df  gunw_ASC139_019_cpu2/RUNW.h5
+7cac68bbf6be12f27eb3451193c805101498edee0f0e93096ac94b951ec6a836  gunw_ASC139_019_cpu2/RIFG.h5
+0e69e712aecb076bcde05adcd78db75b22b0c5079ec625415bc71d04e9fe9a59  cpu_e2e_ab_20260816/patched_utils.py

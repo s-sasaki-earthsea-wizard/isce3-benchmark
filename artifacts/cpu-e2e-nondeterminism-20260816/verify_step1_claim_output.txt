@@ -1,0 +1,4 @@
+labels_control=[0 1]  labels_treat=[0 1]
+common_valid_px=4980716
+CC>0:  n_diff=4370014  max|d|=0.0001001 rad  rms=1.78e-05  n(|d|>pi)=0
+CC==0: n=5456269  n(|k|>=1)=604  k_values=[-1.  1.]  max|d|=6.283

@@ -1,0 +1,54 @@
+ Container isce3-benchmark-dev-run-19b3dcd47afc Creating 
+ Container isce3-benchmark-dev-run-19b3dcd47afc Created 
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+/tmp/ov/isce3/io/read_opt_hdf5.py:76: UserWarning: swmr=True only affects read ('r') mode. For swmr write mode, set f.swmr_mode = True after opening the file.
+  with h5py.File(hdf5_file, **new_kwds) as h5:
+/tmp/ov/isce3/io/read_opt_hdf5.py:82: UserWarning: swmr=True only affects read ('r') mode. For swmr write mode, set f.swmr_mode = True after opening the file.
+  super().__init__(hdf5_file,**new_kwds)
+/tmp/ov/isce3/atmosphere/ionosphere_filter.py:1044: RuntimeWarning: All-NaN slice encountered
+  return np.nanmedian(values)  # Ignore NaNs when computing the median
+ERROR 6: IH5:::ID=360287970189660690: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189660856: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189661022: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189661728: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189661909: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189662136: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189662317: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189662498: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189662679: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189662860: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189663041: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189663222: Dataset does not support the SetSpatialRef() method.
+ERROR 6: IH5:::ID=360287970189663403: Dataset does not support the SetSpatialRef() method.
+	Command being timed: "python3 -m nisar.workflows.insar /configs/insar_gunw_ASC139_019_20260705_20260717.yaml --restart"
+	User time (seconds): 23311.57
+	System time (seconds): 529.58
+	Percent of CPU this job got: 385%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:43:03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 40029596
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 707000
+	Minor (reclaiming a frame) page faults: 173848778
+	Voluntary context switches: 4455484
+	Involuntary context switches: 2701846
+	Swaps: 0
+	File system inputs: 585580200
+	File system outputs: 529341672
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

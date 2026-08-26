@@ -1,0 +1,27 @@
+== control vs treat ==
+valid px (finite & CC>0 both): 4980716/10436985
+components (labels from control): 1
+k_mode histogram {k: (n_comp, n_px)}: {0: [1, 4980716]}
+components with k_mode != 0 (re-referenced): 0
+components with gauge purity < 99.9%: 0 (min purity 1.000000, at size 4980716)
+gauge-unexplained px (|resid| > 0.001 rad): 0 (0.000e+00);  hard disagreements (|resid| > pi): 0
+gauge-explained residual RMS (non-outlier px): 1.780e-05 rad
+
+== control vs run2 ==
+valid px (finite & CC>0 both): 4980715/10436985
+components (labels from control): 1
+k_mode histogram {k: (n_comp, n_px)}: {0: [1, 4980715]}
+components with k_mode != 0 (re-referenced): 0
+components with gauge purity < 99.9%: 0 (min purity 1.000000, at size 4980715)
+gauge-unexplained px (|resid| > 0.001 rad): 0 (0.000e+00);  hard disagreements (|resid| > pi): 0
+gauge-explained residual RMS (non-outlier px): 1.809e-05 rad
+
+== treat vs run2 ==
+valid px (finite & CC>0 both): 4980715/10436985
+components (labels from treat): 1
+k_mode histogram {k: (n_comp, n_px)}: {0: [1, 4980715]}
+components with k_mode != 0 (re-referenced): 0
+components with gauge purity < 99.9%: 0 (min purity 1.000000, at size 4980715)
+gauge-unexplained px (|resid| > 0.001 rad): 0 (0.000e+00);  hard disagreements (|resid| > pi): 0
+gauge-explained residual RMS (non-outlier px): 1.726e-05 rad
+

@@ -1,0 +1,7 @@
+HH/alongTrackOffset: differing=855506/11763102 (7.27e-02)  max|d|=2.38419e-07
+HH/slantRangeOffset: differing=21492/11763102 (1.83e-03)  max|d|=2.38419e-07
+HH/correlationSurfacePeak: differing=5595782/11763102 (4.76e-01)  max|d|=7.15256e-07
+HH/unwrappedPhase: differing=6652153/11763102 (5.66e-01)  max|d|=6.28322
+HH/connectedComponents: differing=1/11763102 (8.50e-08)
+HH/mask: MISSING in one file
+HH/mask: MISSING in one file
