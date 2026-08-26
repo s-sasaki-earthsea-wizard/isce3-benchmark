@@ -1,0 +1,18 @@
+== control vs treat ==
+  unw [CC>0 both]: px=4980716 differing=4370014 |d|>pi: 0 max|d|=0.0001001
+  unw [CC==0 either]: px=5456269 differing=5184615 |d|>pi: 604 max|d|=6.283 k-hist={np.int64(-1): np.int64(303), np.int64(1): np.int64(301)}
+  ionoScreen [all finite]: differing=10208241/10436985 max|d|=0.0004272 rms=7.644e-05
+  ionoScreen [CC>0 both]: differing=4893521/4980716 max|d|=0.0004272 rms=7.802e-05
+
+== control vs run2 ==
+  unw [CC>0 both]: px=4980715 differing=4373989 |d|>pi: 0 max|d|=9.632e-05
+  unw [CC==0 either]: px=5456270 differing=5205163 |d|>pi: 881 max|d|=6.283 k-hist={np.int64(-1): np.int64(342), np.int64(1): np.int64(539)}
+  ionoScreen [all finite]: differing=10306848/10436985 max|d|=0.0003738 rms=9.506e-05
+  ionoScreen [CC>0 both]: differing=4869443/4980715 max|d|=0.0003738 rms=9.536e-05
+
+== treat vs run2 ==
+  unw [CC>0 both]: px=4980715 differing=4374799 |d|>pi: 0 max|d|=0.000103
+  unw [CC==0 either]: px=5456270 differing=5159057 |d|>pi: 767 max|d|=6.283 k-hist={np.int64(-1): np.int64(284), np.int64(1): np.int64(483)}
+  ionoScreen [all finite]: differing=10152189/10436985 max|d|=0.0003471 rms=7.766e-05
+  ionoScreen [CC>0 both]: differing=4813921/4980715 max|d|=0.0003462 rms=5.577e-05
+
