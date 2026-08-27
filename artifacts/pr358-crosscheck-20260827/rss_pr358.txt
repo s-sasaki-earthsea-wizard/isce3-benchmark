@@ -1,0 +1,2 @@
+generate_insar_mask: 6840x10581 = 72.4 Mpx in 14.8 s (0.20 us/px), mask crc = 0x295ba19b
+maxrss_mb 9869

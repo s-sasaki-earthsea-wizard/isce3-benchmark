@@ -1,0 +1,19 @@
+variant: pr358
+utils module: /work/build/pr358_crosscheck/ov_pr358/nisar/products/insar/utils.py
+numpy 1.26.4, isce3 0.26.0-dev+2919e1c97
+[PASS] random_3sub: 5984 px, candidate 0.007s
+[PASS] random_1sub: 3074 px, candidate 0.003s
+[PASS] empty_mid_subswath: 3456 px, candidate 0.003s
+[FAIL] no_subswath_info: 3456 px, candidate 0.003s
+    (3,3) azi=-0.0 rg=-0.0: oracle 0x004e000a got 0x004e0000
+    (3,4) azi=-0.0 rg=1.0: oracle 0x0027590b got 0x00275900
+    (3,5) azi=-0.0 rg=2.0: oracle 0x00f8c30b got 0x00f8c300
+    (3,6) azi=-0.0 rg=3.0: oracle 0x00b9000b got 0x00b90000
+    (3,7) azi=-0.0 rg=4.0: oracle 0x00fbda0b got 0x00fbda00
+    (3,8) azi=-0.0 rg=5.0: oracle 0x001f540b got 0x001f5400
+    (3,9) azi=-0.0 rg=6.0: oracle 0x006c3e0b got 0x006c3e00
+    (3,10) azi=-0.0 rg=7.0: oracle 0x00f1000a got 0x00f10000
+    ... 2665 mismatching pixels total (77.1%)
+[PASS] no_exception_masks: 3456 px, candidate 0.002s
+[PASS] large_offsets: 3584 px, candidate 0.003s
+RESULT[pr358]: FAIL
