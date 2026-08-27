@@ -83,7 +83,10 @@ holds on NISAR data; the three variants are output-equivalent.
 
 | file | what |
 |---|---|
-| `run_{pristine,pr358,pr359}.log` | overlay md5 echo + `/usr/bin/time -v` |
-| `journal_{pristine,pr358,pr359}.log` | workflow journal (`insar.log`) |
+| `time_v_{pristine,pr358,pr359}.txt` | overlay md5 echo + `/usr/bin/time -v` |
+| `journal_{pristine,pr358,pr359}.log.gz` | workflow journal (`insar.log`) |
 | `compare_pristine_pr358.txt` | bitwise comparison, 558 datasets |
 | `compare_pristine_pr359.txt` | bitwise comparison, 558 datasets |
+
+(The tables above cite the `run_/journal_` names the batch wrote;
+the committed copies carry the gitignore-safe names in this table.)
