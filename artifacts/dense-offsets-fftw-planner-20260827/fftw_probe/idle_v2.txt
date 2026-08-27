@@ -1,0 +1,28 @@
+ Container isce3-benchmark-dev-run-59dc0cd32a56 Creating 
+ Container isce3-benchmark-dev-run-59dc0cd32a56 Created 
+built OK
+--- idle_v2 run1 ---
+raw_r2c plan_hash=9154cbc32c51dc64 plan_len=494 in_hash=31a829ba482f72c4 out_hash=a9a6b1665c82f3a1
+raw_c2r plan_hash=8dbea6f2b12ca455 plan_len=498 out_hash=252a57910c83fcea
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890 in_hash=a295b484a698616f out_hash=fb623717767b3413
+oversampled_c2r plan_hash=2f293ef0d8c583b1 plan_len=890 out_hash=ee527f136d77dfe7
+--- idle_v2 run2 ---
+raw_r2c plan_hash=5c483c2cd5bc9833 plan_len=494 in_hash=31a829ba482f72c4 out_hash=ede5a7de6d4a9333
+raw_c2r plan_hash=730a37d308ddabbb plan_len=498 out_hash=6b2c8e245d6ba46f
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890 in_hash=a295b484a698616f out_hash=fb623717767b3413
+oversampled_c2r plan_hash=12c05a7631f25595 plan_len=890 out_hash=48eb0ea8ebce148b
+--- idle_v2 run3 ---
+raw_r2c plan_hash=ef649a253e41cb48 plan_len=494 in_hash=31a829ba482f72c4 out_hash=a9a6b1665c82f3a1
+raw_c2r plan_hash=8dbea6f2b12ca455 plan_len=498 out_hash=252a57910c83fcea
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890 in_hash=a295b484a698616f out_hash=fb623717767b3413
+oversampled_c2r plan_hash=547e5c1d6b20b6f1 plan_len=890 out_hash=0d4beab5f84c2325
+--- idle_v2 run4 ---
+raw_r2c plan_hash=ef649a253e41cb48 plan_len=494 in_hash=31a829ba482f72c4 out_hash=a9a6b1665c82f3a1
+raw_c2r plan_hash=b65d6dfc79c50981 plan_len=498 out_hash=252a57910c83fcea
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890 in_hash=a295b484a698616f out_hash=fb623717767b3413
+oversampled_c2r plan_hash=bd18e90b1e5d8937 plan_len=583 out_hash=ee527f136d77dfe7
+--- idle_v2 run5 ---
+raw_r2c plan_hash=2710abb890bcacee plan_len=494 in_hash=31a829ba482f72c4 out_hash=a9a6b1665c82f3a1
+raw_c2r plan_hash=8dbea6f2b12ca455 plan_len=498 out_hash=252a57910c83fcea
+oversampled_r2c plan_hash=e2d7ff8d71bd336c plan_len=584 in_hash=a295b484a698616f out_hash=7dc3205f02f5ba83
+oversampled_c2r plan_hash=12c05a7631f25595 plan_len=890 out_hash=166512fc02e0c81f

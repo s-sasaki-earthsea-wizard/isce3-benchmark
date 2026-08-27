@@ -1,0 +1,336 @@
+# Self-run GUNW generation for NISAR pair ASC 139/019 2026-07-05 -> 2026-07-17.
+#
+# Replicates the ASF/JPL SDS runconfig embedded in
+# NISAR_L2_PR_GUNW_024_139_A_019_025_4000_SH_..._P05023_N_P_J_001.h5
+# (.../processingInformation/parameters/runConfigurationContents),
+# PGE isce3 v0.25.16, for loop-closure pipeline validation (issue: tropo gate).
+#
+# Known deviations from the ASF production run:
+#   - troposphere_delay disabled: ECMWF HRES weather model files are not
+#     publicly distributed. GUNW unwrappedPhase is not tropo-corrected, so
+#     this only removes the troposphereDelay layers from the output.
+#   - QA SAS group omitted (validation/report generation only, no science
+#     payload impact).
+#
+# Container paths (see Makefile / run command):
+#   /data    -> nisar-displacement/data (RSLC, ancillary, GUNW)
+#   /out     -> nisar-displacement/out/gunw_selfrun
+#   /scratch -> local NVMe scratch
+runconfig:
+    name: gunw_selfrun_ASC139_019
+
+    groups:
+        pge_name_group:
+            pge_name: INSAR_L_PGE
+
+        input_file_group:
+            reference_rslc_file: /data/RSLC/NISAR_L1_PR_RSLC_024_139_A_019_4005_DHDH_A_20260705T195626_20260705T195652_P05023_N_P_J_001.h5
+            secondary_rslc_file: /data/RSLC/NISAR_L1_PR_RSLC_025_139_A_019_4005_DHDH_A_20260717T195625_20260717T195651_P05023_N_P_J_001.h5
+
+        dynamic_ancillary_file_group:
+            dem_file: /data/ancillary/dem_139_019.vrt
+            dem_file_description: >-
+                Digital Elevation Model (DEM) for the NASA-ISRO NISAR mission,
+                version 1.2, based on the Copernicus DEM 30-m (2023_1),
+                referenced to the WGS84 ellipsoid. Tiles from the ASF
+                NISAR_DEM collection.
+            water_mask_file: /data/ancillary/watermask_139_019.vrt
+            water_mask_file_description: >-
+                Water Mask for the NASA-ISRO NISAR mission version 0.5.
+                Tiles from the ASF NISAR_WATERMASK collection.
+            orbit_files:
+                reference_orbit_file:
+                secondary_orbit_file:
+            tec_file: /data/ancillary/NISAR_ANC_TEC_20260706T211827_20260704T230002_20260705T235952_s015.json
+            troposphere_weather_model_files:
+                reference_troposphere_file:
+                secondary_troposphere_file:
+
+        product_path_group:
+            product_path: /out
+            scratch_path: /scratch
+            sas_output_file: /out/product.h5
+
+        primary_executable:
+            product_type: GUNW
+            product_version:
+                rifg_version: '1.0.11'
+                roff_version: '1.0.11'
+                runw_version: '1.0.11'
+                goff_version: '1.0.11'
+                gunw_version: '1.0.11'
+
+        debug_level_group:
+            debug_switch: false
+
+        worker:
+            intermediate_files_removal_enabled: false
+            internet_access: false
+            gpu_enabled: false
+            gpu_id: 0
+
+        processing:
+            process_single_co_pol_offset: true
+
+            input_subset:
+                list_of_frequencies:
+                    A: [HH]
+
+            geocode:
+                # Snap the geogrid corners to the posting lattice so the
+                # pixel centres land on the ASF frame-database grid
+                # (centres at N*80 + 40 m); without this the auto-derived
+                # origin is not pixel-aligned with the ASF granule.
+                x_snap: 80
+                y_snap: 80
+                output_epsg: 32654
+                output_posting:
+                    A:
+                        x_posting: 80
+                        y_posting: 80
+                    B:
+                        x_posting:
+                        y_posting:
+                wrapped_interferogram:
+                    interp_method: BILINEAR
+                    x_snap: 20
+                    y_snap: 20
+                    output_posting:
+                        A:
+                            x_posting: 20
+                            y_posting: 20
+                        B:
+                            x_posting:
+                            y_posting:
+                top_left:
+                    y_abs:
+                    x_abs:
+                bottom_right:
+                    y_abs:
+                    x_abs:
+                lines_per_block: 1000
+                interp_method: BILINEAR
+                # v0.25.16 schema subset; the ASF PGE additionally lists
+                # ionosphere_phase_screen(+_uncertainty) and mask, which
+                # this release writes unconditionally.
+                gunw_datasets:
+                    connected_components: true
+                    coherence_magnitude: true
+                    unwrapped_phase: true
+                    along_track_offset: true
+                    slant_range_offset: true
+                    correlation_surface_peak: true
+
+            radar_grid_cubes:
+                heights: [-500, 0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000,
+                          4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000]
+                output_epsg: 32654
+                output_posting:
+                    x_posting: 500
+                    y_posting: 500
+                x_snap: 500
+                y_snap: 500
+                top_left:
+                    y_abs:
+                    x_abs:
+                bottom_right:
+                    y_abs:
+                    x_abs:
+
+            bandpass:
+                lines_per_block: 1000
+                window_function: tukey
+                window_shape: 0.25
+
+            ionosphere_phase_correction:
+                enabled: true
+                lines_per_block: 8000
+                spectral_diversity: main_diff_ms_band
+                list_of_frequencies:
+                    A: [HH]
+                    B: [HH]
+                split_range_spectrum:
+                    lines_per_block: 2048
+                    window_function: tukey
+                    window_shape: 0.25
+                dispersive_filter:
+                    enabled: true
+                    filter_mask_type: [coherence, subswath_mask]
+                    median_filter_size: 15
+                    median_filter_threshold: 0.6
+                    filter_coherence_threshold: 0.2
+                    filling_method: nearest
+                    filling_guide_filter_method: median_gaussian
+                    filling_guide_median_size: 3
+                    filling_outlier_threshold: 3.5
+                    filling_outlier_min_scale: 0.0
+                    filling_outlier_mad_scale_factor: 1.4826
+                    kernel_range: 14
+                    kernel_azimuth: 110
+                    sigma_range: 4
+                    sigma_azimuth: 37
+                    filter_iterations: 1
+                    unwrap_correction: true
+                    min_cluster_pixels: 2
+                    bridge_algorithm_enabled: true
+                    bridge_radius: 500
+                    bridge_erosion_size: 2
+                    bridge_minimum_samples: 14
+                    bridge_ramp_type:
+                    bridge_ramp_maximum_pixel: 1000000.0
+
+            troposphere_delay:
+                enabled: false
+
+            geo2rdr:
+                threshold: 1.0e-8
+                maxiter: 25
+                lines_per_block: 1000
+
+            rdr2geo:
+                threshold: 1.0e-7
+                numiter: 25
+                extraiter: 10
+                lines_per_block: 1000
+                write_x: true
+                write_y: true
+                write_z: true
+
+            coarse_resample:
+                lines_per_tile: 1000
+                columns_per_tile: 1000
+
+            dense_offsets:
+                enabled: true
+                lines_per_block: 1000
+                window_range: 64
+                window_azimuth: 96
+                half_search_range: 32
+                half_search_azimuth: 32
+                skip_range: 75
+                skip_azimuth: 75
+                margin: 0
+                cross_correlation_domain: frequency
+                slc_oversampling_factor: 2
+                deramping_method: complex
+                deramping_axis: azimuth
+                use_gross_offsets: true
+                gross_offset_range: 0
+                gross_offset_azimuth: 0
+                correlation_statistics_zoom: 21
+                correlation_surface_zoom: 8
+                correlation_surface_oversampling_factor: 16
+                correlation_surface_oversampling_method: fft
+                windows_batch_range: 10
+                windows_batch_azimuth: 1
+
+            offsets_product:
+                enabled: false
+
+            rubbersheet:
+                enabled: true
+                culling_metric: median_filter
+                median_filter_size_range: 9
+                median_filter_size_azimuth: 9
+                threshold: 0.75
+                mask_refine_enabled: true
+                mask_refine_min_neighbors: 5
+                mask_refine_filter_size: 5
+                outlier_filling_method: fill_smoothed
+                fill_smoothed:
+                    iterations: 1
+                    kernel_size: 3
+                interpolation_method: linear
+                azimuth_offset_filter:
+                    offsets_filter: none
+                    kernel_size: 31
+                subswath_mask_apply_enabled: true
+                idw_interpolation:
+                    power: 2
+                    number: 100
+                    radius: 200
+                offsets_filter: boxcar
+                boxcar:
+                    filter_size_range: 5
+                    filter_size_azimuth: 5
+                polyfitting:
+                    enabled: true
+                    degree: 2
+                    critical_value: 0.1
+                    samples_along_range: 200
+                    samples_along_azimuth: 200
+
+            fine_resample:
+                enabled: true
+                lines_per_tile: 100
+                columns_per_tile: 0
+
+            crossmul:
+                range_looks: 5
+                azimuth_looks: 6
+                flatten: true
+                oversample: 2
+                lines_per_block: 1024
+                common_band_range_filter: false
+                common_band_azimuth_filter: false
+
+            filter_interferogram:
+                lines_per_block: 100
+                filter_type: no_filter
+                boxcar:
+                    filter_size_range: 9
+                    filter_size_azimuth: 9
+
+            baseline:
+                mode: top_bottom
+
+            phase_unwrap:
+                range_looks: 13
+                azimuth_looks: 16
+                preprocess_wrapped_phase:
+                    enabled: true
+                    mask:
+                        mask_type: subswath_mask
+                        ocean_water_buffer: 1
+                        inland_water_buffer: 1
+                        outlier_threshold: 0.5
+                        median_filter_size: 25
+                    filling_enabled: false
+                    filling_method: distance_interpolator
+                    distance_interpolator:
+                        distance: 2
+                algorithm: snaphu
+                snaphu:
+                    cost_mode: smooth
+                    initialization_method: mcf
+                    min_conncomp_frac: 0.01
+                    phase_grad_window: [7, 7]
+                    ntiles: [1, 1]
+                    # tile_overlap omitted: schema requires >= 4 when set;
+                    # irrelevant with ntiles [1, 1] (ASF ran [0, 0]).
+                    nproc: 1
+                    tile_cost_thresh: 500
+                    min_region_size: 300
+                    single_tile_reoptimize: true
+                    regrow_conncomps: true
+                bridge:
+                    enabled: true
+                    bridge_radius: 500
+                    bridge_erosion_size: 2
+                    bridge_minimum_samples: 14
+                    bridge_ramp_type:
+                    bridge_ramp_maximum_pixel: 1000000.0
+
+            correction_luts:
+                solid_earth_tides_enabled: true
+
+        output:
+            page_enabled: true
+            compression_enabled: true
+            compression_level: 1
+            chunk_size: [512, 512]
+            shuffle: true
+
+        logging:
+            path: /out/insar.log
+            write_mode: w

@@ -1,0 +1,28 @@
+ Container isce3-benchmark-dev-run-261544dcbfed Creating 
+ Container isce3-benchmark-dev-run-261544dcbfed Created 
+built OK
+--- idle run1 ---
+raw_r2c plan_hash=86228cd0e8595e78 plan_len=498
+raw_c2r plan_hash=8dbea6f2b12ca455 plan_len=498
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890
+oversampled_c2r plan_hash=12c05a7631f25595 plan_len=890
+--- idle run2 ---
+raw_r2c plan_hash=9154cbc32c51dc64 plan_len=494
+raw_c2r plan_hash=8dbea6f2b12ca455 plan_len=498
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890
+oversampled_c2r plan_hash=2f293ef0d8c583b1 plan_len=890
+--- idle run3 ---
+raw_r2c plan_hash=42a5ce03bb2a2b1d plan_len=497
+raw_c2r plan_hash=c467d0ad7c01bb8c plan_len=496
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890
+oversampled_c2r plan_hash=781c0359ab0df987 plan_len=889
+--- idle run4 ---
+raw_r2c plan_hash=435eaef13cbbfc48 plan_len=488
+raw_c2r plan_hash=b637022987920696 plan_len=554
+oversampled_r2c plan_hash=0ecc45e588e51566 plan_len=767
+oversampled_c2r plan_hash=4a34dfeaba2f59d6 plan_len=586
+--- idle run5 ---
+raw_r2c plan_hash=ef649a253e41cb48 plan_len=494
+raw_c2r plan_hash=8dbea6f2b12ca455 plan_len=498
+oversampled_r2c plan_hash=1c3908dad9e388c3 plan_len=890
+oversampled_c2r plan_hash=edd3c3c170ae5fff plan_len=583
