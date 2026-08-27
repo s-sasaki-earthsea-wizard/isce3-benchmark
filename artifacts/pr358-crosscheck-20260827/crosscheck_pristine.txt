@@ -1,10 +1,11 @@
 variant: pristine
 utils module: /work/build/pr358_crosscheck/ov_pristine/nisar/products/insar/utils.py
 numpy 1.26.4, isce3 0.26.0-dev+2919e1c97
-[PASS] random_3sub: 5984 px, candidate 0.044s
-[PASS] random_1sub: 3074 px, candidate 0.023s
-[PASS] empty_mid_subswath: 3456 px, candidate 0.025s
-[PASS] no_subswath_info: 3456 px, candidate 0.025s
-[PASS] no_exception_masks: 3456 px, candidate 0.024s
-[PASS] large_offsets: 3584 px, candidate 0.022s
+[PASS] random_3sub: 5984 px, candidate 0.032s
+[PASS] random_1sub: 3074 px, candidate 0.015s
+[PASS] empty_mid_subswath: 3456 px, candidate 0.017s
+[PASS] no_subswath_info: 3456 px, candidate 0.017s
+[PASS] file_style_no_info: 3456 px, candidate 0.020s
+[PASS] no_exception_masks: 3456 px, candidate 0.017s
+[PASS] large_offsets: 3584 px, candidate 0.017s
 RESULT[pristine]: PASS

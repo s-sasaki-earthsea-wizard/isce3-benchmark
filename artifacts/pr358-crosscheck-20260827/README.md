@@ -44,20 +44,50 @@ so it runs against #358's re-signatured helpers as well). Six
 synthetic cases with adversarial offsets (exact `k + 0.5` landings,
 empty sub-swath arrays, out-of-swath pushes).
 
+Seven synthetic cases (the `file_style_no_info` case was added in a
+follow-up after a reachability question from Syota; the original run
+had six).
+
 | variant | result |
 |---|---|
-| pristine | 6/6 PASS (oracle self-validation against the original scalar loop) |
-| pr358 | **5/6 — FAIL on `no_subswath_info`**: 2665/3456 px (77.1%) differ; sub-swath digits dropped (e.g. oracle `0x004e000a`, got `0x004e0000`) |
-| pr359 | 6/6 PASS |
+| pristine | 7/7 PASS (oracle self-validation against the original scalar loop) |
+| pr358 | **6/7 — FAIL only on `no_subswath_info`**: 2665/3456 px (77.1%) differ; sub-swath digits dropped (e.g. oracle `0x004e000a`, got `0x004e0000`) |
+| pr359 | 7/7 PASS |
 
 Cause of the pr358 failure: `_get_sample_subswath_grid` loops
 `for s in range(1, num_sub_swaths + 1)`; with `num_sub_swaths == 0`
-(dataset without sub-swath information) the loop never runs and the
-result stays 0, while the scalar API returns 1 for in-bounds samples
+the loop never runs and the result stays 0, while the scalar API
+returns 1 for in-bounds samples
 (`cxx/isce3/product/SubSwaths.cpp`, `getSampleSubSwath`: "If the
 dataset does not have sub-swaths information, consider samples valid
 and belonging to the first sub-swath"). One-line fix if that
 implementation is kept.
+
+### Reachability of `num_sub_swaths == 0`
+
+The divergent input **cannot be produced by loading an RSLC file**:
+
+- `Serialization.h` defaults `numberOfSubSwaths` to **1** when the
+  dataset is absent, and leaves `validSamplesSubSwath1` empty when
+  that dataset is absent — so a file without sub-swath information
+  deserializes to `num_sub_swaths == 1` with an **empty array**, not
+  to `num_sub_swaths == 0`.
+- The `SubSwaths::numSubSwaths(n)` setter **throws** for `n <= 0`.
+- `num_sub_swaths == 0` is reachable only programmatically: the
+  pybind list constructor `SubSwaths(length, width, [])` accepts an
+  empty vector (as this harness's fixtures do), and the C++ default
+  constructor leaves the vector empty. The C++ scalar API explicitly
+  defines the behavior for this state (the size-0 early return
+  quoted above), so it is part of the documented API contract even
+  though the file-driven InSAR workflow cannot hit it.
+
+The `file_style_no_info` case (`num_sub_swaths == 1` + empty array —
+what a file without sub-swath datasets actually loads as) **passes on
+all three variants**, pr358 included: the practical "RSLC without
+sub-swath info" scenario is handled correctly by both PRs, and the
+pr358 divergence is a contract-fidelity gap for programmatically
+constructed `SubSwaths` objects (library consumers, tests), not a
+production-path bug.
 
 ## 2. Timing (`timing_<variant>.txt`)
 

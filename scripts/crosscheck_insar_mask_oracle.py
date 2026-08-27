@@ -192,7 +192,8 @@ def build_offsets(rng, lines, samples, scale):
 
 
 def run_case(name, *, seed, ref_dims, sec_dims, n_sub, empty_at=(),
-             no_info=False, no_masks=False, off_scale=2.5, tmpdir=None):
+             sec_empty_at=(), no_info=False, no_masks=False,
+             off_scale=2.5, tmpdir=None):
     rng = np.random.default_rng(seed)
     ref_lines, ref_samples = ref_dims
     sec_lines, sec_samples = sec_dims
@@ -204,7 +205,7 @@ def run_case(name, *, seed, ref_dims, sec_dims, n_sub, empty_at=(),
     sec_slc = FakeSLC(FakeSwath(
         sec_lines, sec_samples,
         make_subswaths(rng, sec_lines, sec_samples, n_sub,
-                       no_info=no_info)))
+                       empty_at=sec_empty_at, no_info=no_info)))
 
     if no_masks:
         ref_h5 = make_h5("A", None)
@@ -264,6 +265,15 @@ def main():
                        sec_dims=(40, 64), n_sub=3, empty_at=(2,), **common)
         ok &= run_case("no_subswath_info", seed=4, ref_dims=(40, 64),
                        sec_dims=(38, 60), n_sub=0, no_info=True, **common)
+        # What an RSLC *file* without sub-swath datasets actually loads
+        # as: Serialization.h defaults numberOfSubSwaths to 1 and leaves
+        # validSamplesSubSwath1 empty, so num_sub_swaths == 1 with an
+        # empty array — NOT num_sub_swaths == 0, which is only
+        # constructible programmatically (the numSubSwaths setter throws
+        # for n <= 0; the pybind list constructor accepts []).
+        ok &= run_case("file_style_no_info", seed=8, ref_dims=(40, 64),
+                       sec_dims=(38, 60), n_sub=1, empty_at=(1,),
+                       sec_empty_at=(1,), **common)
         ok &= run_case("no_exception_masks", seed=5, ref_dims=(40, 64),
                        sec_dims=(40, 64), n_sub=2, no_masks=True, **common)
         ok &= run_case("large_offsets", seed=6, ref_dims=(48, 56),
