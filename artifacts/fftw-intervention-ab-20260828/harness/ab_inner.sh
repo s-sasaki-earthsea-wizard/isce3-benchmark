@@ -18,4 +18,13 @@ python3 -c "import isce3, sys; print('isce3', isce3.__version__)"
 /usr/bin/time -v python3 -m nisar.workflows.dense_offsets /ab/configs/dof_rep.yaml
 rc=$?
 echo "dense_offsets exit rc=$rc"
+
+# Record + drop the 17 GB reference.slc (deterministic RSLC copy, proven in
+# Step 2) from INSIDE the container: the scratch dir is container-root
+# owned, so the host-side runner cannot unlink it (Step 2 gotcha).
+if [ $rc -eq 0 ]; then
+    REF=/scratch/dense_offsets/freqA/HH/reference.slc
+    sha256sum "$REF" > /out/reference_slc.sha256 2>/dev/null
+    rm -f "$REF" "$REF".hdr "$REF".xml "$REF".aux.xml 2>/dev/null
+fi
 exit $rc

@@ -57,10 +57,8 @@ for i in $(seq "$START" $((START + N - 1))); do
         echo "ABORT: ab/$TAG rep$i failed rc=$rc — see $D/run.err"
         exit $rc
     fi
-    # Drop the 17 GB reference.slc copy (deterministic RSLC copy, proven in
-    # Step 2); keep its hash as the input-side determinism check.
-    sha256sum "$D"/scratch/dense_offsets/freqA/HH/reference.slc \
-        > "$D/reference_slc.sha256" 2>/dev/null
-    rm -f "$D"/scratch/dense_offsets/freqA/HH/reference.slc*
+    # reference.slc hashing + deletion happens inside the container
+    # (ab_inner.sh): the scratch dir is container-root owned, so the host
+    # cannot unlink there. The hash lands in $D/out/reference_slc.sha256.
 done
 echo "=== ab/$TAG: reps $START..$((START + N - 1)) complete $(date -u +%FT%TZ) ==="
