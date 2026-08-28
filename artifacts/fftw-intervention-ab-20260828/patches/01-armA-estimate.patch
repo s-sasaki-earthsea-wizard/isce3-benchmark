@@ -1,0 +1,71 @@
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp b/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
+index c4eda53bb..fabf8aad8 100644
+--- a/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
+@@ -44,7 +44,7 @@ cuFreqCorrelator::cuFreqCorrelator(
+             return fftwf_plan_many_dft_r2c(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     out, NULL, 1, fImageSize,
+-                    FFTW_MEASURE);
++                    FFTW_ESTIMATE);
+         });
+     }
+ 
+@@ -55,7 +55,7 @@ cuFreqCorrelator::cuFreqCorrelator(
+             return fftwf_plan_many_dft_r2c(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     out, NULL, 1, fImageSize,
+-                    FFTW_MEASURE);
++                    FFTW_ESTIMATE);
+         });
+     }
+ 
+@@ -66,7 +66,7 @@ cuFreqCorrelator::cuFreqCorrelator(
+             return fftwf_plan_many_dft_c2r(NRANK, n, nImages,
+                     in, NULL, 1, fImageSize,
+                     out, NULL, 1, imageSize,
+-                    FFTW_MEASURE);
++                    FFTW_ESTIMATE);
+         });
+     }
+ }
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp b/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
+index eb9f17cb2..01b66e430 100644
+--- a/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
+@@ -56,7 +56,7 @@ cuOverSamplerC2C::cuOverSamplerC2C(
+             return fftwf_plan_many_dft(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     out, NULL, 1, fImageSize,
+-                    FFTW_BACKWARD, FFTW_MEASURE);
++                    FFTW_BACKWARD, FFTW_ESTIMATE);
+         });
+     }
+     {
+@@ -66,7 +66,7 @@ cuOverSamplerC2C::cuOverSamplerC2C(
+             return fftwf_plan_many_dft(NRANK, nOverSample, nImages,
+                     in, NULL, 1, fImageOverSampleSize,
+                     out, NULL, 1, fImageOverSampleSize,
+-                    FFTW_FORWARD, FFTW_MEASURE);
++                    FFTW_FORWARD, FFTW_ESTIMATE);
+         });
+     }
+ }
+@@ -133,7 +133,7 @@ cuOverSamplerR2R::cuOverSamplerR2R(int inNX, int inNY, int outNX, int outNY, int
+             return fftwf_plan_many_dft(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     in, NULL, 1, fImageSize,
+-                    FFTW_BACKWARD, FFTW_MEASURE);
++                    FFTW_BACKWARD, FFTW_ESTIMATE);
+         });
+     }
+     {
+@@ -142,7 +142,7 @@ cuOverSamplerR2R::cuOverSamplerR2R(int inNX, int inNY, int outNX, int outNY, int
+             return fftwf_plan_many_dft(NRANK, nUpSample, nImages,
+                     out, NULL, 1, fImageUpSampleSize,
+                     out, NULL, 1, outNX*outNY,
+-                    FFTW_FORWARD, FFTW_MEASURE);
++                    FFTW_FORWARD, FFTW_ESTIMATE);
+         });
+     }
+ }

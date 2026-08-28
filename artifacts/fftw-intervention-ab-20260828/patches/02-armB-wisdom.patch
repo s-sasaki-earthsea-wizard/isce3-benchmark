@@ -1,0 +1,103 @@
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp b/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
+index c4eda53bb..b404fa332 100644
+--- a/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
+@@ -44,7 +44,7 @@ cuFreqCorrelator::cuFreqCorrelator(
+             return fftwf_plan_many_dft_r2c(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     out, NULL, 1, fImageSize,
+-                    FFTW_MEASURE);
++                    planFlags());
+         });
+     }
+ 
+@@ -55,7 +55,7 @@ cuFreqCorrelator::cuFreqCorrelator(
+             return fftwf_plan_many_dft_r2c(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     out, NULL, 1, fImageSize,
+-                    FFTW_MEASURE);
++                    planFlags());
+         });
+     }
+ 
+@@ -66,7 +66,7 @@ cuFreqCorrelator::cuFreqCorrelator(
+             return fftwf_plan_many_dft_c2r(NRANK, n, nImages,
+                     in, NULL, 1, fImageSize,
+                     out, NULL, 1, imageSize,
+-                    FFTW_MEASURE);
++                    planFlags());
+         });
+     }
+ }
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuFftwPlanProbe.h b/cxx/isce3/matchtemplate/pycuampcor/cuFftwPlanProbe.h
+index a5024029b..4cb079a9f 100644
+--- a/cxx/isce3/matchtemplate/pycuampcor/cuFftwPlanProbe.h
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuFftwPlanProbe.h
+@@ -25,6 +25,27 @@
+ //       its sha256 is the run's "plan hash".
+ namespace isce3::matchtemplate::pycuampcor {
+ 
++// Arm B: planner flag selection with optional wisdom pinning.
++//   PYCUAMPCOR_FFTW_WISDOM_IMPORT=<path>
++//       Import wisdom from <path> once per process and plan with
++//       FFTW_WISDOM_ONLY, so a missing or non-matching wisdom yields a
++//       NULL plan (caught fail-closed in probedPlan) instead of silently
++//       re-measuring. Unset: stock FFTW_MEASURE.
++inline unsigned planFlags()
++{
++    static const unsigned flags = []() -> unsigned {
++        const char* path = std::getenv("PYCUAMPCOR_FFTW_WISDOM_IMPORT");
++        if (path == nullptr)
++            return FFTW_MEASURE;
++        if (fftwf_import_wisdom_from_filename(path) == 0) {
++            throw std::runtime_error(
++                    std::string("FFTW wisdom import failed: ") + path);
++        }
++        return FFTW_MEASURE | FFTW_WISDOM_ONLY;
++    }();
++    return flags;
++}
++
+ template<typename PlanFn>
+ fftwf_plan probedPlan(const char* site, PlanFn&& makePlan)
+ {
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp b/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
+index eb9f17cb2..aea30e5cf 100644
+--- a/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
+@@ -56,7 +56,7 @@ cuOverSamplerC2C::cuOverSamplerC2C(
+             return fftwf_plan_many_dft(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     out, NULL, 1, fImageSize,
+-                    FFTW_BACKWARD, FFTW_MEASURE);
++                    FFTW_BACKWARD, planFlags());
+         });
+     }
+     {
+@@ -66,7 +66,7 @@ cuOverSamplerC2C::cuOverSamplerC2C(
+             return fftwf_plan_many_dft(NRANK, nOverSample, nImages,
+                     in, NULL, 1, fImageOverSampleSize,
+                     out, NULL, 1, fImageOverSampleSize,
+-                    FFTW_FORWARD, FFTW_MEASURE);
++                    FFTW_FORWARD, planFlags());
+         });
+     }
+ }
+@@ -133,7 +133,7 @@ cuOverSamplerR2R::cuOverSamplerR2R(int inNX, int inNY, int outNX, int outNY, int
+             return fftwf_plan_many_dft(NRANK, n, nImages,
+                     in, NULL, 1, imageSize,
+                     in, NULL, 1, fImageSize,
+-                    FFTW_BACKWARD, FFTW_MEASURE);
++                    FFTW_BACKWARD, planFlags());
+         });
+     }
+     {
+@@ -142,7 +142,7 @@ cuOverSamplerR2R::cuOverSamplerR2R(int inNX, int inNY, int outNX, int outNY, int
+             return fftwf_plan_many_dft(NRANK, nUpSample, nImages,
+                     out, NULL, 1, fImageUpSampleSize,
+                     out, NULL, 1, outNX*outNY,
+-                    FFTW_FORWARD, FFTW_MEASURE);
++                    FFTW_FORWARD, planFlags());
+         });
+     }
+ }
