@@ -1,0 +1,9 @@
+arm=ctrl ref=expt/fftw-ab-instr sha=026787b00cda7b9290c3b2c0b695ff388c082a22 built_utc=2026-08-28T06:02:19Z
+diff vs v0.25.16:
+ .../matchtemplate/pycuampcor/cuCorrFrequency.cpp   | 31 +++++++-----
+ .../matchtemplate/pycuampcor/cuFftwPlanProbe.h     | 57 ++++++++++++++++++++++
+ .../matchtemplate/pycuampcor/cuOverSampler.cpp     | 41 ++++++++++------
+ 3 files changed, 101 insertions(+), 28 deletions(-)
+86719c7e73c1e57ea03f6a35cda0c67d7c4c068e2e4f5bcef28e96576a5d8071  /mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/isce3-build-v0.25.16/install/lib/libisce3.so
+86719c7e73c1e57ea03f6a35cda0c67d7c4c068e2e4f5bcef28e96576a5d8071  /mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/isce3-build-v0.25.16/install/lib/libisce3.so.0
+86719c7e73c1e57ea03f6a35cda0c67d7c4c068e2e4f5bcef28e96576a5d8071  /mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/isce3-build-v0.25.16/install/lib/libisce3.so.0.25.16
