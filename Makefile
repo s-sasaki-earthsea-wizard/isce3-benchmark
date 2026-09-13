@@ -86,7 +86,7 @@ alos2-network: ## Generate all C(12,2)=66 pair runconfigs + closure manifest for
 	    --template configs/insar_alos2_kujukuri_template.yaml \
 	    --out-dir configs/alos2_kujukuri \
 	    --gunw-root $(CURDIR)/data/ALOS2-kujukuri/gunw \
-	    --manifest data/ALOS2-kujukuri/pairs_ALOS2_kujukuri.json --force
+	    --manifest configs/alos2_kujukuri/pairs_ALOS2_kujukuri.json --force
 
 .PHONY: alos2-run
 alos2-run: ## Run the ALOS-2 pair network sequentially on the GPU (scripts/run_alos2_network.sh: --only, --max-pairs)

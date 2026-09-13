@@ -81,7 +81,7 @@ polarization); ScanSAR granules would not match.
 
 ```bash
 make alos2-convert     # zips -> data/ALOS2-kujukuri/rslc/YYYYMMDD.h5 (v0.25.16 build, ~5 min/scene)
-make alos2-network     # 66 runconfigs in configs/alos2_kujukuri/ + pairs_ALOS2_kujukuri.json
+make alos2-network     # 66 runconfigs + pairs_ALOS2_kujukuri.json in configs/alos2_kujukuri/
 make alos2-run         # sequential GPU batch -> data/ALOS2-kujukuri/gunw/<pair>/product.h5
 ```
 
@@ -102,5 +102,5 @@ make alos2-run         # sequential GPU batch -> data/ALOS2-kujukuri/gunw/<pair>
   file is deleted after a successful conversion, the zip stays); `gunw/`
   holds one directory per pair with `product.h5`, `insar.log`,
   `console.log` and a `.complete` marker; `logs/` has the fetch / convert /
-  runner logs. `pairs_ALOS2_kujukuri.json` is the manifest
-  nisar-displacement's `closure_network.py` reads.
+  runner logs. `configs/alos2_kujukuri/pairs_ALOS2_kujukuri.json` is the
+  manifest nisar-displacement's `closure_network.py` reads.
