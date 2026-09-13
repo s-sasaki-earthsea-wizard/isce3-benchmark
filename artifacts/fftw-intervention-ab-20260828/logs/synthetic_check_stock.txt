@@ -1,0 +1,12 @@
+inputs: 867x899 px, 10x10 windows, known shift az=-0.3750 rg=+0.2500 px
+  reference sha256 357fecb01fc7e00e  secondary sha256 de413fcedb23a651
+replicates: 5/5 ok, wall 0.59-0.69 s, planner calls/run [12] (0 = build has no probe)
+layer              distinct/runs
+  dense_offsets     1/5
+  gross_offset      1/5
+  snr               2/5   <- differs
+  covariance        2/5   <- differs
+  correlation_peak  5/5   <- differs
+accuracy (run 1): median offset az=-0.3750 rg=+0.2500 px (known -0.3750/+0.2500); max |err| az=0.0000 rg=0.0000; 100% of windows within 0.0625 px; median snr 748.48, median peak 0.972
+RESULT: FAIL: outputs differ between runs
+

@@ -1,0 +1,13 @@
+inputs: 867x899 px, 10x10 windows, known shift az=-0.3750 rg=+0.2500 px
+  reference sha256 357fecb01fc7e00e  secondary sha256 de413fcedb23a651
+wisdom generator run: rc=0 planner_calls=12 wisdom=11736 B sha256 a8ab3b6b5d3a557b
+wisdom enforcement: bogus wisdom path -> rc=1 -> FAIL CLOSED (ok)
+replicates: 5/5 ok, wall 0.10-0.12 s, planner calls/run [12] (0 = build has no probe)
+layer              distinct/runs
+  dense_offsets     1/5
+  gross_offset      1/5
+  snr               1/5
+  covariance        1/5
+  correlation_peak  1/5
+accuracy (run 1): median offset az=-0.3750 rg=+0.2500 px (known -0.3750/+0.2500); max |err| az=0.0000 rg=0.0000; 100% of windows within 0.0625 px; median snr 748.48, median peak 0.972
+RESULT: PASS
