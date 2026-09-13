@@ -76,3 +76,31 @@ BRS-HH-ALOS2076070700-151020-UBSR1.1__A.jpg
 
 Note that converter is Stripmap-only (one `IMG-<pol>-<pattern>` per
 polarization); ScanSAR granules would not match.
+
+### Processing chain (all C(12,2) = 66 pairs → GUNW → loop closure)
+
+```bash
+make alos2-convert     # zips -> data/ALOS2-kujukuri/rslc/YYYYMMDD.h5 (v0.25.16 build, ~5 min/scene)
+make alos2-network     # 66 runconfigs in configs/alos2_kujukuri/ + pairs_ALOS2_kujukuri.json
+make alos2-run         # sequential GPU batch -> data/ALOS2-kujukuri/gunw/<pair>/product.h5
+```
+
+- **Full scenes, no crop.** An ALOS-2 Ultra-fine scene is 21184 x 37914 px
+  (0.8 Gpx) = half a NISAR frequency-A RSLC frame (30400 x 53254, 1.6 Gpx),
+  so each pair costs about half of the validated NISAR chain
+  (nisar-displacement `run_gunw_batch.sh`: ~33 GB RSS, ~150 GB scratch,
+  75 min CPU per NISAR pair). `tools/crop_rslc.py` can cut a sub-scene
+  around a geographic point if that is ever wanted.
+- **Same processor as the NISAR closure study.** The template
+  `configs/insar_alos2_kujukuri_template.yaml` is the nisar-displacement
+  DES118_071 template with sensor-forced changes only (looks 8x12 + 4x4,
+  GUNW 80 m / wrapped 20 m, EPSG 32654, `split_main_band` ionosphere, no
+  TEC / water mask, GPU on). Every pair uses the identical runconfig apart
+  from the two RSLC paths and the run name.
+- **Layout.** `rslc/` holds the converted RSLCs (6.47 GB each, complex64);
+  `ceos/<YYMMDD>/` keeps the leader/volume/trailer files (the 6.4 GB image
+  file is deleted after a successful conversion, the zip stays); `gunw/`
+  holds one directory per pair with `product.h5`, `insar.log`,
+  `console.log` and a `.complete` marker; `logs/` has the fetch / convert /
+  runner logs. `pairs_ALOS2_kujukuri.json` is the manifest
+  nisar-displacement's `closure_network.py` reads.

@@ -71,6 +71,27 @@ render-s1: ## Render concrete S1 CSLC runconfigs from templates (after data-s1)
 	    --orbits-dir /data/S1-boso/orbits \
 	    --dem /data/S1-boso/dem.tif
 
+# --- ALOS-2 Kujukuri (L-band closure network) ---------------------------------
+.PHONY: data-alos2
+data-alos2: ## Download the JAXA ALOS-2 Kujukuri L1.1 sample stack (12 scenes, ~73 GB) into ./data/ALOS2-kujukuri
+	bash fetch/fetch_alos2_kujukuri.sh --set asc
+
+.PHONY: alos2-convert
+alos2-convert: ## Convert the ALOS-2 CEOS zips to NISAR RSLC HDF5 (isce3 v0.25.16 build) into ./data/ALOS2-kujukuri/rslc
+	bash scripts/convert_alos2_kujukuri.sh
+
+.PHONY: alos2-network
+alos2-network: ## Generate all C(12,2)=66 pair runconfigs + closure manifest for the Kujukuri stack
+	python3 tools/make_alos2_network.py --rslc-dir data/ALOS2-kujukuri/rslc \
+	    --template configs/insar_alos2_kujukuri_template.yaml \
+	    --out-dir configs/alos2_kujukuri \
+	    --gunw-root $(CURDIR)/data/ALOS2-kujukuri/gunw \
+	    --manifest data/ALOS2-kujukuri/pairs_ALOS2_kujukuri.json --force
+
+.PHONY: alos2-run
+alos2-run: ## Run the ALOS-2 pair network sequentially on the GPU (scripts/run_alos2_network.sh: --only, --max-pairs)
+	bash scripts/run_alos2_network.sh --keep-going
+
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
