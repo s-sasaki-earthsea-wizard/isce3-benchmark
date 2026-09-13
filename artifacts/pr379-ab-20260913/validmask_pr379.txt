@@ -1,0 +1,14 @@
+GUNW /science/LSAR/GUNW/grids/frequencyA/pixelOffsets/HH/validMask shape=(3107, 3786) dtype=uint8 values={0:11763102}
+GUNW /science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/HH/validMask shape=(3107, 3786) dtype=uint8 values={0:11763102}
+GUNW /science/LSAR/GUNW/grids/frequencyA/wrappedInterferogram/HH/validMask shape=(12425, 15138) dtype=uint8 values={0:188089650}
+GUNW /science/LSAR/GUNW/grids/frequencyA/pixelOffsets/mask shape=(3107, 3786) dtype=uint32 nonzero=0/11763102
+GUNW /science/LSAR/GUNW/grids/frequencyA/unwrappedInterferogram/mask shape=(3107, 3786) dtype=uint32 nonzero=0/11763102
+GUNW /science/LSAR/GUNW/grids/frequencyA/wrappedInterferogram/mask shape=(12425, 15138) dtype=uint32 nonzero=0/188089650
+RIFG /science/LSAR/RIFG/swaths/frequencyA/interferogram/HH/validMask shape=(6840, 10581) dtype=uint8 values={0:3032182, 1:27128, 2:650248, 3:68664482}
+RIFG /science/LSAR/RIFG/swaths/frequencyA/pixelOffsets/HH/validMask shape=(545, 703) dtype=uint8 values={0:14524, 1:167, 2:2299, 3:366145}
+RIFG /science/LSAR/RIFG/swaths/frequencyA/interferogram/mask shape=(6840, 10581) dtype=uint32 nonzero=69341858/72374040
+RIFG /science/LSAR/RIFG/swaths/frequencyA/pixelOffsets/mask shape=(545, 703) dtype=uint32 nonzero=368611/383135
+RUNW /science/LSAR/RUNW/swaths/frequencyA/interferogram/HH/validMask shape=(2565, 4069) dtype=uint8 values={0:435595, 1:3745, 2:92212, 3:9905433}
+RUNW /science/LSAR/RUNW/swaths/frequencyA/pixelOffsets/HH/validMask shape=(545, 703) dtype=uint8 values={0:14524, 1:167, 2:2299, 3:366145}
+RUNW /science/LSAR/RUNW/swaths/frequencyA/interferogram/mask shape=(2565, 4069) dtype=uint32 nonzero=10001390/10436985
+RUNW /science/LSAR/RUNW/swaths/frequencyA/pixelOffsets/mask shape=(545, 703) dtype=uint32 nonzero=368611/383135
