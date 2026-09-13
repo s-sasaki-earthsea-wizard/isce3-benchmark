@@ -71,15 +71,25 @@ skeletons, byte-for-byte:
   + pixelOffsets, GUNW unwrapped/wrapped/pixelOffsets), i.e. exactly
   the feature being added.
 
-## validMask spot-check (`validmask_pr379.txt`)
+## validMask checks (`validmask_pr379.txt`, `check_validmask_percheck.py`)
 
 Radar-grid validMask values are {0,1,2,3} (bit 1 = reference valid,
-bit 0 = secondary valid). Internal consistency against the subswath
-digits of the co-located `mask` dataset holds exactly:
-nonzero(validMask) = nonzero(mask) at 69,341,858 / 72,374,040 px
-(RIFG interferogram) and 368,611 / 383,135 px (pixelOffsets). GUNW
-grid validMask skeletons are all-0 with `_FillValue = 255`, awaiting
-the geocode step (same convention as the existing `mask` skeleton).
+bit 0 = secondary valid). The initial spot-check compared nonzero
+counts against the co-located `mask`; the per-pixel check added in
+the review round (`check_validmask_percheck.py`, output in
+`validmask_percheck_output.txt`) is the stronger statement: HH
+validMask equals the mask's sub-swath validity bits
+(`2*(ref digit > 0) + (sec digit > 0)`) at **every pixel** of all
+four RIFG/RUNW radar-grid layers (0 mismatches; RIFG interferogram:
+69,341,858 px either-valid / 68,664,482 both-valid; pixelOffsets:
+368,611 / 366,145). The same script reproduces the legacy fallback
+finding on a minimal grid: with a uint8 or absent
+`inputDataExceptionMask`, `mask` is 11 everywhere while
+`extract_pol_valid_mask` yields HH=3 and HV/VH/VV=0. GUNW grid
+validMask skeletons are all-0 with `_FillValue = 255`, awaiting the
+geocode step (same convention as the existing `mask` skeleton) — the
+geocoding of the new validMask planes is **not** covered by this
+bundle.
 
 ## Regression-test forward-check
 

@@ -1,0 +1,6 @@
+legacy_uint8 mask [11] {'HH': [3], 'HV': [0], 'VH': [0], 'VV': [0]}
+missing_dataset mask [11] {'HH': [3], 'HV': [0], 'VH': [0], 'VV': [0]}
+RIFG interferogram mismatches 0 both_valid 68664482 either_valid 69341858
+RIFG pixelOffsets mismatches 0 both_valid 366145 either_valid 368611
+RUNW interferogram mismatches 0 both_valid 9905433 either_valid 10001390
+RUNW pixelOffsets mismatches 0 both_valid 366145 either_valid 368611
