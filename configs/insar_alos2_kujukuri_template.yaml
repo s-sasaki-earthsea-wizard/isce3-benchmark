@@ -19,11 +19,17 @@
 #   - Ionosphere: split_main_band (single 79.4 MHz band; NISAR used
 #     main_diff_ms_band across frequencies A/B). Dispersive-filter kernels
 #     are scaled so their PHYSICAL size matches the NISAR settings.
-#   - Looks are scaled to the 1.43 m x 1.91 m (slant x azimuth) pixels:
-#     crossmul 8x12 -> ~11 m slant (~21 m ground) x 23 m (NISAR 5x6 on
-#     3.12 x 4.45 m -> ~16 m slant x 27 m); unwrap +4x4 -> ~46 m slant
-#     (~86 m ground) x 92 m, i.e. ~0.5 Mpx to unwrap per pair (NISAR: 13x16
-#     more -> ~0.26 Mpx); GUNW posting 80 m and wrapped 20 m, same as NISAR.
+#   - Looks are scaled to the 1.43 m x 1.91 m (slant x azimuth) pixels.
+#     NOTE: phase_unwrap.range/azimuth_looks are TOTAL looks from the RSLC
+#     (unwrap.py re-runs crossmul from the SLCs at those looks), not looks
+#     added on top of the RIFG. crossmul 8x12 -> RIFG 11.4 m slant x 22.9 m
+#     az (~21 m x 23 m ground; NISAR 5x6 on 3.12 x 4.45 m -> 15.6 x 26.7 m);
+#     phase_unwrap 28x36 -> RUNW 40.0 m slant x 68.8 m az (NISAR 13x16 ->
+#     40.6 x 71 m), i.e. ~0.8 Mpx to unwrap per pair; GUNW posting 80 m and
+#     wrapped 20 m, same as NISAR. The ionosphere chain (ionosphere.py)
+#     runs its crossmul at the phase_unwrap looks, so the dispersive-filter
+#     kernels below are on a RUNW pixel of nearly the same size as NISAR's
+#     and keep the NISAR values.
 #   - gpu_enabled true: 66 pairs are only tractable on the GPU, and the
 #     CUDA Ampcor path avoids the CPU FFTW_MEASURE run-to-run noise
 #     (isce3-benchmark bench#36/#48). All pairs use the same setting.
@@ -171,13 +177,12 @@ runconfig:
                     filling_outlier_threshold: 3.5
                     filling_outlier_min_scale: 0.0
                     filling_outlier_mad_scale_factor: 1.4826
-                    # NISAR: 14 x 110 (sigma 4 x 37) px at 15.6 m x 26.7 m RIFG
-                    # pixels; here the RIFG pixel is 11.4 m x 22.9 m, so the
-                    # counts are scaled to keep the same physical filter size.
-                    kernel_range: 19
-                    kernel_azimuth: 128
-                    sigma_range: 5
-                    sigma_azimuth: 43
+                    # Applied on the phase_unwrap-looks grid: NISAR 40.6 x 71 m
+                    # vs 40.0 x 68.8 m here, so the NISAR pixel counts carry over.
+                    kernel_range: 14
+                    kernel_azimuth: 110
+                    sigma_range: 4
+                    sigma_azimuth: 37
                     filter_iterations: 1
                     unwrap_correction: true
                     min_cluster_pixels: 2
@@ -294,8 +299,8 @@ runconfig:
                 mode: top_bottom
 
             phase_unwrap:
-                range_looks: 4
-                azimuth_looks: 4
+                range_looks: 28
+                azimuth_looks: 36
                 preprocess_wrapped_phase:
                     enabled: true
                     mask:

@@ -6,9 +6,11 @@
 # the runconfigs all write to /out and /scratch, so the pair separation
 # lives entirely in the bind mounts.
 #
-# Strictly sequential. Scratch is deleted only after a pair succeeds, so a
-# failure stays inspectable. Skips on the .complete marker, never on the
-# product alone (product.h5 is written incrementally).
+# Strictly sequential. Scratch is deleted only after a pair succeeds (from a
+# throwaway container, because the dev container runs as root and leaves
+# root-owned files the host user cannot remove), so a failure stays
+# inspectable. Skips on the .complete marker, never on the product alone
+# (product.h5 is written incrementally).
 #
 # Usage:
 #   scripts/run_alos2_network.sh [--dry-run] [--only <ref>_<sec>] \
@@ -97,7 +99,11 @@ for cfg in "${configs[@]}"; do
     if [ "$rc" -eq 0 ] && [ "$size" -gt 1000000 ] && ! grep -q "Traceback" "$out/console.log"; then
         echo "OK    $name  rc=$rc  ${secs}s  product $((size / 1000000)) MB  $(date -Is)"
         date -Is > "$out/.complete"
-        rm -rf "$scratch"
+        # The container runs as root, so its scratch files cannot be removed
+        # by the host user; delete them from a throwaway container instead.
+        docker compose run --rm -T -v "$SCRATCH_ROOT:/scratch_root" \
+            dev rm -rf "/scratch_root/$name" >/dev/null 2>&1 \
+            || echo "WARN  $name: scratch cleanup failed, left at $scratch" >&2
     else
         echo "FAIL  $name  rc=$rc  ${secs}s  product ${size} B  $(date -Is)" \
              "(scratch kept at $scratch, log at $out/console.log)" >&2
