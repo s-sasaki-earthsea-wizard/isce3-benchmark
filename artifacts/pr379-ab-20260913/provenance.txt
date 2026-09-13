@@ -1,0 +1,8 @@
+date=2026-09-13T03:05:09Z host=ew-s-sasaki-beacon-NucBox-EVO-T1
+purpose=PR379 A/B: merge-base 0d1600d8b vs pr379 head 0c2ff0af5 (isce-framework/isce3#379)
+merge_base=0d1600d8b79467e9c19ffefe15ff34f46bce65df
+pr379_head=0c2ff0af5e03e7560bc5aaffda72c1de35a7a2f6
+container_isce3_ext=isce3-build (develop 0.26.0-dev+2919e1c97, unchanged since 08-27 batch)
+seed=/home/ew-s-sasaki-beacon/scratch/bench36_step2_20260826/phase0/scratch/geo2rdr (same instance as 08-27 batch)
+config_sha256=8f780ad2a95d84ad03a1ac16e54806d8b71baf56f9c0d75ebd838a73bce5fed1
+overlay_diff=7 files (verified: exactly the PR #379 changed set)
