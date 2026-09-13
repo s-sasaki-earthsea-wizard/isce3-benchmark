@@ -6,7 +6,7 @@
 set -euo pipefail
 SRC=/mnt/nas/Projects/third-party-projects/isce3-v0.25.16
 BENCH=/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark
-BASE=/home/ew-s-sasaki-beacon/scratch/fftw_ab_20260828
+BASE=${FFTW_AB_BASE:-/home/ew-s-sasaki-beacon/scratch/fftw_ab_20260828}
 REF=${1:?usage: build_arm.sh <git-ref> <arm-tag>}
 TAG=${2:?usage: build_arm.sh <git-ref> <arm-tag>}
 

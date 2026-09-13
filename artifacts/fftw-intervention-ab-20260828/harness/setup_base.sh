@@ -2,8 +2,8 @@
 # Seed the A/B scratch base from this bundle. Idempotent.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
-BASE=/home/ew-s-sasaki-beacon/scratch/fftw_ab_20260828
-SEED=/home/ew-s-sasaki-beacon/scratch/bench36_step2_20260826
+BASE=${FFTW_AB_BASE:-/home/ew-s-sasaki-beacon/scratch/fftw_ab_20260828}
+SEED=${FFTW_AB_SEED:-/home/ew-s-sasaki-beacon/scratch/bench36_step2_20260826}
 
 [ -d "$SEED/phase0/scratch/coarse_resample_slc" ] || {
     echo "ABORT: bench36 phase0 scratch missing at $SEED" >&2; exit 1; }

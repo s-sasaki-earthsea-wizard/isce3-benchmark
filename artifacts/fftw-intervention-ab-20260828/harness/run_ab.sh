@@ -4,13 +4,18 @@
 # OMP=16, no synthetic load, host quiescence gate before each replicate.
 #   usage: run_ab.sh <tag> <n_reps> [start_index]
 # Env switches:
+#   FFTW_AB_BASE    scratch base for this campaign (default: the
+#                   2026-08-28 one); set it to keep an earlier
+#                   campaign's replicates intact
+#   FFTW_AB_SEED    bench#36 Step 2 scratch providing the read-only
+#                   coarse-resampled secondary
 #   ARMB_WISDOM=1   import pinned wisdom (/ab/armB_wisdom.f) — arm B reps
 #   WISDOM_GEN=1    generator run: export wisdom to /ab/armB_wisdom.f
 #                   instead of the per-rep /out copy (outputs excluded
 #                   from the comparison set)
 set -uo pipefail
-BASE=/home/ew-s-sasaki-beacon/scratch/fftw_ab_20260828
-SEED=/home/ew-s-sasaki-beacon/scratch/bench36_step2_20260826
+BASE=${FFTW_AB_BASE:-/home/ew-s-sasaki-beacon/scratch/fftw_ab_20260828}
+SEED=${FFTW_AB_SEED:-/home/ew-s-sasaki-beacon/scratch/bench36_step2_20260826}
 BENCH=/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark
 SRC=/mnt/nas/Projects/third-party-projects/isce3-v0.25.16
 TAG=${1:?usage: run_ab.sh <tag> <n> [start]}
