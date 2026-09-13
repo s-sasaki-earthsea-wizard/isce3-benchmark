@@ -21,7 +21,9 @@ both scales at once:
   layers. But wall cost **+7.0%**.
 - **arm B** (`FFTW_MEASURE` + pinned wisdom + `FFTW_WISDOM_ONLY`): 5 runs
   → **byte-identical** on all five layers, plan hash identical in 5/5,
-  wall **−1.2%** (statistically: no cost).
+  wall **−1.2%** — no slowdown observed in these timed runs (control n=3,
+  arm B n=5, fixed execution order; not a statistical no-cost claim, and
+  wisdom provisioning and lifecycle costs are not included).
 
 **Selected arm per the frozen decision rule: arm B.** Arm A passed the
 truth gate but failed the ≤ 1.05× cost gate; arm B passed both.
@@ -109,15 +111,20 @@ while pinning which plan is used.
    run-to-run irreproducibility; removing it removes the effect,
    9/9-style divergence → byte-identity.
 2. **`FFTW_ESTIMATE` is the simple fix but not free**: +7.0% on the
-   `dense_offsets` step on this host/dataset (≈ +43 s of ≈ 622 s). On
-   the full CPU INSAR pipeline measured 08-16 (6178.6 s), that step
-   share prices the same delta at well under 1% end-to-end — worth
-   stating both numbers.
-3. **Pinned wisdom keeps MEASURE quality at zero marginal cost**, but
-   productising it (where the wisdom file lives, when it is generated,
+   `dense_offsets` step on this host/dataset (≈ +43 s of ≈ 622 s, n=3).
+   Added to the 6178.6 s CPU INSAR run measured 08-16 that is ≈ +0.7 %
+   end-to-end — a simple-addition estimate, not a measured pipeline
+   figure; state it as such.
+3. **Pinned wisdom kept the measured plan with no slowdown observed in
+   these runs** (the one-off generator run took 657.19 s; generation,
+   distribution and invalidation are not costed here). Productising it
+   (where the wisdom file lives, when it is generated and invalidated,
    process-global interactions with `cxx/isce3/fft`) is an upstream
    deployment decision; our arm B is a PoC that bounds the attainable
-   result, not a shippable design.
+   result, not a shippable design — the issue should propose a minimal
+   design (explicit generation, fixed-artifact import, provenance record,
+   explicit failure on missing/mismatched wisdom) rather than leave the
+   lifecycle entirely open.
 4. All four review corrections from bench#48 apply unchanged (conditional
    reproducibility of pinned wisdom; ESTIMATE-uses-imported-wisdom scoping;
    wisdom as process-global state; no user-side workaround exists).
