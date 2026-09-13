@@ -118,9 +118,22 @@ replicates; the secondary comes from a shared read-only mount.
 | **`dense_offsets`** | **9** |
 | **`correlation_peak`** | **9** |
 
-`correlation_peak` differs at max **7.15e-07**, matching the 08-16 E2E
-bundle's `correlationSurfacePeak` max|d| of **7.15256e-07** — the isolated
-single-step measurement and the 6178 s pipeline land on the same number.
+`correlation_peak` differs by at most **7.75e-07** *within* the dominant
+equivalence class described below (roundoff-scale differences on 72.6-85.4 %
+of pixels), and by up to **0.316** *between* classes — a different match,
+not a rounding difference (its range over the scene is [-0.05, 1.06],
+mean 0.31). The 08-16 E2E bundle's `correlationSurfacePeak` max|d| of
+**7.15256e-07** is a within-class value: that E2E pair stayed inside the
+dominant class.
+
+> **Correction (2026-09-13).** An earlier version of this paragraph stated
+> "`correlation_peak` differs at max 7.15e-07" and read the 08-16 match as
+> the isolated step and the pipeline "landing on the same number". That was
+> a within-class pair value mis-recorded as the 9-run maximum. All 36 run
+> pairs were recounted
+> (`artifacts/dense-offsets-fftw-planner-20260827/CORRECTION_2026-09-13.md`);
+> the 9-distinct-in-9 finding and the bench#48 intervention results are
+> unaffected.
 
 `dense_offsets` differences come in two scales. `snr` and `covariance` are
 raw-correlation-stage products and fall into a dominant equivalence class
@@ -128,7 +141,7 @@ shared by 6 of the 9 runs, plus three singletons. Runs inside the dominant
 class differ only through the oversampled stage, and their `dense_offsets`
 spread is bounded by **3.125e-02 = exactly 1/32 px**. Runs that land
 outside it differ in integer argmax decisions, and the spread reaches
-**~60 px** — the search-window scale.
+**63.6 px**, at 183-197 of the 383,135 match positions — the search-window scale.
 
 That 1/32 px quantum is the same one
 [isce3#351](https://github.com/isce-framework/isce3/issues/351) showed can

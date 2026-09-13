@@ -62,15 +62,31 @@ No isce3 source change was needed to show this.
 | **`dense_offsets`** | **9** |
 | **`correlation_peak`** | **9** |
 
-`correlation_peak` differs at max **7.15e-07** — the same value the 08-16
-E2E bundle recorded for `correlationSurfacePeak`
-(`artifacts/cpu-e2e-nondeterminism-20260816/quantify_diffs_output.txt`:
-`max|d|=7.15256e-07`). `dense_offsets` differences are quantised: when the
-raw-correlation stage lands on the dominant result the spread is bounded by
-**3.125e-02 = 1/32 px** — the oversampling quantum that
-[isce3#351](https://github.com/isce-framework/isce3/issues/351) showed can
-discontinuously change polyfit inlier membership. When the raw stage lands
-elsewhere the spread reaches **~60 px**, the search-window scale.
+Grouping the 9 runs by exact `snr` + `covariance` hash gives one dominant
+group of 6 runs (`idle` 1-3, `load` 1, `omp1` 2-3) plus three singletons
+(`load` 2, `load` 3, `omp1` 1). The differences come in two scales — all
+36 run pairs recounted on 2026-09-13, see `CORRECTION_2026-09-13.md`:
+
+- **Within the dominant group** (15 pairs): the `dense_offsets` spread is
+  bounded by **3.125e-02 = 1/32 px** — the oversampling quantum that
+  [isce3#351](https://github.com/isce-framework/isce3/issues/351) showed can
+  discontinuously change polyfit inlier membership — and `correlation_peak`
+  differs by at most **7.75e-07**, on 72.6-85.4 % of pixels (roundoff-scale
+  differences). The 08-16 E2E bundle's `correlationSurfacePeak`
+  `max|d|=7.15256e-07`
+  (`artifacts/cpu-e2e-nondeterminism-20260816/quantify_diffs_output.txt`)
+  is a value of this within-group scale.
+- **Between groups** (21 pairs): integer argmax decisions differ at
+  183-197 of the 383,135 match positions (317-360 of 766,270 offset
+  components); there `dense_offsets` reaches **63.6 px** — the
+  search-window scale — and `correlation_peak` changes by up to **0.316**
+  (its range over the scene is [-0.05, 1.06], mean 0.31): a different
+  match, not a rounding difference.
+
+An earlier version of this README stated "`correlation_peak` differs at
+max 7.15e-07"; that was a within-group pair value mis-recorded as the
+9-run maximum. The 9-distinct-in-9 finding and the bench#48 intervention
+results are unaffected.
 
 ## What is NOT claimed
 
