@@ -1,0 +1,195 @@
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp b/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
+index 06bcad0f1..c4eda53bb 100644
+--- a/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuCorrFrequency.cpp
+@@ -5,6 +5,7 @@
+ 
+ #include "cuCorrFrequency.h"
+ #include "cuAmpcorUtil.h"
++#include "cuFftwPlanProbe.h"
+ #include "float2.h"
+ 
+ 
+@@ -39,28 +40,34 @@ cuFreqCorrelator::cuFreqCorrelator(
+     {
+         float* in = workT->devData;
+         fftwf_complex* out = (fftwf_complex*) workFM->devData;
+-        forwardPlan1 = fftwf_plan_many_dft_r2c(NRANK, n, nImages,
+-                in, NULL, 1, imageSize,
+-                out, NULL, 1, fImageSize,
+-                FFTW_MEASURE);
++        forwardPlan1 = probedPlan("cuCorrFrequency.forwardPlan1", [&] {
++            return fftwf_plan_many_dft_r2c(NRANK, n, nImages,
++                    in, NULL, 1, imageSize,
++                    out, NULL, 1, fImageSize,
++                    FFTW_MEASURE);
++        });
+     }
+ 
+     {
+         float* in = images->devData;
+         fftwf_complex* out = (fftwf_complex*) workFS->devData;
+-        forwardPlan2 = fftwf_plan_many_dft_r2c(NRANK, n, nImages,
+-                in, NULL, 1, imageSize,
+-                out, NULL, 1, fImageSize,
+-                FFTW_MEASURE);
++        forwardPlan2 = probedPlan("cuCorrFrequency.forwardPlan2", [&] {
++            return fftwf_plan_many_dft_r2c(NRANK, n, nImages,
++                    in, NULL, 1, imageSize,
++                    out, NULL, 1, fImageSize,
++                    FFTW_MEASURE);
++        });
+     }
+ 
+     {
+         fftwf_complex* in = (fftwf_complex*) workFM->devData;
+         float* out = workT->devData;
+-        backwardPlan = fftwf_plan_many_dft_c2r(NRANK, n, nImages,
+-                in, NULL, 1, fImageSize,
+-                out, NULL, 1, imageSize,
+-                FFTW_MEASURE);
++        backwardPlan = probedPlan("cuCorrFrequency.backwardPlan", [&] {
++            return fftwf_plan_many_dft_c2r(NRANK, n, nImages,
++                    in, NULL, 1, fImageSize,
++                    out, NULL, 1, imageSize,
++                    FFTW_MEASURE);
++        });
+     }
+ }
+ 
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuFftwPlanProbe.h b/cxx/isce3/matchtemplate/pycuampcor/cuFftwPlanProbe.h
+new file mode 100644
+index 000000000..a5024029b
+--- /dev/null
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuFftwPlanProbe.h
+@@ -0,0 +1,57 @@
++#pragma once
++
++#include <fftw3.h>
++
++#include <chrono>
++#include <cstdio>
++#include <cstdlib>
++#include <stdexcept>
++#include <string>
++
++// Observation probe for the FFTW planner intervention A/B
++// (s-sasaki-earthsea-wizard/isce3-benchmark#48). Applied identically to
++// every arm, including the control, so that the arms differ only in the
++// planner flags passed at the seven fftwf_plan_* call sites.
++//
++// Environment variables (all optional; with none set the only behavioral
++// change vs stock is a NULL-plan check that FFTW_MEASURE / FFTW_ESTIMATE
++// planning is not expected to trigger):
++//   PYCUAMPCOR_FFTW_LOG=1
++//       Print one line per planner call to stderr: site name, wall-clock
++//       seconds spent inside the planner.
++//   PYCUAMPCOR_FFTW_WISDOM_EXPORT=<path>
++//       After each planner call, export the process's accumulated wisdom
++//       to <path>. The final write therefore holds every plan of the run;
++//       its sha256 is the run's "plan hash".
++namespace isce3::matchtemplate::pycuampcor {
++
++template<typename PlanFn>
++fftwf_plan probedPlan(const char* site, PlanFn&& makePlan)
++{
++    const auto t0 = std::chrono::steady_clock::now();
++    fftwf_plan plan = makePlan();
++    const auto t1 = std::chrono::steady_clock::now();
++    if (std::getenv("PYCUAMPCOR_FFTW_LOG") != nullptr) {
++        std::fprintf(stderr,
++                "[pycuampcor-fftw] site=%s plan_seconds=%.6f plan_null=%d\n",
++                site, std::chrono::duration<double>(t1 - t0).count(),
++                plan == nullptr ? 1 : 0);
++        std::fflush(stderr);
++    }
++    if (const char* path = std::getenv("PYCUAMPCOR_FFTW_WISDOM_EXPORT")) {
++        if (fftwf_export_wisdom_to_filename(path) == 0) {
++            throw std::runtime_error(
++                    std::string("FFTW wisdom export failed: ") + path);
++        }
++    }
++    if (plan == nullptr) {
++        // Fail closed: never let a NULL plan reach fftwf_execute. In
++        // practice reachable only under FFTW_WISDOM_ONLY (arm B) when no
++        // applicable wisdom exists for a requested transform.
++        throw std::runtime_error(
++                std::string("FFTW planner returned NULL at site ") + site);
++    }
++    return plan;
++}
++
++} // namespace isce3::matchtemplate::pycuampcor
+diff --git a/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp b/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
+index e94de10ff..eb9f17cb2 100644
+--- a/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
++++ b/cxx/isce3/matchtemplate/pycuampcor/cuOverSampler.cpp
+@@ -10,6 +10,7 @@
+ #include "cuArrays.h"
+ #include "cuArrays.h"
+ #include "cuAmpcorUtil.h"
++#include "cuFftwPlanProbe.h"
+ 
+ namespace isce3::matchtemplate::pycuampcor {
+ 
+@@ -51,18 +52,22 @@ cuOverSamplerC2C::cuOverSamplerC2C(
+     {
+         fftwf_complex* in = (fftwf_complex*) imagesIn->devData;
+         fftwf_complex* out = (fftwf_complex*) workIn->devData;
+-        forwardPlan = fftwf_plan_many_dft(NRANK, n, nImages,
+-                in, NULL, 1, imageSize,
+-                out, NULL, 1, fImageSize,
+-                FFTW_BACKWARD, FFTW_MEASURE);
++        forwardPlan = probedPlan("cuOverSamplerC2C.forwardPlan", [&] {
++            return fftwf_plan_many_dft(NRANK, n, nImages,
++                    in, NULL, 1, imageSize,
++                    out, NULL, 1, fImageSize,
++                    FFTW_BACKWARD, FFTW_MEASURE);
++        });
+     }
+     {
+         fftwf_complex* in = (fftwf_complex*) workOut->devData;
+         fftwf_complex* out = (fftwf_complex*) imagesOut->devData;
+-        backwardPlan = fftwf_plan_many_dft(NRANK, nOverSample, nImages,
+-                in, NULL, 1, fImageOverSampleSize,
+-                out, NULL, 1, fImageOverSampleSize,
+-                FFTW_FORWARD, FFTW_MEASURE);
++        backwardPlan = probedPlan("cuOverSamplerC2C.backwardPlan", [&] {
++            return fftwf_plan_many_dft(NRANK, nOverSample, nImages,
++                    in, NULL, 1, fImageOverSampleSize,
++                    out, NULL, 1, fImageOverSampleSize,
++                    FFTW_FORWARD, FFTW_MEASURE);
++        });
+     }
+ }
+ 
+@@ -124,17 +129,21 @@ cuOverSamplerR2R::cuOverSamplerR2R(int inNX, int inNY, int outNX, int outNY, int
+ 
+     {
+         fftwf_complex* in = (fftwf_complex*) workSizeIn->devData;
+-        forwardPlan = fftwf_plan_many_dft(NRANK, n, nImages,
+-                in, NULL, 1, imageSize,
+-                in, NULL, 1, fImageSize,
+-                FFTW_BACKWARD, FFTW_MEASURE);
++        forwardPlan = probedPlan("cuOverSamplerR2R.forwardPlan", [&] {
++            return fftwf_plan_many_dft(NRANK, n, nImages,
++                    in, NULL, 1, imageSize,
++                    in, NULL, 1, fImageSize,
++                    FFTW_BACKWARD, FFTW_MEASURE);
++        });
+     }
+     {
+         fftwf_complex* out = (fftwf_complex*) workSizeOut->devData;
+-        backwardPlan = fftwf_plan_many_dft(NRANK, nUpSample, nImages,
+-                out, NULL, 1, fImageUpSampleSize,
+-                out, NULL, 1, outNX*outNY,
+-                FFTW_FORWARD, FFTW_MEASURE);
++        backwardPlan = probedPlan("cuOverSamplerR2R.backwardPlan", [&] {
++            return fftwf_plan_many_dft(NRANK, nUpSample, nImages,
++                    out, NULL, 1, fImageUpSampleSize,
++                    out, NULL, 1, outNX*outNY,
++                    FFTW_FORWARD, FFTW_MEASURE);
++        });
+     }
+ }
+ 
