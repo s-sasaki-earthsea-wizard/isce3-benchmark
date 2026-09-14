@@ -14,7 +14,15 @@
 #
 # Usage:
 #   scripts/run_alos2_network.sh [--dry-run] [--only <ref>_<sec>] \
-#                                [--keep-going] [--max-pairs N]
+#                                [--keep-going] [--max-pairs N] \
+#                                [--order clique|lexical]
+#
+# Pair order matters for when loop-closure work can start. "lexical"
+# (ref date, then sec date) runs all pairs of the first date first — a
+# star graph with ZERO closed triangles until pair 12. "clique" (default)
+# sorts by sec date, then ref date, which completes every pair among the
+# first m dates before touching date m+1: 10 pairs -> 10 triangles,
+# 15 -> 20, 21 -> 35 (vs 0 / 4 / 10 lexically). All 66 still run.
 #
 # Environment overrides: SCRATCH_ROOT, ISCE3_SRC, ISCE3_BUILD_DIR,
 # CONFIG_DIR, OUT_ROOT, MIN_SCRATCH_GB.
@@ -32,10 +40,11 @@ CONFIG_DIR=${CONFIG_DIR:-configs/alos2_kujukuri}
 OUT_ROOT=${OUT_ROOT:-$BENCH/data/ALOS2-kujukuri/gunw}
 MIN_SCRATCH_GB=${MIN_SCRATCH_GB:-100}
 
-DRY_RUN=0; KEEP_GOING=0; ONLY=; MAX_PAIRS=0
+DRY_RUN=0; KEEP_GOING=0; ONLY=; MAX_PAIRS=0; ORDER=clique
 while [ $# -gt 0 ]; do
     case "$1" in
         --dry-run)    DRY_RUN=1 ;;
+        --order)      ORDER=${2:?--order needs clique|lexical}; shift ;;
         --keep-going) KEEP_GOING=1 ;;
         --only)       ONLY=${2:?--only needs a <ref>_<sec> tag}; shift ;;
         --max-pairs)  MAX_PAIRS=${2:?}; shift ;;
@@ -53,8 +62,17 @@ if [ ${#configs[@]} -eq 0 ]; then
     exit 1
 fi
 
+if [ "$ORDER" = clique ]; then
+    # tag = <ref>_<sec>; sort by sec, then ref -> clique-growth order
+    mapfile -t configs < <(for c in "${configs[@]}"; do
+        b=$(basename "$c" .yaml); t=${b#insar_gunw_alos2_kujukuri_}
+        echo "${t#*_} ${t%_*} $c"; done | sort -k1,1 -k2,2 | awk '{print $3}')
+elif [ "$ORDER" != lexical ]; then
+    echo "bad --order: $ORDER (clique|lexical)" >&2; exit 2
+fi
+
 mkdir -p "$SCRATCH_ROOT" "$OUT_ROOT"
-echo "BATCH-START $(date -Is) pairs=${#configs[@]} isce3=$ISCE3_SRC build=$ISCE3_BUILD_DIR"
+echo "BATCH-START $(date -Is) pairs=${#configs[@]} order=$ORDER isce3=$ISCE3_SRC build=$ISCE3_BUILD_DIR"
 failed=0; ran=0
 for cfg in "${configs[@]}"; do
     base=$(basename "$cfg" .yaml)
