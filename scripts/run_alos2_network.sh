@@ -25,9 +25,11 @@
 # 15 -> 20, 21 -> 35 (vs 0 / 4 / 10 lexically). All 66 still run.
 #
 # Environment overrides: SCRATCH_ROOT, ISCE3_SRC, ISCE3_BUILD_DIR,
-# CONFIG_DIR, OUT_ROOT, MIN_SCRATCH_GB.
+# CONFIG_DIR, OUT_ROOT, MIN_SCRATCH_GB, MIN_FREE_VRAM_MB, VRAM_WAIT_MAX_S,
+# VRAM_POLL_S.
 #
-# Log lines: RUN / OK / FAIL / SKIP / REDO / ABORT / BATCH-COMPLETE.
+# Log lines: RUN / OK / FAIL / SKIP / REDO / ABORT / WARN / VRAM-WAIT /
+# VRAM-OK / BATCH-COMPLETE.
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -39,6 +41,14 @@ ISCE3_BUILD_DIR=${ISCE3_BUILD_DIR:-./isce3-build-v0.25.16}
 CONFIG_DIR=${CONFIG_DIR:-configs/alos2_kujukuri}
 OUT_ROOT=${OUT_ROOT:-$BENCH/data/ALOS2-kujukuri/gunw}
 MIN_SCRATCH_GB=${MIN_SCRATCH_GB:-100}
+# Free VRAM required before starting a pair, and how long to wait for it.
+# The GPU is shared with other jobs on this host (e.g. the nisar-displacement
+# GUNW batches). Without this gate a pair that starts while another job holds
+# the card dies at its first CUDA allocation in ~10 s, and --keep-going then
+# burns through every remaining pair in minutes. Waiting is always better.
+MIN_FREE_VRAM_MB=${MIN_FREE_VRAM_MB:-10000}
+VRAM_WAIT_MAX_S=${VRAM_WAIT_MAX_S:-43200}
+VRAM_POLL_S=${VRAM_POLL_S:-120}
 
 DRY_RUN=0; KEEP_GOING=0; ONLY=; MAX_PAIRS=0; ORDER=clique
 while [ $# -gt 0 ]; do
@@ -71,6 +81,33 @@ elif [ "$ORDER" != lexical ]; then
     echo "bad --order: $ORDER (clique|lexical)" >&2; exit 2
 fi
 
+# Block until the GPU has MIN_FREE_VRAM_MB free. Returns 1 on timeout.
+wait_for_vram() {
+    local name=$1 waited=0 free used total
+    while :; do
+        read -r used total < <(nvidia-smi --query-gpu=memory.used,memory.total \
+            --format=csv,noheader,nounits 2>/dev/null | tr ',' ' ')
+        if [ -z "${total:-}" ]; then
+            echo "WARN  $name: cannot read nvidia-smi, proceeding without the VRAM gate" >&2
+            return 0
+        fi
+        free=$((total - used))
+        if [ "$free" -ge "$MIN_FREE_VRAM_MB" ]; then
+            [ "$waited" -gt 0 ] && echo "VRAM-OK $name after ${waited}s (${free} MiB free)"
+            return 0
+        fi
+        if [ "$waited" -eq 0 ]; then
+            echo "VRAM-WAIT $name: only ${free} MiB free (need $MIN_FREE_VRAM_MB), another job holds the GPU"
+        fi
+        if [ "$waited" -ge "$VRAM_WAIT_MAX_S" ]; then
+            echo "ABORT $name: VRAM still below $MIN_FREE_VRAM_MB MiB after ${waited}s" >&2
+            return 1
+        fi
+        sleep "$VRAM_POLL_S"
+        waited=$((waited + VRAM_POLL_S))
+    done
+}
+
 mkdir -p "$SCRATCH_ROOT" "$OUT_ROOT"
 echo "BATCH-START $(date -Is) pairs=${#configs[@]} order=$ORDER isce3=$ISCE3_SRC build=$ISCE3_BUILD_DIR"
 failed=0; ran=0
@@ -90,6 +127,12 @@ for cfg in "${configs[@]}"; do
     if [ "${avail_gb:-0}" -lt "$MIN_SCRATCH_GB" ]; then
         echo "ABORT $name: only ${avail_gb} GB free on $SCRATCH_ROOT (need $MIN_SCRATCH_GB)" >&2
         exit 1
+    fi
+
+    if ! wait_for_vram "$name"; then
+        failed=$((failed + 1))
+        [ "$KEEP_GOING" -eq 0 ] && exit 1
+        continue
     fi
 
     echo "RUN   $name  $(date -Is)  (scratch ${avail_gb} GB free)"
