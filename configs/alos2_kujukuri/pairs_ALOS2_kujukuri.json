@@ -1,0 +1,502 @@
+{
+  "campaign": "closure-network-alos2_kujukuri",
+  "sensor": "ALOS-2 PALSAR-2",
+  "mode": "Stripmap Ultra-fine (UBS), HH, 79.4 MHz",
+  "track": 0,
+  "frame": 700,
+  "direction": "A",
+  "note": "JAXA PALSAR-2 sample time series over Kujukuri (Chiba), 12 dates, all C(n,2)=66 date-ordered pairs self-run with the isce3 v0.25.16 chain (configs/insar_alos2_kujukuri_template.yaml) on the full scenes converted by alos2_to_nisar_l1.py. No TEC / water mask.",
+  "dates": [
+    "2014-09-09",
+    "2014-11-04",
+    "2015-02-24",
+    "2015-06-02",
+    "2015-10-20",
+    "2015-11-03",
+    "2016-05-31",
+    "2016-11-01",
+    "2017-02-07",
+    "2017-05-16",
+    "2017-10-17",
+    "2018-01-09"
+  ],
+  "rslc": {
+    "2014-09-09": "20140909.h5",
+    "2014-11-04": "20141104.h5",
+    "2015-02-24": "20150224.h5",
+    "2015-06-02": "20150602.h5",
+    "2015-10-20": "20151020.h5",
+    "2015-11-03": "20151103.h5",
+    "2016-05-31": "20160531.h5",
+    "2016-11-01": "20161101.h5",
+    "2017-02-07": "20170207.h5",
+    "2017-05-16": "20170516.h5",
+    "2017-10-17": "20171017.h5",
+    "2018-01-09": "20180109.h5"
+  },
+  "rslc_dir": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/rslc",
+  "pairs": [
+    {
+      "ref": "2014-09-09",
+      "sec": "2014-11-04",
+      "days": 56,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20141104/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2015-02-24",
+      "days": 168,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20150224/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2015-06-02",
+      "days": 266,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20150602/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2015-10-20",
+      "days": 406,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20151020/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2015-11-03",
+      "days": 420,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20151103/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2016-05-31",
+      "days": 630,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20160531/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2016-11-01",
+      "days": 784,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20161101/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2017-02-07",
+      "days": 882,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2017-05-16",
+      "days": 980,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2017-10-17",
+      "days": 1134,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-09-09",
+      "sec": "2018-01-09",
+      "days": 1218,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20140909_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2015-02-24",
+      "days": 112,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20150224/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2015-06-02",
+      "days": 210,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20150602/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2015-10-20",
+      "days": 350,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20151020/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2015-11-03",
+      "days": 364,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20151103/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2016-05-31",
+      "days": 574,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20160531/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2016-11-01",
+      "days": 728,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20161101/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2017-02-07",
+      "days": 826,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2017-05-16",
+      "days": 924,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2017-10-17",
+      "days": 1078,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2014-11-04",
+      "sec": "2018-01-09",
+      "days": 1162,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20141104_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2015-06-02",
+      "days": 98,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20150602/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2015-10-20",
+      "days": 238,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20151020/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2015-11-03",
+      "days": 252,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20151103/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2016-05-31",
+      "days": 462,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20160531/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2016-11-01",
+      "days": 616,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20161101/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2017-02-07",
+      "days": 714,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2017-05-16",
+      "days": 812,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2017-10-17",
+      "days": 966,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-02-24",
+      "sec": "2018-01-09",
+      "days": 1050,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150224_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2015-10-20",
+      "days": 140,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20151020/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2015-11-03",
+      "days": 154,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20151103/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2016-05-31",
+      "days": 364,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20160531/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2016-11-01",
+      "days": 518,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20161101/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2017-02-07",
+      "days": 616,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2017-05-16",
+      "days": 714,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2017-10-17",
+      "days": 868,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-06-02",
+      "sec": "2018-01-09",
+      "days": 952,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20150602_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-10-20",
+      "sec": "2015-11-03",
+      "days": 14,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151020_20151103/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-10-20",
+      "sec": "2016-05-31",
+      "days": 224,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151020_20160531/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-10-20",
+      "sec": "2016-11-01",
+      "days": 378,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151020_20161101/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-10-20",
+      "sec": "2017-02-07",
+      "days": 476,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151020_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-10-20",
+      "sec": "2017-05-16",
+      "days": 574,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151020_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-10-20",
+      "sec": "2017-10-17",
+      "days": 728,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151020_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-10-20",
+      "sec": "2018-01-09",
+      "days": 812,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151020_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-11-03",
+      "sec": "2016-05-31",
+      "days": 210,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151103_20160531/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-11-03",
+      "sec": "2016-11-01",
+      "days": 364,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151103_20161101/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-11-03",
+      "sec": "2017-02-07",
+      "days": 462,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151103_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-11-03",
+      "sec": "2017-05-16",
+      "days": 560,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151103_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-11-03",
+      "sec": "2017-10-17",
+      "days": 714,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151103_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2015-11-03",
+      "sec": "2018-01-09",
+      "days": 798,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20151103_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-05-31",
+      "sec": "2016-11-01",
+      "days": 154,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20160531_20161101/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-05-31",
+      "sec": "2017-02-07",
+      "days": 252,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20160531_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-05-31",
+      "sec": "2017-05-16",
+      "days": 350,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20160531_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-05-31",
+      "sec": "2017-10-17",
+      "days": 504,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20160531_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-05-31",
+      "sec": "2018-01-09",
+      "days": 588,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20160531_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-11-01",
+      "sec": "2017-02-07",
+      "days": 98,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20161101_20170207/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-11-01",
+      "sec": "2017-05-16",
+      "days": 196,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20161101_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-11-01",
+      "sec": "2017-10-17",
+      "days": 350,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20161101_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2016-11-01",
+      "sec": "2018-01-09",
+      "days": 434,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20161101_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2017-02-07",
+      "sec": "2017-05-16",
+      "days": 98,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20170207_20170516/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2017-02-07",
+      "sec": "2017-10-17",
+      "days": 252,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20170207_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2017-02-07",
+      "sec": "2018-01-09",
+      "days": 336,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20170207_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2017-05-16",
+      "sec": "2017-10-17",
+      "days": 154,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20170516_20171017/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2017-05-16",
+      "sec": "2018-01-09",
+      "days": 238,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20170516_20180109/product.h5",
+      "asf_gunw": null
+    },
+    {
+      "ref": "2017-10-17",
+      "sec": "2018-01-09",
+      "days": 84,
+      "gunw": "/mnt/nas/Projects/third-party-projects/isce3/isce3-benchmark/data/ALOS2-kujukuri/gunw/gunw_alos2_kujukuri_20171017_20180109/product.h5",
+      "asf_gunw": null
+    }
+  ]
+}

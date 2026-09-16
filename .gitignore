@@ -15,6 +15,10 @@ logs_*/
 !artifacts/polyfit-membership-20260811/*.json
 !artifacts/insar-timing-20260810/*.json
 !artifacts/polyfit-mitigation-20260819/*.json
+# Closure-network manifest: the input nisar-displacement's closure_network.py
+# and the MintPy handoff both reference by path, so it must be reproducible
+# from a clone, not just regenerable by `make alos2-network`.
+!configs/alos2_kujukuri/pairs_ALOS2_kujukuri.json
 
 # Local environment overrides
 .env
