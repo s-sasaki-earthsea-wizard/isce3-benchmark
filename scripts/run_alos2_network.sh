@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+#
+# Run the self-run GUNW workflow over every pair of the ALOS-2 Kujukuri
+# closure network. Modelled on nisar-displacement/scripts/run_gunw_batch.sh
+# (same container, same isce3 v0.25.16 build, same per-pair mount scheme):
+# the runconfigs all write to /out and /scratch, so the pair separation
+# lives entirely in the bind mounts.
+#
+# Strictly sequential. Scratch is deleted only after a pair succeeds (from a
+# throwaway container, because the dev container runs as root and leaves
+# root-owned files the host user cannot remove), so a failure stays
+# inspectable. Skips on the .complete marker, never on the product alone
+# (product.h5 is written incrementally).
+#
+# Usage:
+#   scripts/run_alos2_network.sh [--dry-run] [--only <ref>_<sec>] \
+#                                [--keep-going] [--max-pairs N] \
+#                                [--order clique|lexical]
+#
+# Pair order matters for when loop-closure work can start. "lexical"
+# (ref date, then sec date) runs all pairs of the first date first — a
+# star graph with ZERO closed triangles until pair 12. "clique" (default)
+# sorts by sec date, then ref date, which completes every pair among the
+# first m dates before touching date m+1: 10 pairs -> 10 triangles,
+# 15 -> 20, 21 -> 35 (vs 0 / 4 / 10 lexically). All 66 still run.
+#
+# Environment overrides: SCRATCH_ROOT, ISCE3_SRC, ISCE3_BUILD_DIR,
+# CONFIG_DIR, OUT_ROOT, MIN_SCRATCH_GB, MIN_FREE_VRAM_MB, VRAM_WAIT_MAX_S,
+# VRAM_POLL_S.
+#
+# Log lines: RUN / OK / FAIL / SKIP / REDO / ABORT / WARN / VRAM-WAIT /
+# VRAM-OK / BATCH-COMPLETE.
+
+set -uo pipefail
+cd "$(dirname "$0")/.."
+BENCH=$(pwd)
+
+SCRATCH_ROOT=${SCRATCH_ROOT:-$HOME/scratch/alos2}
+ISCE3_SRC=${ISCE3_SRC:-/mnt/nas/Projects/third-party-projects/isce3-v0.25.16}
+ISCE3_BUILD_DIR=${ISCE3_BUILD_DIR:-./isce3-build-v0.25.16}
+CONFIG_DIR=${CONFIG_DIR:-configs/alos2_kujukuri}
+OUT_ROOT=${OUT_ROOT:-$BENCH/data/ALOS2-kujukuri/gunw}
+MIN_SCRATCH_GB=${MIN_SCRATCH_GB:-100}
+# Free VRAM required before starting a pair, and how long to wait for it.
+# The GPU is shared with other jobs on this host (e.g. the nisar-displacement
+# GUNW batches). Without this gate a pair that starts while another job holds
+# the card dies at its first CUDA allocation in ~10 s, and --keep-going then
+# burns through every remaining pair in minutes. Waiting is always better.
+MIN_FREE_VRAM_MB=${MIN_FREE_VRAM_MB:-10000}
+VRAM_WAIT_MAX_S=${VRAM_WAIT_MAX_S:-43200}
+VRAM_POLL_S=${VRAM_POLL_S:-120}
+
+DRY_RUN=0; KEEP_GOING=0; ONLY=; MAX_PAIRS=0; ORDER=clique
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --dry-run)    DRY_RUN=1 ;;
+        --order)      ORDER=${2:?--order needs clique|lexical}; shift ;;
+        --keep-going) KEEP_GOING=1 ;;
+        --only)       ONLY=${2:?--only needs a <ref>_<sec> tag}; shift ;;
+        --max-pairs)  MAX_PAIRS=${2:?}; shift ;;
+        -h|--help)    sed -n '2,22p' "$0"; exit 0 ;;
+        *)            echo "unknown argument: $1" >&2; exit 2 ;;
+    esac
+    shift
+done
+
+shopt -s nullglob
+configs=("$BENCH/$CONFIG_DIR"/insar_gunw_*.yaml)
+shopt -u nullglob
+if [ ${#configs[@]} -eq 0 ]; then
+    echo "no runconfigs in $CONFIG_DIR (run tools/make_alos2_network.py)" >&2
+    exit 1
+fi
+
+if [ "$ORDER" = clique ]; then
+    # tag = <ref>_<sec>; sort by sec, then ref -> clique-growth order
+    mapfile -t configs < <(for c in "${configs[@]}"; do
+        b=$(basename "$c" .yaml); t=${b#insar_gunw_alos2_kujukuri_}
+        echo "${t#*_} ${t%_*} $c"; done | sort -k1,1 -k2,2 | awk '{print $3}')
+elif [ "$ORDER" != lexical ]; then
+    echo "bad --order: $ORDER (clique|lexical)" >&2; exit 2
+fi
+
+# Block until the GPU has MIN_FREE_VRAM_MB free. Returns 1 on timeout.
+wait_for_vram() {
+    local name=$1 waited=0 free used total
+    while :; do
+        read -r used total < <(nvidia-smi --query-gpu=memory.used,memory.total \
+            --format=csv,noheader,nounits 2>/dev/null | tr ',' ' ')
+        if [ -z "${total:-}" ]; then
+            echo "WARN  $name: cannot read nvidia-smi, proceeding without the VRAM gate" >&2
+            return 0
+        fi
+        free=$((total - used))
+        if [ "$free" -ge "$MIN_FREE_VRAM_MB" ]; then
+            [ "$waited" -gt 0 ] && echo "VRAM-OK $name after ${waited}s (${free} MiB free)"
+            return 0
+        fi
+        if [ "$waited" -eq 0 ]; then
+            echo "VRAM-WAIT $name: only ${free} MiB free (need $MIN_FREE_VRAM_MB), another job holds the GPU"
+        fi
+        if [ "$waited" -ge "$VRAM_WAIT_MAX_S" ]; then
+            echo "ABORT $name: VRAM still below $MIN_FREE_VRAM_MB MiB after ${waited}s" >&2
+            return 1
+        fi
+        sleep "$VRAM_POLL_S"
+        waited=$((waited + VRAM_POLL_S))
+    done
+}
+
+mkdir -p "$SCRATCH_ROOT" "$OUT_ROOT"
+echo "BATCH-START $(date -Is) pairs=${#configs[@]} order=$ORDER isce3=$ISCE3_SRC build=$ISCE3_BUILD_DIR"
+failed=0; ran=0
+for cfg in "${configs[@]}"; do
+    base=$(basename "$cfg" .yaml)
+    name=${base#insar_}                 # gunw_alos2_kujukuri_<ref>_<sec>
+    tag=${name#gunw_alos2_kujukuri_}    # <ref>_<sec>
+    if [ -n "$ONLY" ] && [ "$tag" != "$ONLY" ]; then continue; fi
+    if [ "$MAX_PAIRS" -gt 0 ] && [ "$ran" -ge "$MAX_PAIRS" ]; then break; fi
+
+    out=$OUT_ROOT/$name
+    scratch=$SCRATCH_ROOT/$name
+    if [ -f "$out/.complete" ]; then echo "SKIP  $name (already complete)"; continue; fi
+    if [ -e "$out/product.h5" ]; then echo "REDO  $name (incomplete product from an earlier run)"; fi
+
+    avail_gb=$(df -BG --output=avail "$SCRATCH_ROOT" | tail -1 | tr -dc '0-9')
+    if [ "${avail_gb:-0}" -lt "$MIN_SCRATCH_GB" ]; then
+        echo "ABORT $name: only ${avail_gb} GB free on $SCRATCH_ROOT (need $MIN_SCRATCH_GB)" >&2
+        exit 1
+    fi
+
+    if ! wait_for_vram "$name"; then
+        failed=$((failed + 1))
+        [ "$KEEP_GOING" -eq 0 ] && exit 1
+        continue
+    fi
+
+    echo "RUN   $name  $(date -Is)  (scratch ${avail_gb} GB free)"
+    ran=$((ran + 1))
+    if [ "$DRY_RUN" -eq 1 ]; then
+        echo "      docker compose run --rm -T -v $out:/out -v $scratch:/scratch dev" \
+             "python3 -m nisar.workflows.insar /work/$CONFIG_DIR/$base.yaml --restart"
+        continue
+    fi
+
+    mkdir -p "$out" "$scratch"
+    rm -f "$out/.complete"
+    t0=$(date +%s)
+    ( ISCE3_SRC=$ISCE3_SRC ISCE3_BUILD_DIR=$ISCE3_BUILD_DIR \
+        docker compose run --rm -T \
+            -v "$out:/out" \
+            -v "$scratch:/scratch" \
+            dev /usr/bin/time -v python3 -m nisar.workflows.insar \
+                "/work/$CONFIG_DIR/$base.yaml" --restart
+    ) > "$out/console.log" 2>&1
+    rc=$?
+    secs=$(( $(date +%s) - t0 ))
+
+    size=$(stat -c%s "$out/product.h5" 2>/dev/null || echo 0)
+    if [ "$rc" -eq 0 ] && [ "$size" -gt 1000000 ] && ! grep -q "Traceback" "$out/console.log"; then
+        echo "OK    $name  rc=$rc  ${secs}s  product $((size / 1000000)) MB  $(date -Is)"
+        date -Is > "$out/.complete"
+        # The container runs as root, so its scratch files cannot be removed
+        # by the host user; delete them from a throwaway container instead.
+        docker compose run --rm -T -v "$SCRATCH_ROOT:/scratch_root" \
+            dev rm -rf "/scratch_root/$name" >/dev/null 2>&1 \
+            || echo "WARN  $name: scratch cleanup failed, left at $scratch" >&2
+    else
+        echo "FAIL  $name  rc=$rc  ${secs}s  product ${size} B  $(date -Is)" \
+             "(scratch kept at $scratch, log at $out/console.log)" >&2
+        failed=$((failed + 1))
+        [ "$KEEP_GOING" -eq 0 ] && exit 1
+    fi
+done
+echo "BATCH-COMPLETE failed=$failed ran=$ran $(date -Is)"
+[ "$failed" -eq 0 ]
