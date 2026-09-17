@@ -1,0 +1,52 @@
+Azimuth-axis direction vs look side in SICD RGZERO/INCA products
+================================================================
+
+Question: is the reversed azimuth axis on the Capella Mexico City pair a
+Capella quirk, or a consequence of the SICD standard?
+
+Answer: the standard. NGA's own reference implementation derives Grid/Col from
+the geometry for an INCA grid (ngageoint/MATLAB_SAR,
+IO/complex/sicd/derived_sicd_fields.m, INCA branch):
+
+    uRG  = (SCP - ca_pos) / |SCP - ca_pos|          % range unit vector
+    left = cross(ca_pos/|ca_pos|, ca_vel/|ca_vel|)
+    look = sign(left . uRG)                          % +1 = Left, -1 = Right
+    spn  = -look * cross(uRG, ca_vel);  spn /= |spn| % slant plane normal
+    uAZ  = cross(spn, uRG)
+    Grid.Row.UVectECF = uRG
+    Grid.Col.UVectECF = uAZ
+
+Because uRG is perpendicular to ca_vel at closest approach,
+(uRG x v_hat) x uRG = v_hat exactly, so this reduces to
+
+    Grid/Col/UVectECF = -look * v_hat
+
+i.e. the azimuth axis is ANTI-parallel to the velocity for a left-looking
+collect and parallel for a right-looking one. Zero-Doppler time therefore
+DECREASES with column index for every left-looking RGZERO product, whoever
+the producer is. The same expression appears in the RMAT branch of the same
+file as `uYAT = -look*VelRef/norm(VelRef)`.
+
+Measured on 8 Capella open-data stripmap / dynamic-stripmap SICDs (headers only,
+via tools/dump_sicd_xml.py over HTTP range requests), 2026-09-17:
+
+granule                                              mode Grid    side   TimeCAPoly[1]  uCol.v/|v|
+CAPELLA_C09_SM_SICD_HH_20250113174256_20250113174312 SM   RGZERO  R       1.464113e-04   +1.000000
+CAPELLA_C10_SM_SICD_HH_20250114013943_20250114013952 SM   RGZERO  L      -1.470175e-04   -1.000000
+CAPELLA_C10_SM_SICD_HH_20250316025608_20250316025624 SM   RGZERO  L      -1.451723e-04   -1.000000
+CAPELLA_C10_SM_SICD_HH_20250321003713_20250321003716 SM   RGZERO  R       1.460246e-04   +1.000000
+CAPELLA_C09_SS_SICD_HH_20250109024430_20250109024443 SS   RGZERO  L      -1.461367e-04   -1.000000
+CAPELLA_C09_SS_SICD_HH_20250123194502_20250123194517 SS   RGZERO  L      -1.467255e-04   -1.000000
+CAPELLA_C10_SS_SICD_HH_20250113021051_20250113021104 SS   RGZERO  L      -1.470376e-04   -1.000000
+CAPELLA_C10_SS_SICD_HH_20250131172512_20250131172527 SS   RGZERO  L      -1.476030e-04   -1.000000
+
+Both Mexico City scenes (2024-06-26, 2024-06-29) are side L, TimeCAPoly[1] < 0,
+uCol.v/|v| = -1.000000.
+
+sign(TimeCAPoly[1]) == sign(uCol . v) == -look in all 8 cases, with uCol . v_hat
+equal to +/-1 to 6 decimal places, so uCol is exactly (anti)parallel to the
+velocity as the derivation requires.
+
+Consequence for the converter: do NOT hard-code the azimuth flip. Branch on
+sign(TimeCAPoly[1]), and flip the image, the validSamples rows and the
+start/end times together. A right-looking RGZERO SICD needs no flip at all.

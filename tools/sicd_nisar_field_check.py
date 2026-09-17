@@ -203,10 +203,17 @@ def analyze(sicd: Sicd) -> tuple[list[Row], dict]:
         "computed after the grid is built")
 
     # ---- swaths ------------------------------------------------------------
+    # Grid/Col/UVectECF is a SICD DERIVED field: for an INCA grid it is
+    # -look * v_hat (look = +1 for Left), so the azimuth axis runs backwards in
+    # time for every left-looking collect, whoever the producer is.
+    u_col = np.array([sicd.num(f"Grid/Col/UVectECF/{a}") for a in "XYZ"])
+    d["ucol_dot_v"] = float(u_col @ vel_scp / np.linalg.norm(vel_scp))
+
     add("swaths/zeroDopplerTime", DERIVED,
         "Timeline/CollectStart + TimeCAPoly((col - SCPPixel.Col) * Grid/Col/SS)",
         f"{n_az} samples, {t_ca.min():.6f} .. {t_ca.max():.6f} s after CollectStart",
-        "DECREASING in column order -- azimuth axis must be flipped"
+        "DECREASING in column order -- azimuth axis must be flipped "
+        "(left-looking; SICD sets Grid/Col/UVectECF = -look * v_hat)"
         if dt < 0 else "")
     add("swaths/zeroDopplerTimeSpacing", DERIVED,
         "|TimeCAPoly[1]| * Grid/Col/SS", abs(dt),
@@ -394,6 +401,12 @@ def report(sicd: Sicd, rows: list[Row], d: dict, markdown: bool) -> None:
           f"altitude {np.linalg.norm(d['pos_scp']) / 1e3:.1f} km geocentric)")
     print(f"  Grid Row/Col Sgn         : {sicd.text('Grid/Row/Sgn')} / "
           f"{sicd.text('Grid/Col/Sgn')}  (FFT sign convention)")
+    # SICD derives Grid/Col/UVectECF = -look * v_hat for an INCA grid (look = +1
+    # for Left), so the azimuth axis runs backwards in time for every
+    # left-looking collect. Branch on this sign; never hard-code the flip.
+    print(f"  uCol . v / |v|           : {d['ucol_dot_v']:+.6f} "
+          f"(side {sicd.text('SCPCOA/SideOfTrack')}) -> azimuth axis "
+          f"{'REVERSED' if d['az_reversed'] else 'forward'} in time")
     if "antenna_frame_err" in d:
         e = d["antenna_frame_err"]
         print(f"  antenna frame orthonorm. : |‖X‖-1| {e[0]:.2e}, "
