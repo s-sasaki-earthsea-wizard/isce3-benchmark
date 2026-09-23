@@ -14,8 +14,9 @@ space plus the SCP pixel, each on two constant-HAE surfaces):
     orbit, time axis, range axis, look side and azimuth flip are mutually
     consistent -- not that the mapping is right.
 
-``sarkit`` (runs on the host, ``venv-sarkit`` -- sarkit is NGA's reference
-    implementation of the SICD projection equations)
+``sarkit`` (runs on the host, ``venv-sarkit``; sarkit is Valkyrie Systems'
+    toolkit for the NGA SAR standards and implements the SICD projection
+    equations)
     The same (row, col) points projected to the same HAE surfaces from the
     original SICD XML with ``sarkit.sicd.image_to_constant_hae_surface``.
     No isce3 involved.

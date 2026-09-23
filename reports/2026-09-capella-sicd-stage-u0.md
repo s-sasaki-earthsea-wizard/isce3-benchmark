@@ -11,7 +11,7 @@
   `..._20240629134910_20240629134915.ntf` (secondary); 2 d 22 h 48 m apart.
   SICD 1.3.0 written by "Capella SAR Processor (3.2.1)". DEM: Copernicus GLO-30
   via `fetch/fetch_dem_bbox.py` (bbox −99.25 19.10 −98.75 19.60, ellipsoidal).
-- Independent reference: sarkit 1.12.0 (NGA's SICD projection implementation),
+- Independent reference: sarkit 1.12.0 (Valkyrie Systems' toolkit for the NGA SAR standards),
   host venv, never sees isce3.
 - Evidence: `artifacts/sicd-capella-20260923/` (conversion summaries, both
   halves of the geometry cross-check, fringe-rate summary + quicklook, RIFG
@@ -23,24 +23,27 @@
 isce3 has no SICD reader. For the half of SICD whose image grid already is a
 zero-Doppler slant-range grid (`Grid/Type=RGZERO`, `RMA/ImageType=INCA`:
 Capella stripmap and sliding spotlight), a repackaging into the NISAR RSLC
-layout is enough, and this report measures that it is *correct*, not merely
-that it runs:
+layout is enough, and this report checks the result against an independent
+implementation and a measured phase test, not merely that it runs:
 
 1. **Converter** (`tools/sicd_to_nisar_rslc.py`): both scenes in 42 s / 1.07 GB
    RSS each; products open with the isce3 readers. RGAZIM/PFA (all Umbra,
    Capella spotlight) is rejected by name.
 2. **Geometry** (`tools/sicd_rslc_geometry_check.py`): isce3 on the converted
-   RSLC and sarkit on the original SICD XML put the same 52 image points on
-   the same two constant-height surfaces **0.08 mm / 0.15 mm apart** (scene
-   1 / 2), i.e. 1e-4 pixel. The isce3 round trip closes to 1.6e-4 line /
+   RSLC and sarkit on the original SICD XML, reading the same header, put the
+   same image locations (52 projection evaluations per scene) on the same two
+   constant-height surfaces **0.08 mm / 0.15 mm apart** (scene 1 / 2), i.e.
+   1e-4 pixel. This is agreement between implementations, not absolute
+   geolocation accuracy. The isce3 round trip closes to 1.6e-4 line /
    5e-9 sample.
 3. **Phase convention** (`tools/rifg_fringe_rate.py`): the "Backprojected to
    DEM" processing tag was the one finding that could have sunk InSAR. It does
    not. The raw interferogram's fringe frequency equals the geometric
    prediction isce3 uses for flattening (**0.994× in range, 1.002× in
    azimuth**) and the flattened product's residual is **−0.005× / +0.006×**.
-   The SLC phase is conventional (`exp(−j4πR/λ)`, carrier retained), with the
-   sign isce3 assumes. Single-scene range spectra agree: baseband, not the
+   For this pair that is consistent with the conventional sign the workflow
+   assumes (`exp(−j4πR/λ)`, carrier retained); it does not establish a
+   universal SICD phase reference or an absolute SLC phase. Single-scene range spectra agree: baseband, not the
    −0.267 cycles/px shift a grid-compensated image would carry.
 4. **End to end**: the 3-day pair runs through `insar.py` to RIFG on the GPU in
    **263 s** (5 × 3 looks, 6397 × 2126, mean coherence 0.43, 36 % of pixels
@@ -55,8 +58,13 @@ coherence (§4.3).
 
 `tools/sicd_to_nisar_rslc.py` mirrors `share/nisar/examples/alos2_to_nisar_l1.py`
 so that everything `cxx/isce3/product/Serialization.h` and
-`nisar/products/readers` dereference is present. Every value comes from the
-header; nothing is hard-coded to Capella.
+`nisar/products/readers` dereference is present. Every grid, orbit and frequency
+value comes from the header and nothing is hard-coded to Capella; fields SICD
+does not describe (orbit/track/frame numbers, acceleration, angular velocity,
+antenna pattern, noise LUT) are placeholders filled the way
+`alos2_to_nisar_l1.py` fills them. The product is an adapter for
+reader/workflow compatibility, not a NISAR-schema-conformant or
+radiometrically calibrated RSLC.
 
 | item | rule | measured on the pair |
 |---|---|---|
@@ -84,7 +92,8 @@ Acceptance 2 asked for a self round-trip **and** an independent mapping,
 because a round trip proves consistency, not correctness.
 
 Point set: 5 × 5 grid over the SICD (row, col) space plus the SCP pixel, on
-HAE_SCP = 2244.94 m and HAE_SCP + 500 m (52 points). Both halves read the SICD
+HAE_SCP = 2244.94 m and HAE_SCP + 500 m: 52 projection evaluations; the SCP
+coincides with the grid centre, so 50 unique location/height combinations. Both halves read the SICD
 XML embedded in the RSLC, so they see the same header bytes.
 
 | | scene 1 (06-26) | scene 2 (06-29) |
@@ -102,9 +111,10 @@ tolerance (2.2e-8 s), not geometry.
 The SCP rows are the interesting ones: isce3 puts the SCP pixel 5 mm from the
 header's SCP ECF, and **sarkit puts the header's SCP ECF the same 5 mm from the
 SCP pixel**, in the same (along-track) direction. Two independent
-implementations agree that Capella's `GeoData/SCP/ECF` and its polynomial
-geometry disagree at the millimetre level. Irrelevant for InSAR; not something
-a converter should "fix".
+implementations agree on the offset, which points to a millimetre-level
+inconsistency between `GeoData/SCP/ECF` and the polynomial geometry in the
+header (not investigated further). Irrelevant for InSAR; not something a
+converter should "fix".
 
 ## 3. End to end: `insar.py` to RIFG
 
@@ -130,8 +140,9 @@ variants on identical inputs.
 Interferogram: 6397 × 2126; coherence mean 0.433 (flat) / 0.432 (noflat),
 36.1 % / 35.8 % of pixels above 0.5. Dense offsets after geometric
 coregistration: median **+0.198 px slant range, +1.94 px along track** (p5–p95:
-+0.15..+0.21, +1.73..+2.15), correlation peak 0.75 — a 2 m along-track bias
-between the two headers' geometries that rubbersheeting absorbs (§6.3).
++0.15..+0.21, +1.73..+2.15), correlation peak 0.75 — a 2 m along-track offset
+between the two dates after orbit-based coregistration, which rubbersheeting
+absorbs (§6.3).
 `perpendicularBaseline` from the product's geolocation grid: 622.5 m.
 
 ## 4. Phase convention: measured, not argued
@@ -175,9 +186,10 @@ Measured, medians over 64-row × 512-column blocks (range) and 512 × 64
 | spectral peak / median power, raw → flat | 12.9 → 39.7 | 16.8 → 43.8 |
 
 f_geo in range is 0.0371 cycles per full-resolution pixel = one fringe every
-26.9 slant pixels (16.6 m slant, 25 m ground), exactly the flat-earth rate for
+26.9 slant pixels (16.6 m slant, 25 m ground), consistent with the flat-earth rate for
 B⊥ = 622 m at 764.6 km and 40.9° incidence. The raw interferogram carries it;
-the flattened one does not. **Conventional convention, isce3's sign.**
+the flattened one does not. **Consistent with the conventional sign isce3's
+flattening assumes** (for this pair; see §7 for what this does not establish).
 
 Single-scene corroboration measured during conversion (`Grid/Row`): the
 range spectrum of the pixels is at baseband (centre +0.0000 cycles/px, width
@@ -236,26 +248,31 @@ Measured on the raw pixels (192 rows averaged), SICD column direction:
 
 `ImageBeamComp = NO`, `STBeamComp = NO`, weighting `ANTENNA-TAPER-CAPELLA`, so
 the taper on the data is the actual two-way pattern. The offset is common to
-both dates (Δ 30 Hz, 0.5 % of the band), so this pair's coherence is
-unaffected; `processedAzimuthBandwidth` in the RSLC is the header's 5023 Hz.
+both dates (Δ 30 Hz, 0.5 % of the band), so it should not by itself cost
+coherence on this pair — not tested by a controlled comparison; `processedAzimuthBandwidth` in the RSLC is the header's 5023 Hz.
 Range is clean (width 0.816 vs 0.824 cpp, centre 0). GAMMA reported
 "Doppler Centroid values between −452 Hz and −266 Hz" on the TIFF SLCs of the
 same stack (`2025-1_TR_Capella_PSI_Mexico.pdf`), which is the same order.
 
-### 6.3 A 2 m along-track geometric bias between the two dates
+### 6.3 A 2 m along-track offset between the two dates
 
 Dense offsets after orbit-based coregistration are +1.94 px (2.06 m) along
 track and +0.20 px (0.12 m) in range, uniform across the scene (p5–p95 spread
-0.4 px). Each header is self-consistent to 0.1 mm (§2), so this is a
-between-date inconsistency of Capella's timing/orbit annotations (≈0.3 ms).
+0.4 px). Each header's geometry agrees between two implementations to 0.1 mm
+(§2), so one possible explanation is a between-date inconsistency of the
+producer's timing/orbit annotations (2.06 m ≈ 0.3 ms of along-track motion);
+the cause was not investigated.
 Standard rubbersheeting removes it; a geometry-only coregistration would not.
 
 ## 7. What this does and does not establish
 
-- Established: an RGZERO/INCA SICD is an isce3 RSLC after a repackaging, with
-  geometry verified against NGA's implementation to 0.1 mm and the phase
-  convention verified by measurement on a real pair. Nothing about Capella's
-  processing needs special treatment in isce3 beyond the band-name check.
+- Established: a restricted class of RGZERO/INCA SICD (the rules in §1)
+  becomes an isce3-readable RSLC after a repackaging, with geometry agreeing
+  with an independent implementation (sarkit) to 0.1 mm on the same header,
+  and the dominant fringe rates of a real pair consistent with the flattening
+  sign the workflow assumes. For this pair and RIFG configuration, the only
+  isce3 code change needed was the band-name check override; RUNW/GUNW and
+  other bands were not tested.
 - Not established: deformation. The 3-day pair carries ≤ 0.2 fringe of
   plausible LOS motion (λ/2 = 15.5 mm), so the flattened residual (atmosphere,
   DEM error at h_amb 12.4 m) is not a deformation map and was not treated as
