@@ -2,6 +2,9 @@
 #
 # Run insar.py (RIFG) on the converted Capella Mexico City pair, once per
 # crossmul-flatten variant, from configs/insar_capella_mexico_city_template.yaml.
+# The workflow is entered through scripts/run_insar_xband.py, which relaxes the
+# InSAR writer's L/S-band-only check (X-band would otherwise stop the run at
+# prepare_insar_hdf5); everything else is the stock nisar.workflows.insar.
 # Same container / mount scheme as scripts/run_alos2_network.sh (one /out and
 # one /scratch per run, VRAM gate before starting), but against the develop
 # isce3 build (ISCE3_BUILD_DIR from .env) -- see the template header.
@@ -69,13 +72,13 @@ for v in "${VARIANTS[@]}"; do
     echo "RUN   $name  $(date -Is)"
     if [ "$DRY_RUN" -eq 1 ]; then
         echo "      docker compose run --rm -T -v $out:/out -v $scratch:/scratch dev" \
-             "python3 -m nisar.workflows.insar /work/$CONFIG_DIR/insar_$name.yaml --restart"
+             "python3 /work/scripts/run_insar_xband.py /work/$CONFIG_DIR/insar_$name.yaml --restart"
         continue
     fi
     mkdir -p "$out" "$scratch"; rm -f "$out/.complete"
     t0=$(date +%s)
     ( docker compose run --rm -T -v "$out:/out" -v "$scratch:/scratch" \
-        dev /usr/bin/time -v python3 -m nisar.workflows.insar \
+        dev /usr/bin/time -v python3 /work/scripts/run_insar_xband.py \
             "/work/$CONFIG_DIR/insar_$name.yaml" --restart
     ) > "$out/console.log" 2>&1
     rc=$?; secs=$(( $(date +%s) - t0 ))
