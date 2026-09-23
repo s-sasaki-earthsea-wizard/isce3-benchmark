@@ -1,0 +1,158 @@
+{
+ "20240626": {
+  "grid": "RGZERO/INCA",
+  "image_form_algo": "OTHER",
+  "processing_type": "Backprojected to DEM",
+  "shape_az_rg": [
+   19191,
+   10631
+  ],
+  "pol": "HH",
+  "lookside": "Left",
+  "azimuth_flipped": true,
+  "ucol_dot_vhat": -1.0000000000000002,
+  "epoch": "2024-06-26T00:00:00.000000000",
+  "zero_doppler_start": "2024-06-26T15:00:51.889559021",
+  "zero_doppler_end": "2024-06-26T15:00:54.979380966",
+  "dt_s": 0.00016101208675405455,
+  "prf_grid_hz": 6210.713867260765,
+  "prf_acq_hz": 9899.19217315365,
+  "slant_range_m": [
+   761275.5576171188,
+   767836.2607421188
+  ],
+  "slant_range_spacing_m": 0.6171875,
+  "azimuth_spacing_m": 1.0625,
+  "wavelength_m": 0.03106657637062402,
+  "fc_proc_hz": 9649999872.0,
+  "bw_proc_hz": 200000000.0,
+  "orbit": {
+   "n": 66,
+   "span_s_after_collect_start": [
+    -1.0,
+    5.5
+   ],
+   "speed_mps": [
+    7215.490319007605,
+    7215.523259764037
+   ],
+   "radius_km": [
+    6974.329398831872,
+    6974.366645663641
+   ]
+  },
+  "attitude_source": "Antenna/Tx/{XAxisPoly,YAxisPoly}, Z = X x Y",
+  "scp_llh": [
+   -99.0038171645943,
+   19.356028109623367,
+   2244.936956990596
+  ],
+  "diagnostics": {
+   "amplitude_mean": 79.60014709983626,
+   "amplitude_std": 127.07483907396345,
+   "valid_first_min": 0,
+   "valid_first_max": 0,
+   "valid_last_min": 10605,
+   "valid_last_max": 10624,
+   "lines_all_zero": 0,
+   "range_spectrum": {
+    "measured_centroid_cpp": -0.00770006375289589,
+    "header_deltakcoa_cpp": 0.0,
+    "grid_compensated_alt_cpp": -0.266783656045142,
+    "bandwidth_cpp": 0.8234863600204378,
+    "sgn": "+1"
+   },
+   "azimuth_spectrum": {
+    "measured_centroid_cpp_sicd_col_dir": 0.062223323647676396,
+    "measured_centroid_cpp_nisar_line_dir": -0.062223323647676396,
+    "header_deltakcoa_cpp_sicd_col_dir": -0.0036229787743297104,
+    "grid_prf_hz": 6210.713867260765,
+    "bandwidth_cpp": 0.8087181167052723,
+    "sgn": "+1"
+   },
+   "spectrum_lines": 256,
+   "elapsed_s": 33.862895488739014
+  },
+  "output": "/data/capella_mexico_city/rslc/20240626.h5",
+  "output_bytes": 553648128,
+  "elapsed_s": 39.15738391876221
+ },
+ "20240629": {
+  "grid": "RGZERO/INCA",
+  "image_form_algo": "OTHER",
+  "processing_type": "Backprojected to DEM",
+  "shape_az_rg": [
+   19142,
+   10610
+  ],
+  "pol": "HH",
+  "lookside": "Left",
+  "azimuth_flipped": true,
+  "ucol_dot_vhat": -0.9999999999999966,
+  "epoch": "2024-06-29T00:00:00.000000000",
+  "zero_doppler_start": "2024-06-29T13:49:11.047183288",
+  "zero_doppler_end": "2024-06-29T13:49:14.128160331",
+  "dt_s": 0.00016096217765734476,
+  "prf_grid_hz": 6212.639606111651,
+  "prf_acq_hz": 9920.46786089872,
+  "slant_range_m": [
+   759635.5998340332,
+   766183.3420215332
+  ],
+  "slant_range_spacing_m": 0.6171875,
+  "azimuth_spacing_m": 1.0625,
+  "wavelength_m": 0.03106657637062402,
+  "fc_proc_hz": 9649999872.0,
+  "bw_proc_hz": 200000000.0,
+  "orbit": {
+   "n": 66,
+   "span_s_after_collect_start": [
+    -1.0,
+    5.5
+   ],
+   "speed_mps": [
+    7216.587552364682,
+    7216.606985713459
+   ],
+   "radius_km": [
+    6973.378606462253,
+    6973.427869816179
+   ]
+  },
+  "attitude_source": "Antenna/Tx/{XAxisPoly,YAxisPoly}, Z = X x Y",
+  "scp_llh": [
+   -99.00343854464575,
+   19.356393560896553,
+   2243.7904329379226
+  ],
+  "diagnostics": {
+   "amplitude_mean": 66.58667107239633,
+   "amplitude_std": 106.89788122619483,
+   "valid_first_min": 0,
+   "valid_first_max": 0,
+   "valid_last_min": 10581,
+   "valid_last_max": 10597,
+   "lines_all_zero": 0,
+   "range_spectrum": {
+    "measured_centroid_cpp": -0.008887091135350583,
+    "header_deltakcoa_cpp": 0.0,
+    "grid_compensated_alt_cpp": -0.266783656045142,
+    "bandwidth_cpp": 0.8234863600204378,
+    "sgn": "+1"
+   },
+   "azimuth_spectrum": {
+    "measured_centroid_cpp_sicd_col_dir": 0.06076706245397678,
+    "measured_centroid_cpp_nisar_line_dir": -0.06076706245397678,
+    "header_deltakcoa_cpp_sicd_col_dir": -0.003334645420860094,
+    "grid_prf_hz": 6212.639606111651,
+    "bandwidth_cpp": 0.8116429105384863,
+    "sgn": "+1"
+   },
+   "spectrum_lines": 256,
+   "elapsed_s": 37.24387550354004
+  },
+  "output": "/data/capella_mexico_city/rslc/20240629.h5",
+  "output_bytes": 545259520,
+  "elapsed_s": 37.995269536972046
+ }
+}

@@ -20,6 +20,7 @@ logs_*/
 # from a clone, not just regenerable by `make alos2-network`.
 !configs/alos2_kujukuri/pairs_ALOS2_kujukuri.json
 !artifacts/sicd_headers/*.json
+!artifacts/sicd-capella-20260923/*.json
 
 # Local environment overrides
 .env
