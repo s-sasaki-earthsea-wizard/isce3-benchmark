@@ -126,6 +126,31 @@ capella-rifg: ## Run insar.py to RIFG on the Capella pair, crossmul flatten on a
 capella-convert-beta0: ## Convert both Capella SICDs to beta0-calibrated RSLCs for GCOV into ./data/capella_mexico_city/rslc_beta0
 	$(RUN) bash scripts/capella_rtc_steps.sh convert-beta0
 
+.PHONY: capella-gcov
+capella-gcov: ## isce3 GCOV (RTC gamma0, 5 m, UTM 14N) on the 2024-06-26 beta0 RSLC into ./data/capella_mexico_city/gcov/20240626
+	mkdir -p data/capella_mexico_city/gcov/20240626 $(HOME)/scratch/capella/gcov_20240626
+	$(COMPOSE) run --rm -T -v $(CURDIR)/data/capella_mexico_city/gcov/20240626:/out \
+	    -v $(HOME)/scratch/capella/gcov_20240626:/scratch dev /usr/bin/time -v \
+	    python3 -m nisar.workflows.gcov /work/configs/gcov_capella_mexico_city_20240626.yaml \
+	    > data/capella_mexico_city/gcov/20240626/console.log 2>&1
+
+.PHONY: multirtc-setup
+multirtc-setup: ## Pinned read-only MultiRTC v0.5.4 (a0edba80) + sarpy 1.3.59 into ./data/external (dev image untouched)
+	mkdir -p data/external
+	[ -d data/external/MultiRTC-a0edba8 ] || git clone -q https://github.com/MultiSAR/MultiRTC.git data/external/MultiRTC-a0edba8
+	git -C data/external/MultiRTC-a0edba8 checkout -q a0edba80a05c923b03ffae378e4a1faf293b0f0f
+	$(RUN) bash -c 'echo "sarpy==1.3.59 --hash=sha256:b0fd9ba9d9306967a2307e981067cadb3287c39aa5c7b50244d86cecfc960748" > /tmp/sarpy-req.txt && \
+	    pip install -q --no-deps --require-hashes --target /data/external/multirtc-site -r /tmp/sarpy-req.txt && \
+	    pip install -q --no-deps --no-build-isolation --target /data/external/multirtc-site /data/external/MultiRTC-a0edba8'
+
+.PHONY: capella-multirtc
+capella-multirtc: ## MultiRTC diagnostic variants (stock, matched, matched-tfix, matched-tfix-rfix) on the 2024-06-26 SICD
+	$(RUN) bash scripts/capella_rtc_steps.sh multirtc
+
+.PHONY: capella-rtc-compare
+capella-rtc-compare: ## Compare isce3 GCOV with each MultiRTC variant (radar grid, pixels, geocoded gamma0) into ./data/capella_mexico_city/rtc_compare
+	$(RUN) bash scripts/capella_rtc_steps.sh compare
+
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
