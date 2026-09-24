@@ -94,3 +94,7 @@ cross-checked against sarkit by `tools/sicd_rslc_geometry_check.py` and the
 SLC phase convention is measured by `tools/rifg_fringe_rate.py`
 (`reports/2026-09-capella-sicd-stage-u0.md`). Non-L/S-band RSLCs need
 `scripts/run_insar_xband.py` in front of `insar.py` (see the report, §5).
+The same converter with `--radiometry beta0` feeds isce3's GCOV (RTC) workflow;
+that path is cross-checked against MultiRTC in
+`reports/2026-09-capella-rtc-gcov-vs-multirtc.md` (`make capella-gcov`,
+`multirtc-setup`, `capella-multirtc`, `capella-rtc-compare`).
