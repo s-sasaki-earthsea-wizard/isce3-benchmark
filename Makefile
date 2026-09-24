@@ -122,6 +122,10 @@ capella-geometry-check: ## isce3 half of the RSLC geometry round-trip (the sarki
 capella-rifg: ## Run insar.py to RIFG on the Capella pair, crossmul flatten on and off (scripts/run_capella_pair.sh)
 	bash scripts/run_capella_pair.sh flat noflat
 
+.PHONY: capella-convert-beta0
+capella-convert-beta0: ## Convert both Capella SICDs to beta0-calibrated RSLCs for GCOV into ./data/capella_mexico_city/rslc_beta0
+	$(RUN) bash scripts/capella_rtc_steps.sh convert-beta0
+
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
