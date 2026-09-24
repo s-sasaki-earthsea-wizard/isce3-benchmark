@@ -31,6 +31,15 @@ hard-coded:
   range interval is derived from the data (first/last non-zero sample).
 * **Reference epoch.** Midnight UTC of ``Timeline/CollectStart``; all time
   vectors are seconds since that epoch (NISAR requires an integer-second epoch).
+* **Radiometry** (``--radiometry``). ``dn`` (default) keeps the SICD digital
+  numbers, which is what the InSAR runs used. ``beta0`` multiplies every pixel
+  by the real factor ``sqrt(Radiometric/BetaZeroSFPoly(xrow, ycol))`` at its own
+  SICD coordinates (phase untouched), writes the noise LUT in beta0 power and
+  adds ``calibrationInformation/geometry/beta0`` = 1, which is the contract
+  ``nisar.workflows.gcov`` expects (run it with ``input_terrain_radiometry:
+  beta0`` and no extra absolute calibration). Non-finite or non-positive
+  factors are rejected. In both modes the noise LUT evaluates the full
+  ``Radiometric/NoiseLevel/NoisePoly`` (ABSOLUTE only) on the LUT grid.
 
 Diagnostics written into ``metadata/processingInformation/inputs`` and printed
 as one JSON line at the end: DN amplitude statistics (endianness sanity), and
@@ -44,8 +53,8 @@ proof of the phase convention.
 Usage::
 
     python tools/sicd_to_nisar_rslc.py in.ntf out.h5 [--dry-run] [--xml alt.xml]
-        [--block-lines 512] [--orbit-spacing 0.1] [--orbit-margin 1.0]
-        [--spectrum-lines 256] [--no-compress]
+        [--radiometry dn|beta0] [--block-lines 512] [--orbit-spacing 0.1]
+        [--orbit-margin 1.0] [--spectrum-lines 256] [--no-compress]
 
 ``--dry-run`` parses and reports without touching the pixels or writing the
 HDF5; with ``--xml`` the SICD XML is taken from a file instead of the NITF,
@@ -320,10 +329,88 @@ def build_grid(sicd: Sicd) -> dict:
         col_dkcoa=sicd.poly2d("Grid/Col/DeltaKCOAPoly")[0, 0],
         row_bw_cpm=sicd.num("Grid/Row/ImpRespBW"), col_bw_cpm=sicd.num("Grid/Col/ImpRespBW"),
         row_sgn=sicd.text("Grid/Row/Sgn"), col_sgn=sicd.text("Grid/Col/Sgn"),
-        noise_db=(sicd.poly2d("Radiometric/NoiseLevel/NoisePoly")[0, 0]
-                  if sicd.find("Radiometric/NoiseLevel/NoisePoly") is not None else None),
+        noise_poly=sicd.poly2d("Radiometric/NoiseLevel/NoisePoly"),
+        noise_type=sicd.text("Radiometric/NoiseLevel/NoiseLevelType"),
+        beta_poly=sicd.poly2d("Radiometric/BetaZeroSFPoly"),
     )
     return g
+
+
+# --------------------------------------------------------------------------
+# Radiometry: SICD Radiometric polynomials are functions of the image
+# coordinates (xrow, ycol) in metres relative to the SCP pixel.
+# --------------------------------------------------------------------------
+def _poly2d(coef: np.ndarray, x, y):
+    """Evaluate a SICD 2-D polynomial, coef[i, j] multiplying x**i * y**j (broadcasting)."""
+    x, y = np.broadcast_arrays(np.asarray(x, dtype=np.float64), np.asarray(y, dtype=np.float64))
+    return np.polynomial.polynomial.polyval2d(x, y, coef)
+
+
+def image_xy(g: dict, rows, cols):
+    """SICD (row, col) indices -> (xrow, ycol) in metres, broadcast (rows x cols)."""
+    x = (np.asarray(rows, dtype=np.float64) - g["scp_row"]) * g["ss_rg"]
+    y = (np.asarray(cols, dtype=np.float64) - g["scp_col"]) * g["ss_az"]
+    return x[:, None], y[None, :]
+
+
+def lut_xy(g: dict, t_since_epoch, slant_range):
+    """(zero-Doppler time since epoch, slant range) -> (xrow, ycol) in metres.
+
+    Physical mapping, independent of the azimuth flip:
+    xrow = R - R_CA_SCP and TimeCAPoly(ycol) = t - CollectStart.
+    """
+    x = np.asarray(slant_range, dtype=np.float64) - g["r_ca_scp"]
+    t_rel = np.asarray(t_since_epoch, dtype=np.float64) - g["cs_offset"]
+    y = (t_rel - float(g["time_ca"][0])) / float(g["time_ca"][1])
+    return x, y
+
+
+def clamp_to_image(g: dict, x, y):
+    """Clamp (xrow, ycol) to the image extent.
+
+    SICD Radiometric polynomials describe the image only; the calibration LUT
+    grid is padded well beyond it (20 km in range), where a quadratic noise
+    polynomial extrapolates to nonsense (+190 dB on the Capella scenes). LUT
+    nodes outside the image take the value at the nearest image edge.
+    """
+    x_lo, x_hi = sorted(((0 - g["scp_row"]) * g["ss_rg"], (g["n_rg"] - 1 - g["scp_row"]) * g["ss_rg"]))
+    y_lo, y_hi = sorted(((0 - g["scp_col"]) * g["ss_az"], (g["n_az"] - 1 - g["scp_col"]) * g["ss_az"]))
+    return np.clip(x, x_lo, x_hi), np.clip(y, y_lo, y_hi)
+
+
+def radiometric_luts(g: dict, lut_az, lut_rg):
+    """Noise LUT values and description on the (lut_az x lut_rg) grid, per g["radiometry"]."""
+    tt, rr = np.meshgrid(lut_az, lut_rg, indexing="ij")
+    lx, ly = clamp_to_image(g, *lut_xy(g, tt, rr))
+    noise = noise_power_dn2(g, lx, ly)
+    if noise is None:
+        return np.zeros_like(tt), ("Noise equivalent backscatter: not available (SICD "
+                                   "NoiseLevel absent or not ABSOLUTE); zeros")
+    where = ("(xrow, ycol), evaluated inside the image and held at the nearest image "
+             "edge outside it")
+    if g["radiometry"] == "beta0":
+        return noise * beta0_factor(g, lx, ly), (
+            "Noise equivalent backscatter in beta0 power: 10^(Radiometric/NoiseLevel/"
+            f"NoisePoly / 10) * Radiometric/BetaZeroSFPoly at {where}")
+    return noise, ("Noise equivalent backscatter in DN^2 (pixel power): "
+                   f"10^(Radiometric/NoiseLevel/NoisePoly / 10) at {where}")
+
+
+def beta0_factor(g: dict, x, y) -> np.ndarray:
+    """Radiometric/BetaZeroSFPoly(x, y): pixel power -> beta0. Must be finite and > 0."""
+    b = _poly2d(g["beta_poly"], x, y)
+    if not np.all(np.isfinite(b)) or np.any(b <= 0):
+        raise SystemExit(
+            "REJECTED: Radiometric/BetaZeroSFPoly is non-finite or non-positive over the "
+            f"evaluated domain (min {np.nanmin(b):.3e}); refusing to calibrate")
+    return b
+
+
+def noise_power_dn2(g: dict, x, y):
+    """Radiometric/NoiseLevel/NoisePoly (dB of pixel power) -> DN^2, or None."""
+    if g["noise_poly"] is None or (g["noise_type"] or "").upper() != "ABSOLUTE":
+        return None
+    return 10.0 ** (_poly2d(g["noise_poly"], x, y) / 10.0)
 
 
 def build_orbit(sicd: Sicd, g: dict, spacing: float, margin: float) -> isce3.core.Orbit:
@@ -535,19 +622,37 @@ def write_skeleton(fid: h5py.File, sicd: Sicd, g: dict, orbit, att, att_source,
     _str(inputs, "isce3Version", isce3.__version__)
     _str(inputs, "nitfImageLayout", json.dumps(layout))
 
-    # ---- calibrationInformation (not read by InSAR; honest constants) ------
-    cal = fid.create_group(f"{META}/calibrationInformation/frequencyA")
-    nesz = 10.0 ** (g["noise_db"] / 10.0) if g["noise_db"] is not None else 0.0
-    for name, val, desc in (
-            ("elevationAntennaPattern", 0.0, "Complex two-way elevation antenna pattern (not in SICD; zeros)"),
-            ("noiseEquivalentBackscatter", nesz,
-             "Noise equivalent backscatter in linear scale (units of DN^2); "
-             "10^(Radiometric/NoiseLevel/NoisePoly[0,0] / 10), constant")):
+    # ---- calibrationInformation ------------------------------------------
+    # Contract (see --radiometry):
+    #   dn    : pixels are SICD DN; the noise LUT is in DN^2; no geometry LUTs
+    #           (the product is not GCOV-ready).
+    #   beta0 : pixels are DN * sqrt(BetaZeroSFPoly(xrow, ycol)), so |pixel|^2 is
+    #           beta0; the noise LUT is in beta0 power (DN^2 * BetaZeroSFPoly);
+    #           calibrationInformation/geometry/beta0 is identically 1, which is
+    #           what nisar.workflows.gcov expects of a beta0-calibrated RSLC.
+    tt = np.zeros((lut_az.size, lut_rg.size))
+    noise, noise_desc = radiometric_luts(g, lut_az, lut_rg)
+    beta0 = g["radiometry"] == "beta0"
+    cal_root = fid.create_group(f"{META}/calibrationInformation")
+    cal = cal_root.create_group("frequencyA")
+    for name, data, desc in (
+            ("elevationAntennaPattern", np.zeros_like(tt),
+             "Complex two-way elevation antenna pattern (not in SICD; zeros)"),
+            ("noiseEquivalentBackscatter", noise, noise_desc)):
         grp = cal.create_group(name)
         _num(grp, "slantRange", lut_rg, units="meters")
         _num(grp, "zeroDopplerTime", lut_az, units=epoch_attr)
-        _num(grp, g["pol"], np.full((lut_az.size, lut_rg.size), val, dtype=np.float32),
-             units="1", desc=desc)
+        _num(grp, g["pol"], data.astype(np.float32), units="1", desc=desc)
+    if beta0:
+        geo = cal_root.create_group("geometry")
+        _num(geo, "slantRange", lut_rg, units="meters")
+        _num(geo, "zeroDopplerTime", lut_az, units=epoch_attr)
+        _num(geo, "beta0", np.ones_like(tt, dtype=np.float32), units="1",
+             desc="Radiometric calibration LUT for beta0: identically 1, the image is "
+                  "already beta0-calibrated (DN * sqrt(Radiometric/BetaZeroSFPoly))")
+    _str(inputs, "radiometricCalibration",
+         "beta0: pixel = DN * sqrt(Radiometric/BetaZeroSFPoly(xrow, ycol))" if beta0
+         else "none: pixel = SICD DN")
 
 
 def _vhat(orbit, t):
@@ -574,16 +679,26 @@ def _circular_centroid(power: np.ndarray) -> float:
 
 def write_image(fid: h5py.File, mm: np.memmap, g: dict, block_lines: int,
                 spectrum_lines: int, compress: bool) -> dict:
-    """Transpose (and flip) the SICD pixels into the NISAR image; derive valid samples."""
+    """Transpose (and flip) the SICD pixels into the NISAR image; derive valid samples.
+
+    With g["radiometry"] == "beta0" each pixel is multiplied by the real factor
+    sqrt(BetaZeroSFPoly(xrow, ycol)) evaluated at its own SICD (row, col), so the
+    phase is untouched and |pixel|^2 becomes beta0.
+    """
     n_rg, n_az, flip = g["n_rg"], g["n_az"], g["flip"]
     cpx = np.dtype([("r", np.float32), ("i", np.float32)])
-    kw = dict(chunks=(512, 512))
+    kw = dict(chunks=(min(512, n_az), min(512, n_rg)))  # 512 x 512 on any real scene
     if compress:
         kw.update(compression="gzip", compression_opts=1, shuffle=True)
     img = fid.create_dataset(f"{SWATHS}/frequencyA/{g['pol']}", shape=(n_az, n_rg),
                              dtype=cpx, **kw)
+    beta0 = g.get("radiometry", "dn") == "beta0"
     img.attrs["description"] = np.bytes_(
+        f"Focused RSLC image ({g['pol']}), beta0-calibrated: SICD DN * "
+        "sqrt(Radiometric/BetaZeroSFPoly(xrow, ycol))" if beta0 else
         f"Focused RSLC image ({g['pol']}), DN as in the SICD (no radiometric scaling)")
+    rows_all = np.arange(n_rg)
+    scale_min, scale_max = np.inf, -np.inf
     img.attrs["units"] = np.bytes_("1")
     valid = np.zeros((n_az, 2), dtype="i8")
 
@@ -598,10 +713,19 @@ def write_image(fid: h5py.File, mm: np.memmap, g: dict, block_lines: int,
         if flip:
             c0, c1 = n_az - l1, n_az - l0          # columns for lines l0..l1-1, reversed
             blk = mm[:, c0:c1, :][:, ::-1, :]
+            cols = np.arange(c1 - 1, c0 - 1, -1)  # SICD column of each output line
         else:
             blk = mm[:, l0:l1, :]
-        blk = np.ascontiguousarray(blk.transpose(1, 0, 2)).astype(np.float32)  # (lines, rg, 2)
-        nz = (blk[..., 0] != 0) | (blk[..., 1] != 0)
+            cols = np.arange(l0, l1)
+        blk = np.asarray(blk, dtype=np.float32)   # (rg, lines, 2), SICD orientation
+        nz = ((blk[..., 0] != 0) | (blk[..., 1] != 0)).T
+        if beta0:
+            bx, by = image_xy(g, rows_all, cols)
+            scale = np.sqrt(beta0_factor(g, bx, by)).astype(np.float32)  # (rg, lines)
+            blk = blk * scale[..., None]
+            scale_min = min(scale_min, float(scale.min()))
+            scale_max = max(scale_max, float(scale.max()))
+        blk = np.ascontiguousarray(blk.transpose(1, 0, 2))  # (lines, rg, 2)
         any_nz = nz.any(axis=1)
         first = np.argmax(nz, axis=1)
         last = n_rg - np.argmax(nz[:, ::-1], axis=1)
@@ -665,6 +789,8 @@ def write_image(fid: h5py.File, mm: np.memmap, g: dict, block_lines: int,
             "sgn": g["col_sgn"],
         },
         "spectrum_lines": len(spec_lines),
+        "radiometry": g.get("radiometry", "dn"),
+        "beta0_amplitude_scale_min_max": [scale_min, scale_max] if beta0 else None,
         "elapsed_s": time.time() - t_start,
     }
     return diag
@@ -704,6 +830,7 @@ def summarize(g: dict, orbit, att_source: str) -> dict:
         "orbit": {"n": g["orbit_n"], "span_s_after_collect_start": list(g["orbit_span"]),
                   "speed_mps": list(g["orbit_speed"]), "radius_km": list(g["orbit_radius_km"])},
         "attitude_source": att_source,
+        "radiometry": g.get("radiometry", "dn"),
         "scp_llh": list(g["scp_llh"]),
     }
 
@@ -722,6 +849,10 @@ def main(argv=None) -> int:
     ap.add_argument("--spectrum-lines", type=int, default=256,
                     help="lines/rows used for the spectral-centroid diagnostic")
     ap.add_argument("--no-compress", action="store_true")
+    ap.add_argument("--radiometry", choices=("dn", "beta0"), default="dn",
+                    help="dn (default): keep SICD digital numbers, as used for InSAR so far; "
+                         "beta0: scale pixels by sqrt(Radiometric/BetaZeroSFPoly) and write "
+                         "the beta0 calibration LUT GCOV needs")
     ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args(argv)
 
@@ -747,6 +878,9 @@ def main(argv=None) -> int:
         os.remove(xml_path)
 
     g = build_grid(sicd)
+    g["radiometry"] = args.radiometry
+    if args.radiometry == "beta0" and g["beta_poly"] is None:
+        raise SystemExit("REJECTED: --radiometry beta0 needs Radiometric/BetaZeroSFPoly")
     orbit = build_orbit(sicd, g, args.orbit_spacing, args.orbit_margin)
     att, att_source = build_attitude(sicd, g, orbit, args.orbit_spacing)
     summary = summarize(g, orbit, att_source)
