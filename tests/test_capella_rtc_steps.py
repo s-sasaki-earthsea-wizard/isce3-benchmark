@@ -2,7 +2,7 @@
 
 The loops used to be ``python ... && echo OK`` inside Makefile recipes, which
 reported success whenever the *last* iteration succeeded (found in the PR #57
-review of the RTC work). A stub ``python`` that fails on the Nth call stands in for the real
+review). A stub ``python`` that fails on the Nth call stands in for the real
 tools; no container, data or isce3 needed.
 """
 
@@ -15,7 +15,7 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "capella_rtc_steps.sh"
-N_CALLS = {"convert-beta0": 2}
+N_CALLS = {"convert-beta0": 2, "multirtc": 4, "compare": 4}
 
 
 def _stub(tmp_path, fail_on):

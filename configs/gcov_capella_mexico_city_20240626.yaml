@@ -1,0 +1,103 @@
+# GCOV (RTC gamma0) for one Capella Mexico City stripmap scene, from the
+# beta0-calibrated RSLC written by
+#   tools/sicd_to_nisar_rslc.py <sicd> <out> --radiometry beta0
+# (bench#54 follow-up: isce3's own RTC path on the converted product, to be
+# compared with MultiRTC v0.5.4 on the same SICD).
+#
+# Settings are chosen to match MultiRTC's RtcOptions for a SICD input
+# (src/multirtc/rtc_options.py @ a0edba80), so that a difference between the
+# two outputs is an ingest / packaging difference, not a configuration one:
+#   input beta0, output gamma0, area_projection geocode + RTC,
+#   rtc_min_value_db -30, dem_upsampling 2 (= rtc_upsampling), geogrid
+#   upsampling 1, biquintic DEM, geo2rdr 1e-7 / 50, abs_rad_cal 1, no clip,
+#   no noise correction, single-block memory mode.
+# Known remaining difference: MultiRTC applies layover/shadow masking by
+# default; GCOV's apply_shadow_masking is off here (the comparison runs a
+# MultiRTC variant with shadow masking off as the matched control).
+#
+# DEM: the same file MultiRTC is given (--dem): Copernicus GLO-30 stitched
+# with fetch/fetch_dem_bbox.py, ellipsoidal heights, EPSG:4326.
+# Grid: UTM 14N (EPSG:32614, MultiRTC's local EPSG for this scene), 5 m
+# posting snapped to 5 m.
+runconfig:
+    name: gcov_capella_mexico_city_20240626
+
+    groups:
+        pge_name_group:
+            pge_name: GCOV_L_PGE
+
+        primary_executable:
+            product_type: GCOV
+
+        debug_level_group:
+            debug_switch: false
+
+        input_file_group:
+            input_file_path: /data/capella_mexico_city/rslc_beta0/20240626.h5
+
+        dynamic_ancillary_file_group:
+            dem_file: /data/capella_mexico_city/dem.tif
+            dem_file_description: >-
+                Copernicus GLO-30 over Mexico City (fetch/fetch_dem_bbox.py,
+                dem_stitcher, ellipsoidal heights, EPSG:4326)
+
+        product_path_group:
+            product_path: /out
+            scratch_path: /scratch
+            sas_output_file: /out/gcov_20240626.h5
+
+        processing:
+            input_subset:
+                list_of_frequencies:
+                    A: [HH]
+
+            rtc:
+                output_type: gamma0
+                algorithm_type: area_projection
+                input_terrain_radiometry: beta0
+                rtc_min_value_db: -30.0
+                dem_upsampling: 2
+                area_beta_mode: auto
+
+            geocode:
+                algorithm_type: area_projection
+                apply_rtc: True
+                apply_valid_samples_sub_swath_masking: False
+                apply_shadow_masking: False
+                memory_mode: single_block
+                geogrid_upsampling: 1
+                save_nlooks: True
+                save_rtc_anf: True
+                save_mask: True
+                abs_rad_cal: 1
+                clip_max:
+                clip_min:
+                upsample_radargrid: False
+                output_epsg: 32614
+                output_posting:
+                    A:
+                        x_posting: 5.0
+                        y_posting: 5.0
+                    B:
+                        x_posting:
+                        y_posting:
+                x_snap: 5.0
+                y_snap: 5.0
+                top_left:
+                    y_abs:
+                    x_abs:
+                bottom_right:
+                    y_abs:
+                    x_abs:
+
+            geo2rdr:
+                threshold: 1.0e-7
+                maxiter: 50
+
+            dem_interpolation_method: biquintic
+
+            noise_correction:
+                apply_correction: False
+
+        worker:
+            gpu_enabled: False

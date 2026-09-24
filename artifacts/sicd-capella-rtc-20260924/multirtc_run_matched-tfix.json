@@ -1,0 +1,147 @@
+{
+ "env": {
+  "isce3": "0.26.0-dev+2919e1c97",
+  "sarpy": "1.3.59",
+  "multirtc_sha": "a0edba80a05c923b03ffae378e4a1faf293b0f0f",
+  "multirtc_checkout": "a0edba80a05c923b03ffae378e4a1faf293b0f0f"
+ },
+ "variant": "matched-tfix",
+ "resolution_m": 5.0,
+ "dem": "/data/capella_mexico_city/dem.tif",
+ "elapsed_s": 379.66931557655334,
+ "options": {
+  "output_dir": "/data/capella_mexico_city/multirtc/20240626/matched-tfix/output",
+  "dem_path": "/data/capella_mexico_city/dem.tif",
+  "apply_rtc": true,
+  "resolution": 5.0,
+  "apply_thermal_noise": true,
+  "apply_abs_rad": true,
+  "apply_bistatic_delay": false,
+  "apply_static_tropo": false,
+  "terrain_radiometry": "gamma0",
+  "apply_valid_samples_sub_swath_masking": true,
+  "apply_shadow_masking": false,
+  "dem_interpolation_method": "biquintic",
+  "geocode_algorithm": "area_projection",
+  "correction_lut_azimuth_spacing_in_meters": 120,
+  "correction_lut_range_spacing_in_meters": 120,
+  "memory_mode": "single_block",
+  "geogrid_upsampling": 1,
+  "shadow_dilation_size": 0,
+  "abs_cal_factor": 1,
+  "clip_min": NaN,
+  "clip_max": NaN,
+  "upsample_radar_grid": false,
+  "rtc_algorithm_type": "area_projection",
+  "input_terrain_radiometry": "beta0",
+  "rtc_min_value_db": -30.0,
+  "rtc_upsampling": 2,
+  "rtc_area_beta_mode": "auto",
+  "geo2rdr_threshold": 1e-07,
+  "geo2rdr_numiter": 50,
+  "rdr2geo_threshold": 1e-07,
+  "rdr2geo_numiter": 25,
+  "output_epsg": null,
+  "layer_name_rtc_anf": "rtc_anf_gamma0_to_beta0",
+  "dem_interpolation_method_isce3": "DataInterpMethod.BIQUINTIC",
+  "geocode_algorithm_isce3": "GeocodeOutputMode.AREA_PROJECTION",
+  "memory_mode_isce3": "GeocodeMemoryMode.SingleBlock",
+  "rtc_algorithm_isce3": "RtcAlgorithm.RTC_AREA_PROJECTION",
+  "input_terrain_radiometry_isce3": "RtcInputTerrainRadiometry.BETA_NAUGHT",
+  "terrain_radiometry_isce3": "RtcOutputTerrainRadiometry.GAMMA_NAUGHT",
+  "rtc_area_beta_mode_isce3": "RtcAreaBetaMode.AUTO"
+ },
+ "grid": {
+  "multirtc_sha": "a0edba80a05c923b03ffae378e4a1faf293b0f0f",
+  "class": "SicdRzdSlcStartFix",
+  "az_reversed": true,
+  "ref_epoch": "2024-06-26T15:00:51.301024000",
+  "sensing_start_s": 0.58853409392818,
+  "sensing_stop_s": 3.678356038738487,
+  "prf_hz": 6210.713867260765,
+  "starting_range_m": 761269.2346059134,
+  "range_pixel_spacing_m": 0.6171875,
+  "length": 19191,
+  "width": 10631,
+  "wavelength_m": 0.02078283965270747,
+  "lookside": "LookSide.Left",
+  "orbit_samples": [
+   {
+    "t": 0.58853409392818,
+    "pos": [
+     -693062.4365599328,
+     -6656901.6734097805,
+     1961373.9444363215
+    ],
+    "vel": [
+     5148.532530427303,
+     933.8337661764966,
+     4968.322487404196
+    ]
+   },
+   {
+    "t": 1.3609895801307568,
+    "pos": [
+     -689085.1420513949,
+     -6656178.2276182035,
+     1965211.0619480645
+    ],
+    "vel": [
+     5149.262973624827,
+     939.2728580870898,
+     4966.534226834716
+    ]
+   },
+   {
+    "t": 2.1334450663333335,
+    "pos": [
+     -685107.284460615,
+     -6655450.580655687,
+     1969046.7967584739
+    ],
+    "vel": [
+     5149.990432437189,
+     944.711210350071,
+     4964.742472044362
+    ]
+   },
+   {
+    "t": 2.9059005525359103,
+    "pos": [
+     -681128.8660931316,
+     -6654718.733094913,
+     1972881.1461689034
+    ],
+    "vel": [
+     5150.714906259476,
+     950.1488195055281,
+     4962.94722428493
+    ]
+   },
+   {
+    "t": 3.678356038738487,
+    "pos": [
+     -677149.8892549492,
+     -6653982.685511247,
+     1976714.1074816743
+    ],
+    "vel": [
+     5151.436394489869,
+     955.5856820741901,
+     4961.148484812089
+    ]
+   }
+  ],
+  "stock_sensing_start_s": 0.5883730818414261,
+  "stock_starting_range_m": 761269.2346059134
+ },
+ "geogrid_requested": {
+  "start_x": 483460.0,
+  "start_y": 2156235.0,
+  "spacing_x": 5.0,
+  "spacing_y": -5.0,
+  "width": 5829,
+  "length": 5817,
+  "epsg": 32614
+ }
+}

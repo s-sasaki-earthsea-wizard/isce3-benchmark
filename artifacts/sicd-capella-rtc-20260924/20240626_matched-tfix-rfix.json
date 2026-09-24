@@ -1,0 +1,78 @@
+{
+ "gcov": "/data/capella_mexico_city/gcov/20240626/gcov_20240626.h5",
+ "rslc": "/data/capella_mexico_city/rslc_beta0/20240626.h5",
+ "multirtc_run": "/data/capella_mexico_city/multirtc/20240626/matched-tfix-rfix",
+ "variant": "matched-tfix-rfix",
+ "radar_grid": {
+  "sensing_start_minus_ours_lines": -0.005757335827891257,
+  "sensing_start_minus_ours_s": -9.270006557926536e-07,
+  "starting_range_minus_ours_m": 0.0,
+  "starting_range_minus_ours_samples": 0.0,
+  "prf_ratio": 1.0,
+  "wavelength_multirtc_m": 0.02078283965270747,
+  "wavelength_ours_m": 0.03106657637062402,
+  "shape_multirtc": [
+   19191,
+   10631
+  ],
+  "shape_ours": [
+   19191,
+   10631
+  ],
+  "orbit_position_difference_m_max": 0.0072791521693649506
+ },
+ "predicted_offset_from_grid": {
+  "height_m": 2244.93701171902,
+  "points": 25,
+  "median_along_track_m": -0.0061213591071133016,
+  "median_across_track_far_positive_m": -9.799218692320855e-05,
+  "range_along_m": [
+   -0.0061246076660538985,
+   -0.006114576287661277
+  ],
+  "range_across_m": [
+   -0.00010119897141075201,
+   -9.467927866683946e-05
+  ]
+ },
+ "radar_pixels": {
+  "pixels_compared": 203810191,
+  "max_relative_difference": 1.1902568431436683e-07,
+  "max_abs_phase_difference_rad": 5.9512793762992365e-08,
+  "zero_pattern_mismatches": 0
+ },
+ "geocoded": {
+  "multirtc_raster": "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055.tif",
+  "overlap_shape": [
+   5817,
+   5829
+  ],
+  "support": {
+   "common": 8097578,
+   "gcov_only": 0,
+   "multirtc_only": 5764
+  },
+  "radiometry_db": {
+   "median": 3.193828946304383e-07,
+   "p05": -0.0013916245092442142,
+   "p95": 0.0013885181235587152,
+   "mad": 0.0003283546278537259,
+   "frac_abs_lt_0.01db": 0.9998042624597132,
+   "frac_abs_lt_0.1db": 0.9999993825314186
+  },
+  "offset_multirtc_minus_gcov": {
+   "tiles": 99,
+   "tile_px": 256,
+   "median_px_x": 2.999726993992884e-05,
+   "median_px_y": -2.799779914985386e-05,
+   "median_east_m": 0.0001499863496996442,
+   "median_north_m": 0.0001399889957492693,
+   "median_along_track_m": 0.00020619625988726358,
+   "median_across_track_far_positive_m": -1.2549525601586605e-05,
+   "mad_along_m": 8.802899173220393e-06,
+   "mad_across_m": 9.340230473614913e-06,
+   "median_peak": 0.9999997462258641,
+   "flight_heading_deg_from_north": 44.15331160860555
+  }
+ }
+}

@@ -1,0 +1,6 @@
+sarpy 1.3.59
+sarpy package tree sha256 (sorted per-file sha256 of sarpy/): 205ca3e26394b40c9ed0f58b5bb701e7dc203fde3c751009cbf649e937254319
+sarpy dist-info RECORD sha256: cf387ad9e8af1b8ebc346bac568ab406e2ed6bd88c33b23b35faec1e45bc1d65
+multirtc package tree sha256 (sorted per-file sha256 of multirtc/*.py): 6d2f447895277875a73d8c84c3493010325adce6c682920a822e6dbbdc535ffb
+multirtc checkout: a0edba80a05c923b03ffae378e4a1faf293b0f0f
+pip download URL hash: b0fd9ba9d9306967a2307e981067cadb3287c39aa5c7b50244d86cecfc960748  sarpy-1.3.59-py2.py3-none-any.whl

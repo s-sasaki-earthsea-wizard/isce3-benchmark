@@ -1,0 +1,72 @@
+{
+ "gcov": "/data/capella_mexico_city/gcov/20240626/gcov_20240626.h5",
+ "rslc": "/data/capella_mexico_city/rslc_beta0/20240626.h5",
+ "multirtc_run": "/data/capella_mexico_city/multirtc/20240626/matched",
+ "variant": "matched",
+ "radar_grid": {
+  "sensing_start_minus_ours_lines": -1.0057573493926866,
+  "sensing_start_minus_ours_s": -0.0001619390895939432,
+  "starting_range_minus_ours_m": -6.323011205415241,
+  "starting_range_minus_ours_samples": -10.244878915103175,
+  "prf_ratio": 1.0,
+  "wavelength_multirtc_m": 0.02078283965270747,
+  "wavelength_ours_m": 0.03106657637062402,
+  "shape_multirtc": [
+   19191,
+   10631
+  ],
+  "shape_ours": [
+   19191,
+   10631
+  ],
+  "orbit_position_difference_m_max": 0.007279168042623027
+ },
+ "predicted_offset_from_grid": {
+  "height_m": 2244.93701171902,
+  "points": 25,
+  "median_along_track_m": -0.9070340093582088,
+  "median_across_track_far_positive_m": -9.667279144992044,
+  "range_along_m": [
+   -0.9112039238495067,
+   -0.9029452212902616
+  ],
+  "range_across_m": [
+   -9.732169989416594,
+   -9.60447559930138
+  ]
+ },
+ "geocoded": {
+  "multirtc_raster": "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055.tif",
+  "overlap_shape": [
+   5817,
+   5828
+  ],
+  "support": {
+   "common": 8094986,
+   "gcov_only": 2592,
+   "multirtc_only": 8271
+  },
+  "radiometry_db": {
+   "median": -0.00672655136979171,
+   "p05": -10.201420702487951,
+   "p95": 10.298193658603536,
+   "mad": 3.485408622598744,
+   "frac_abs_lt_0.01db": 0.0017332951533208334,
+   "frac_abs_lt_0.1db": 0.01752603401661226
+  },
+  "offset_multirtc_minus_gcov": {
+   "tiles": 99,
+   "tile_px": 256,
+   "median_px_x": 1.1056933643222349,
+   "median_px_y": 1.402816413756064,
+   "median_east_m": 5.5284668216111745,
+   "median_north_m": -7.014082068780319,
+   "median_along_track_m": -1.1715284446675658,
+   "median_across_track_far_positive_m": -8.843266547595022,
+   "mad_along_m": 0.09335295272964661,
+   "mad_across_m": 0.19402840264162968,
+   "median_peak": 0.4742107398276347,
+   "flight_heading_deg_from_north": 44.15331160860555
+  }
+ }
+}
