@@ -120,6 +120,46 @@ capella-geometry-check: ## isce3 half of the RSLC geometry round-trip (the sarki
 capella-rifg: ## Run insar.py to RIFG on the Capella pair, crossmul flatten on and off (scripts/run_capella_pair.sh)
 	bash scripts/run_capella_pair.sh flat noflat
 
+.PHONY: capella-convert-beta0
+capella-convert-beta0: ## Convert both Capella SICDs to beta0-calibrated RSLCs for GCOV into ./data/capella_mexico_city/rslc_beta0
+	mkdir -p data/capella_mexico_city/rslc_beta0 data/capella_mexico_city/logs
+	$(RUN) bash -c 'for s in 20240626150051_20240626150055 20240629134910_20240629134915; do \
+	    python tools/sicd_to_nisar_rslc.py /data/capella_mexico_city/CAPELLA_C14_SM_SICD_HH_$$s.ntf \
+	        /data/capella_mexico_city/rslc_beta0/$${s:0:8}.h5 --radiometry beta0 --overwrite \
+	        > /data/capella_mexico_city/logs/convert_beta0_$${s:0:8}.log 2>&1 && echo "CONVERT-OK $${s:0:8}"; done'
+
+.PHONY: capella-gcov
+capella-gcov: ## isce3 GCOV (RTC gamma0, 5 m, UTM 14N) on the 2024-06-26 beta0 RSLC into ./data/capella_mexico_city/gcov/20240626
+	mkdir -p data/capella_mexico_city/gcov/20240626 $(HOME)/scratch/capella/gcov_20240626
+	$(COMPOSE) run --rm -T -v $(CURDIR)/data/capella_mexico_city/gcov/20240626:/out \
+	    -v $(HOME)/scratch/capella/gcov_20240626:/scratch dev /usr/bin/time -v \
+	    python3 -m nisar.workflows.gcov /work/configs/gcov_capella_mexico_city_20240626.yaml \
+	    > data/capella_mexico_city/gcov/20240626/console.log 2>&1
+
+.PHONY: multirtc-setup
+multirtc-setup: ## Pinned read-only MultiRTC v0.5.4 (a0edba80) + sarpy 1.3.59 into ./data/external (dev image untouched)
+	mkdir -p data/external
+	[ -d data/external/MultiRTC-a0edba8 ] || git clone -q https://github.com/MultiSAR/MultiRTC.git data/external/MultiRTC-a0edba8
+	git -C data/external/MultiRTC-a0edba8 checkout -q a0edba80a05c923b03ffae378e4a1faf293b0f0f
+	$(RUN) bash -c 'pip install -q --no-deps --target /data/external/multirtc-site sarpy==1.3.59 && \
+	    pip install -q --no-deps --no-build-isolation --target /data/external/multirtc-site /data/external/MultiRTC-a0edba8'
+
+.PHONY: capella-multirtc
+capella-multirtc: ## MultiRTC diagnostic variants (stock, matched, matched-tfix, matched-tfix-rfix) on the 2024-06-26 SICD
+	$(RUN) bash -c 'export PYTHONPATH=/data/external/multirtc-site:$$PYTHONPATH; \
+	    S=/data/capella_mexico_city/CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055.ntf; \
+	    for v in stock matched matched-tfix matched-tfix-rfix; do W=/data/capella_mexico_city/multirtc/20240626/$$v; \
+	    mkdir -p $$W; python tools/multirtc_capella_rtc.py rtc $$S --variant $$v --dem /data/capella_mexico_city/dem.tif \
+	        --resolution 5 --work-dir $$W > $$W/console.log 2>&1 && echo "MULTIRTC-OK $$v"; done'
+
+.PHONY: capella-rtc-compare
+capella-rtc-compare: ## Compare isce3 GCOV with each MultiRTC variant (radar grid, pixels, geocoded gamma0) into ./data/capella_mexico_city/rtc_compare
+	mkdir -p data/capella_mexico_city/rtc_compare
+	$(RUN) bash -c 'for v in stock matched matched-tfix matched-tfix-rfix; do \
+	    python tools/compare_rtc.py --gcov /data/capella_mexico_city/gcov/20240626/gcov_20240626.h5 \
+	        --rslc /data/capella_mexico_city/rslc_beta0/20240626.h5 --multirtc-run /data/capella_mexico_city/multirtc/20240626/$$v \
+	        --out /data/capella_mexico_city/rtc_compare/20240626_$$v.json > /dev/null && echo "COMPARE-OK $$v"; done'
+
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
