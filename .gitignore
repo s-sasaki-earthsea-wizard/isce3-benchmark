@@ -19,6 +19,8 @@ logs_*/
 # and the MintPy handoff both reference by path, so it must be reproducible
 # from a clone, not just regenerable by `make alos2-network`.
 !configs/alos2_kujukuri/pairs_ALOS2_kujukuri.json
+!artifacts/sicd_headers/*.json
+!artifacts/sicd-capella-20260923/*.json
 
 # Local environment overrides
 .env

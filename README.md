@@ -62,6 +62,8 @@ After a smoke run, results land in `$BENCH_LOG_DIR` and can be summarised with
 | 0     | REE synthetic (from `isce3/tests/data/`) | Initial smoke target |
 | 1     | Sentinel-1 IW pair via Copernicus / ASF | Once REE pipeline is green |
 | 2     | Curated dataset published on Zenodo     | Once Sentinel-1 run succeeds |
+| ALOS-2 | JAXA Kujukuri L1.1 sample stack (12 dates) | 66/66 GUNW pairs done, see reports |
+| Capella | Mexico City stripmap SICD pair (open data, RGZERO) | Converted + verified, see `make capella-*` |
 
 See [data/README.md](data/README.md) for fetch instructions per stage.
 
@@ -85,3 +87,10 @@ Every published measurement run pins:
 - the runconfig file path
 
 Reports live under `reports/` as dated markdown files.
+
+Sensor ingest beyond NISAR/ALOS-2: `tools/sicd_to_nisar_rslc.py` repackages an
+RGZERO/INCA SICD (Capella stripmap) into a NISAR RSLC; the geometry is
+cross-checked against sarkit by `tools/sicd_rslc_geometry_check.py` and the
+SLC phase convention is measured by `tools/rifg_fringe_rate.py`
+(`reports/2026-09-capella-sicd-stage-u0.md`). Non-L/S-band RSLCs need
+`scripts/run_insar_xband.py` in front of `insar.py` (see the report, §5).

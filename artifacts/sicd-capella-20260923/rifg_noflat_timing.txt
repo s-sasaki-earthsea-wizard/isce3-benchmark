@@ -1,0 +1,15 @@
+data/capella_mexico_city/rifg/rifg_capella_mexico_city_20240626_20240629_noflat/console.log:	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:34.35
+data/capella_mexico_city/rifg/rifg_capella_mexico_city_20240626_20240629_noflat/console.log:	Maximum resident set size (kbytes): 10113512
+successfully ran bandpass_insar in 0.037 seconds
+successfully ran rdr2geo in 30.843 seconds
+Successfully ran geo2rdr in 7.813 seconds
+successfully ran prepare_insar_hdf5 in 75.278 seconds
+successfully ran resample for frequency A in 18.058 seconds
+successfully ran resample in 18.062 seconds
+Successfully ran dense_offsets in 11.230 seconds
+Successfully ran polyfit rubbersheet in 58.403 seconds
+successfully ran resample for frequency A in 37.707 seconds
+successfully ran resample in 37.763 seconds
+successfully ran crossmul in 16.455 seconds
+successfully ran baseline in 3.079 seconds
+successfully ran INSAR in 261.325 seconds
