@@ -141,7 +141,8 @@ multirtc-setup: ## Pinned read-only MultiRTC v0.5.4 (a0edba80) + sarpy 1.3.59 in
 	mkdir -p data/external
 	[ -d data/external/MultiRTC-a0edba8 ] || git clone -q https://github.com/MultiSAR/MultiRTC.git data/external/MultiRTC-a0edba8
 	git -C data/external/MultiRTC-a0edba8 checkout -q a0edba80a05c923b03ffae378e4a1faf293b0f0f
-	$(RUN) bash -c 'pip install -q --no-deps --target /data/external/multirtc-site sarpy==1.3.59 && \
+	$(RUN) bash -c 'echo "sarpy==1.3.59 --hash=sha256:b0fd9ba9d9306967a2307e981067cadb3287c39aa5c7b50244d86cecfc960748" > /tmp/sarpy-req.txt && \
+	    pip install -q --no-deps --require-hashes --target /data/external/multirtc-site -r /tmp/sarpy-req.txt && \
 	    pip install -q --no-deps --no-build-isolation --target /data/external/multirtc-site /data/external/MultiRTC-a0edba8'
 
 .PHONY: capella-multirtc
