@@ -4,14 +4,18 @@
 Uses only isce3's own test data and test runconfig (``tests/data/winnipeg.h5``,
 ``tests/data/insar_test.yaml``, the flow of
 ``tests/python/packages/nisar/workflows/insar.py``). The same RIFG run is made
-twice on a copy of the test RSLC:
+three times, each time with one RSLC as both reference and secondary:
 
-* control   -- processedCenterFrequency unchanged (L-band);
-* X-band    -- processedCenterFrequency set to 9.65 GHz, nothing else changed.
+* control   -- ``winnipeg.h5`` unchanged (L-band, 1.243 GHz);
+* xband     -- ``winnipeg.h5`` with processedCenterFrequency set to 9.65 GHz,
+  nothing else changed;
+* envisat   -- ``envisat.h5`` unchanged (C-band, 5.331 GHz), with the DEM of
+  ``tests/data/geocodeslc/test_gslc.yaml``. This is the fixture the GSLC and
+  GCOV workflow tests already process.
 
 Steps after ``prepare_insar_hdf5`` are switched off, so the run takes seconds.
-Expected on current develop: the control writes the RIFG skeleton; the X-band
-copy stops in ``InSARBaseWriter._get_band_name`` with
+Expected on current develop: the control writes the RIFG skeleton; both other
+runs stop in ``InSARBaseWriter._get_band_name`` with
 ``ValueError: Unknown frequency encountered. Not L or S band`` after rdr2geo and
 geo2rdr have completed.
 
@@ -46,10 +50,11 @@ LATER_STEPS = ("coarse_resample", "dense_offsets", "offsets_product", "rubbershe
                "ionosphere", "geocode", "troposphere", "solid_earth_tides", "baseline")
 
 
-def run_rifg(rslc: str, workdir: str, tag: str) -> str:
+def run_rifg(rslc: str, dem: str, workdir: str, tag: str) -> str:
     with open(os.path.join(iscetest.data, "insar_test.yaml")) as fh:
         text = (fh.read()
                 .replace("@ISCETEST@/winnipeg.h5", rslc)
+                .replace("@ISCETEST@/winnipeg_dem.tif", dem)
                 .replace("@ISCETEST@", iscetest.data)
                 .replace("@TEST_OUTPUT@", os.path.join(workdir, f"RIFG_{tag}.h5"))
                 .replace("@TEST_PRODUCT_TYPES@", "RIFG")
@@ -83,10 +88,15 @@ def main() -> int:
     os.makedirs(work, exist_ok=True)
     print(f"isce3 {isce3.__version__}  test data {iscetest.data}  workdir {work}")
 
+    winnipeg_dem = os.path.join(iscetest.data, "winnipeg_dem.tif")
+    envisat_dem = os.path.join(iscetest.data, "geocode", "zeroHeightDEM.geo")
+    cases = (("control", "winnipeg.h5", winnipeg_dem, None),
+             ("xband", "winnipeg.h5", winnipeg_dem, 9.65e9),
+             ("envisat", "envisat.h5", envisat_dem, None))
     results = {}
-    for tag, fc in (("control", None), ("xband", 9.65e9)):
-        rslc = os.path.join(work, f"winnipeg_{tag}.h5")
-        shutil.copy(os.path.join(iscetest.data, "winnipeg.h5"), rslc)
+    for tag, src, dem, fc in cases:
+        rslc = os.path.join(work, f"{tag}_{src}")
+        shutil.copy(os.path.join(iscetest.data, src), rslc)
         with h5py.File(rslc, "r+") as f:
             swaths = [k for k in ("science/LSAR/RSLC/swaths", "science/LSAR/SLC/swaths") if k in f][0]
             for freq in ("frequencyA", "frequencyB"):
@@ -95,13 +105,14 @@ def main() -> int:
                     old = float(f[ds][()])
                     if fc is not None:
                         f[ds][()] = fc
-                    print(f"{tag:8s} {freq} processedCenterFrequency {old / 1e9:.4f} GHz"
+                    print(f"{tag:8s} {src} {freq} processedCenterFrequency {old / 1e9:.4f} GHz"
                           f" -> {float(f[ds][()]) / 1e9:.4f} GHz")
-        results[tag] = run_rifg(rslc, work, tag)
+        results[tag] = run_rifg(rslc, dem, work, tag)
     print()
     for tag, res in results.items():
         print(f"{tag:8s} {res}")
-    ok = results["control"].startswith("OK") and "Not L or S band" in results["xband"]
+    ok = (results["control"].startswith("OK")
+          and all("Not L or S band" in results[t] for t in ("xband", "envisat")))
     print("\nREPRODUCED" if ok else "\nNOT REPRODUCED")
     return 0 if ok else 1
 

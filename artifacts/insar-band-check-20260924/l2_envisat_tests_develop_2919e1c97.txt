@@ -1,0 +1,21 @@
+ Container isce3-benchmark-dev-run-43f2727f55e5 Creating 
+ Container isce3-benchmark-dev-run-43f2727f55e5 Created 
+pytest_rc=0
+ERROR 5: tmp8q4p7xby.vrt, band 1: Access window out of range in RasterIO().  Requested
+ERROR 5: tmplni3f858.vrt, band 1: Access window out of range in RasterIO().  Requested
+ERROR 5: tmphskijueo.vrt, band 1: Access window out of range in RasterIO().  Requested
+ERROR 5: tmpx5p1v4cg.vrt, band 1: Access window out of range in RasterIO().  Requested
+ERROR 5: tmp27_14n1w.vrt, band 1: Access window out of range in RasterIO().  Requested
+ERROR 5: tmpaaq7ed18.vrt, band 1: Access window out of range in RasterIO().  Requested
+PASSED ../../opt/isce3-src/tests/python/packages/nisar/workflows/gslc.py::test_run
+PASSED ../../opt/isce3-src/tests/python/packages/nisar/workflows/gcov.py::test_run_winnipeg
+PASSED ../../opt/isce3-src/tests/python/packages/nisar/workflows/gcov.py::test_run_envisat
+======================== 3 passed, 75 warnings in 8.57s ========================
+gcov_envisat_area_noise_correction_false.h5 radarBand = b'L'
+gcov_envisat_area_noise_correction_true.h5 radarBand = b'L'
+gcov_envisat_interp_noise_correction_false.h5 radarBand = b'L'
+gcov_envisat_interp_noise_correction_true.h5 radarBand = b'L'
+gcov_winnipeg_area.h5 radarBand = b'L'
+gcov_winnipeg_interp.h5 radarBand = b'L'
+x_out.h5 radarBand = b'L'
+y_out.h5 radarBand = b'L'

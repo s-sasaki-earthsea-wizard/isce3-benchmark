@@ -1,3 +1,21 @@
+ Container isce3-benchmark-dev-run-28f271167619 Creating 
+ Container isce3-benchmark-dev-run-28f271167619 Created 
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:199: UserWarning: "diagnosticModeFlag" for old spec with scalar string shall be either "False" or "True" rather than "0"
+  warn(
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:238: UserWarning: Could not find isJointObservation in product identification.
+  warn("Could not find isJointObservation in product identification.")
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:247: UserWarning: Could not find hasInputDataException in product identification.  Assuming there are no anomalies.
+  warn("Could not find hasInputDataException in product "
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
 journal (nisar.reader):
  -- hasInputDataException not found at /science/LSAR/identification
 journal (nisar.reader):
@@ -121,11 +139,11 @@ journal (isce.core.DEMInterpolator):
  -- Spacing: 0.00027761 -0.000277656
  -- Dimensions: 728 640
 Topo progress (block 1/1): Done
-Layover/shadow mask progress (block 1/1): 0%Layover/shadow mask progress (block 1/1): 1%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 4%Layover/shadow mask progress (block 1/1): 6%Layover/shadow mask progress (block 1/1): 7%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 11%Layover/shadow mask progress (block 1/1): 13%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 15%Layover/shadow mask progress (block 1/1): 15%Layover/shadow mask progress (block 1/1): 16%Layover/shadow mask progress (block 1/1): 16%Layover/shadow mask progress (block 1/1): 17%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 21%Layover/shadow mask progress (block 1/1): 21%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 23%Layover/shadow mask progress (block 1/1): 23%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 27%Layover/shadow mask progress (block 1/1): 28%Layover/shadow mask progress (block 1/1): 28%Layover/shadow mask progress (block 1/1): 29%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 31%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 35%Layover/shadow mask progress (block 1/1): 36%Layover/shadow mask progress (block 1/1): 36%Layover/shadow mask progress (block 1/1): 37%Layover/shadow mask progress (block 1/1): 37%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 39%Layover/shadow mask progress (block 1/1): 39%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 43%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 45%Layover/shadow mask progress (block 1/1): 45%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 47%Layover/shadow mask progress (block 1/1): 48%Layover/shadow mask progress (block 1/1): 49%Layover/shadow mask progress (block 1/1): 50%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 53%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 57%Layover/shadow mask progress (block 1/1): 59%Layover/shadow mask progress (block 1/1): 60%Layover/shadow mask progress (block 1/1): 60%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 67%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 69%Layover/shadow mask progress (block 1/1): 70%Layover/shadow mask progress (block 1/1): 71%Layover/shadow mask progress (block 1/1): 72%Layover/shadow mask progress (block 1/1): 73%Layover/shadow mask progress (block 1/1): 73%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 75%Layover/shadow mask progress (block 1/1): 76%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 80%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 82%Layover/shadow mask progress (block 1/1): 83%Layover/shadow mask progress (block 1/1): 83%Layover/shadow mask progress (block 1/1): 84%Layover/shadow mask progress (block 1/1): 85%Layover/shadow mask progress (block 1/1): 86%Layover/shadow mask progress (block 1/1): 86%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 88%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 90%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 92%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 94%Layover/shadow mask progress (block 1/1): 94%Layover/shadow mask progress (block 1/1): 96%Layover/shadow mask progress (block 1/1): 97%Layover/shadow mask progress (block 1/1): 97%Layover/shadow mask progress (block 1/1): 98%Layover/shadow mask progress (block 1/1): 99%Layover/shadow mask progress (block 1/1): 100%Layover/shadow mask progress (block 1/1): 100%
+Layover/shadow mask progress (block 1/1): 0%Layover/shadow mask progress (block 1/1): 1%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 4%Layover/shadow mask progress (block 1/1): 5%Layover/shadow mask progress (block 1/1): 5%Layover/shadow mask progress (block 1/1): 5%Layover/shadow mask progress (block 1/1): 6%Layover/shadow mask progress (block 1/1): 7%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 11%Layover/shadow mask progress (block 1/1): 12%Layover/shadow mask progress (block 1/1): 12%Layover/shadow mask progress (block 1/1): 12%Layover/shadow mask progress (block 1/1): 13%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 18%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 21%Layover/shadow mask progress (block 1/1): 21%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 23%Layover/shadow mask progress (block 1/1): 23%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 26%Layover/shadow mask progress (block 1/1): 27%Layover/shadow mask progress (block 1/1): 28%Layover/shadow mask progress (block 1/1): 29%Layover/shadow mask progress (block 1/1): 29%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 31%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 33%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 36%Layover/shadow mask progress (block 1/1): 39%Layover/shadow mask progress (block 1/1): 39%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 42%Layover/shadow mask progress (block 1/1): 42%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 45%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 47%Layover/shadow mask progress (block 1/1): 47%Layover/shadow mask progress (block 1/1): 48%Layover/shadow mask progress (block 1/1): 49%Layover/shadow mask progress (block 1/1): 49%Layover/shadow mask progress (block 1/1): 50%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 58%Layover/shadow mask progress (block 1/1): 58%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 70%Layover/shadow mask progress (block 1/1): 71%Layover/shadow mask progress (block 1/1): 72%Layover/shadow mask progress (block 1/1): 73%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 75%Layover/shadow mask progress (block 1/1): 75%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 80%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 82%Layover/shadow mask progress (block 1/1): 83%Layover/shadow mask progress (block 1/1): 84%Layover/shadow mask progress (block 1/1): 84%Layover/shadow mask progress (block 1/1): 85%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 88%Layover/shadow mask progress (block 1/1): 88%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 90%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 94%Layover/shadow mask progress (block 1/1): 94%Layover/shadow mask progress (block 1/1): 95%Layover/shadow mask progress (block 1/1): 95%Layover/shadow mask progress (block 1/1): 96%Layover/shadow mask progress (block 1/1): 98%Layover/shadow mask progress (block 1/1): 99%Layover/shadow mask progress (block 1/1): 99%Layover/shadow mask progress (block 1/1): 100%
 journal (isce.geometry.Topo):
  -- Total convergence: 60458 out of 62500
 journal (rdr2geo.run):
- -- successfully ran rdr2geo in 0.071 seconds
+ -- successfully ran rdr2geo in 0.066 seconds
 journal (nisar.reader):
  -- hasInputDataException not found at /science/LSAR/identification
 journal (geo2rdr.run):
@@ -149,7 +167,7 @@ journal (isce.geometry.Geo2rdr):
 journal (isce.geometry.Geo2rdr):
  -- Total convergence: 61995 out of 62500
 journal (geo2rdr.run):
- -- Successfully ran geo2rdr in 0.028 seconds
+ -- Successfully ran geo2rdr in 0.029 seconds
 journal (prepare_insar_hdf5.run):
  -- preparing InSAR HDF5 products
 journal (nisar.reader):
@@ -225,12 +243,22 @@ journal (isce.core.DEMInterpolator):
  -- Spacing: 0.00027761 -0.000277656
  -- Dimensions: 728 640
 Topo progress (block 1/1): Done
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
 journal (isce.geometry.Topo):
  -- Total convergence: 469 out of 484
 journal (prepare_insar_hdf5.run):
- -- successfully ran prepare_insar_hdf5 in 0.191 seconds
+ -- successfully ran prepare_insar_hdf5 in 0.318 seconds
 journal (insar.run):
- -- successfully ran INSAR in 0.365 seconds
+ -- successfully ran INSAR in 0.498 seconds
 journal (nisar.reader):
  -- hasInputDataException not found at /science/LSAR/identification
 journal (nisar.reader):
@@ -354,23 +382,23 @@ journal (isce.core.DEMInterpolator):
  -- Spacing: 0.00027761 -0.000277656
  -- Dimensions: 728 640
 Topo progress (block 1/1): Done
-Layover/shadow mask progress (block 1/1): 0%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 4%Layover/shadow mask progress (block 1/1): 4%Layover/shadow mask progress (block 1/1): 7%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 11%Layover/shadow mask progress (block 1/1): 11%Layover/shadow mask progress (block 1/1): 13%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 15%Layover/shadow mask progress (block 1/1): 16%Layover/shadow mask progress (block 1/1): 16%Layover/shadow mask progress (block 1/1): 16%Layover/shadow mask progress (block 1/1): 17%Layover/shadow mask progress (block 1/1): 19%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 23%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 25%Layover/shadow mask progress (block 1/1): 25%Layover/shadow mask progress (block 1/1): 26%Layover/shadow mask progress (block 1/1): 27%Layover/shadow mask progress (block 1/1): 27%Layover/shadow mask progress (block 1/1): 28%Layover/shadow mask progress (block 1/1): 29%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 35%Layover/shadow mask progress (block 1/1): 35%Layover/shadow mask progress (block 1/1): 36%Layover/shadow mask progress (block 1/1): 37%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 39%Layover/shadow mask progress (block 1/1): 41%Layover/shadow mask progress (block 1/1): 42%Layover/shadow mask progress (block 1/1): 43%Layover/shadow mask progress (block 1/1): 43%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 45%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 47%Layover/shadow mask progress (block 1/1): 50%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 53%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 58%Layover/shadow mask progress (block 1/1): 59%Layover/shadow mask progress (block 1/1): 60%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 70%Layover/shadow mask progress (block 1/1): 71%Layover/shadow mask progress (block 1/1): 72%Layover/shadow mask progress (block 1/1): 72%Layover/shadow mask progress (block 1/1): 72%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 75%Layover/shadow mask progress (block 1/1): 76%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 80%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 82%Layover/shadow mask progress (block 1/1): 84%Layover/shadow mask progress (block 1/1): 85%Layover/shadow mask progress (block 1/1): 86%Layover/shadow mask progress (block 1/1): 86%Layover/shadow mask progress (block 1/1): 86%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 88%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 90%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 92%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 94%Layover/shadow mask progress (block 1/1): 95%Layover/shadow mask progress (block 1/1): 95%Layover/shadow mask progress (block 1/1): 96%Layover/shadow mask progress (block 1/1): 97%Layover/shadow mask progress (block 1/1): 98%Layover/shadow mask progress (block 1/1): 98%Layover/shadow mask progress (block 1/1): 99%Layover/shadow mask progress (block 1/1): 100%
-isce3 0.26.0-dev+2919e1c97  test data /opt/isce3-src/tests/data/  workdir /tmp/bandcheck
-control  frequencyA processedCenterFrequency 1.2430 GHz -> 1.2430 GHz
-control  frequencyB processedCenterFrequency 1.2700 GHz -> 1.2700 GHz
-total processing time:  0.012962818145751953  sec
-xband    frequencyA processedCenterFrequency 1.2430 GHz -> 9.6500 GHz
-xband    frequencyB processedCenterFrequency 1.2700 GHz -> 9.6500 GHz
-total processing time:  0.010114192962646484  sec
-
-control  OK: RIFG skeleton written
-xband    ValueError: Unknown frequency encountered. Not L or S band  (raised in InSAR_base_writer.py:1299 _get_band_name)
-
-REPRODUCED
+Layover/shadow mask progress (block 1/1): 0%Layover/shadow mask progress (block 1/1): 1%Layover/shadow mask progress (block 1/1): 1%Layover/shadow mask progress (block 1/1): 1%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 4%Layover/shadow mask progress (block 1/1): 5%Layover/shadow mask progress (block 1/1): 5%Layover/shadow mask progress (block 1/1): 6%Layover/shadow mask progress (block 1/1): 6%Layover/shadow mask progress (block 1/1): 6%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 12%Layover/shadow mask progress (block 1/1): 12%Layover/shadow mask progress (block 1/1): 13%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 17%Layover/shadow mask progress (block 1/1): 17%Layover/shadow mask progress (block 1/1): 18%Layover/shadow mask progress (block 1/1): 18%Layover/shadow mask progress (block 1/1): 19%Layover/shadow mask progress (block 1/1): 19%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 21%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 23%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 25%Layover/shadow mask progress (block 1/1): 25%Layover/shadow mask progress (block 1/1): 26%Layover/shadow mask progress (block 1/1): 27%Layover/shadow mask progress (block 1/1): 27%Layover/shadow mask progress (block 1/1): 28%Layover/shadow mask progress (block 1/1): 31%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 33%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 35%Layover/shadow mask progress (block 1/1): 35%Layover/shadow mask progress (block 1/1): 36%Layover/shadow mask progress (block 1/1): 36%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 41%Layover/shadow mask progress (block 1/1): 42%Layover/shadow mask progress (block 1/1): 43%Layover/shadow mask progress (block 1/1): 45%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 47%Layover/shadow mask progress (block 1/1): 48%Layover/shadow mask progress (block 1/1): 48%Layover/shadow mask progress (block 1/1): 48%Layover/shadow mask progress (block 1/1): 49%Layover/shadow mask progress (block 1/1): 50%Layover/shadow mask progress (block 1/1): 51%Layover/shadow mask progress (block 1/1): 51%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 57%Layover/shadow mask progress (block 1/1): 58%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 64%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 67%Layover/shadow mask progress (block 1/1): 67%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 69%Layover/shadow mask progress (block 1/1): 70%Layover/shadow mask progress (block 1/1): 71%Layover/shadow mask progress (block 1/1): 73%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 75%Layover/shadow mask progress (block 1/1): 75%Layover/shadow mask progress (block 1/1): 76%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 80%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 82%Layover/shadow mask progress (block 1/1): 82%Layover/shadow mask progress (block 1/1): 82%Layover/shadow mask progress (block 1/1): 84%Layover/shadow mask progress (block 1/1): 85%Layover/shadow mask progress (block 1/1): 86%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 88%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 90%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 94%Layover/shadow mask progress (block 1/1): 95%Layover/shadow mask progress (block 1/1): 96%Layover/shadow mask progress (block 1/1): 96%Layover/shadow mask progress (block 1/1): 97%Layover/shadow mask progress (block 1/1): 98%Layover/shadow mask progress (block 1/1): 99%Layover/shadow mask progress (block 1/1): 100%
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:228: UserWarning: isUrgentObservation is boolean but expected string
+  warn("isUrgentObservation is boolean but expected string")
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
 journal (isce.geometry.Topo):
  -- Total convergence: 60458 out of 62500
 journal (rdr2geo.run):
- -- successfully ran rdr2geo in 0.054 seconds
+ -- successfully ran rdr2geo in 0.051 seconds
 journal (nisar.reader):
  -- hasInputDataException not found at /science/LSAR/identification
 journal (geo2rdr.run):
@@ -394,7 +422,182 @@ journal (isce.geometry.Geo2rdr):
 journal (isce.geometry.Geo2rdr):
  -- Total convergence: 61995 out of 62500
 journal (geo2rdr.run):
- -- Successfully ran geo2rdr in 0.027 seconds
+ -- Successfully ran geo2rdr in 0.033 seconds
+journal (prepare_insar_hdf5.run):
+ -- preparing InSAR HDF5 products
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (helpers.check_radargrid_orbit_tec):
+ -- IMAGEN TEC was not provided. Checking the orbit data and sensing start / stop.
+journal (helpers.check_radargrid_orbit_tec):
+ -- Orbit margin before radar sensing start : 302.843492 seconds
+Orbit margin after radar sensing stop   : 296.854526 seconds
+
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (helpers.check_radargrid_orbit_tec):
+ -- IMAGEN TEC was not provided. Checking the orbit data and sensing start / stop.
+journal (helpers.check_radargrid_orbit_tec):
+ -- Orbit margin before radar sensing start : 302.843492 seconds
+Orbit margin after radar sensing stop   : 296.854526 seconds
+
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (helpers.check_radargrid_orbit_tec):
+ -- IMAGEN TEC was not provided. Checking the orbit data and sensing start / stop.
+journal (helpers.check_radargrid_orbit_tec):
+ -- Orbit margin before radar sensing start : 302.843492 seconds
+Orbit margin after radar sensing stop   : 296.854526 seconds
+
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (persistence.init):
+ -- Possible steps to be run:
+journal (persistence.init):
+ -- baseline: True
+journal (persistence.init):
+ -- solid_earth_tides: True
+journal (persistence.init):
+ -- troposphere: True
+journal (persistence.init):
+ -- geocode: True
+journal (persistence.init):
+ -- ionosphere: True
+journal (persistence.init):
+ -- unwrap: True
+journal (persistence.init):
+ -- filter_interferogram: True
+journal (persistence.init):
+ -- crossmul: True
+journal (persistence.init):
+ -- fine_resample: True
+journal (persistence.init):
+ -- rubbersheet: True
+journal (persistence.init):
+ -- offsets_product: True
+journal (persistence.init):
+ -- dense_offsets: True
+journal (persistence.init):
+ -- coarse_resample: True
+journal (persistence.init):
+ -- geo2rdr: True
+journal (persistence.init):
+ -- rdr2geo: True
+journal (persistence.init):
+ -- h5_prep: True
+journal (persistence.init):
+ -- prepare_insar_hdf5: True
+journal (persistence.init):
+ -- bandpass_insar: True
+journal (insar.run):
+ -- starting INSAR
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (bandpass_insar.run):
+ -- starting bandpass_insar
+journal (bandpass_insar.run):
+ -- successfully ran bandpass_insar in 0.011 seconds
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (rdr2geo.run):
+ -- starting rdr2geo
+journal (isce.geometry.Topo):
+ -- DEM EPSG: 4326
+ -- Output EPSG: 4326
+journal (isce.geometry.Topo):
+ -- Processing block: 1 
+ --   - line start: 0
+ --   - line end  : 500
+ --   - dopplers near mid far: 0 0 0 
+journal (isce.core.Geometry):
+ -- West limit may be insufficient for global height range
+journal (isce.core.Geometry):
+ -- North limit may be insufficient for global height range
+journal (isce.core.DEMInterpolator):
+ -- Actual DEM bounds used:
+ -- Top Left: -115.8 35
+ -- Bottom Right: -115.342 34.6519 
+ -- Spacing: 0.000277778 -0.000277778
+ -- Dimensions: 1651 1254
+Topo progress (block 1/1): Done
+Layover/shadow mask progress (block 1/1): 0%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 5%Layover/shadow mask progress (block 1/1): 6%Layover/shadow mask progress (block 1/1): 6%Layover/shadow mask progress (block 1/1): 7%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 11%Layover/shadow mask progress (block 1/1): 12%Layover/shadow mask progress (block 1/1): 13%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 15%Layover/shadow mask progress (block 1/1): 16%Layover/shadow mask progress (block 1/1): 16%Layover/shadow mask progress (block 1/1): 18%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 23%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 25%Layover/shadow mask progress (block 1/1): 25%Layover/shadow mask progress (block 1/1): 28%Layover/shadow mask progress (block 1/1): 28%Layover/shadow mask progress (block 1/1): 29%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 31%Layover/shadow mask progress (block 1/1): 31%Layover/shadow mask progress (block 1/1): 31%Layover/shadow mask progress (block 1/1): 33%Layover/shadow mask progress (block 1/1): 33%Layover/shadow mask progress (block 1/1): 35%Layover/shadow mask progress (block 1/1): 36%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 39%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 41%Layover/shadow mask progress (block 1/1): 41%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 47%Layover/shadow mask progress (block 1/1): 48%Layover/shadow mask progress (block 1/1): 49%Layover/shadow mask progress (block 1/1): 50%Layover/shadow mask progress (block 1/1): 51%Layover/shadow mask progress (block 1/1): 51%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 53%Layover/shadow mask progress (block 1/1): 53%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 60%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 69%Layover/shadow mask progress (block 1/1): 70%Layover/shadow mask progress (block 1/1): 71%Layover/shadow mask progress (block 1/1): 73%Layover/shadow mask progress (block 1/1): 73%Layover/shadow mask progress (block 1/1): 73%Layover/shadow mask progress (block 1/1): 75%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 79%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 83%Layover/shadow mask progress (block 1/1): 83%Layover/shadow mask progress (block 1/1): 84%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 87%Layover/shadow mask progress (block 1/1): 90%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 92%Layover/shadow mask progress (block 1/1): 92%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 94%Layover/shadow mask progress (block 1/1): 95%Layover/shadow mask progress (block 1/1): 96%Layover/shadow mask progress (block 1/1): 97%Layover/shadow mask progress (block 1/1): 98%Layover/shadow mask progress (block 1/1): 99%Layover/shadow mask progress (block 1/1): 100%
+isce3 0.26.0-dev+2919e1c97  test data /opt/isce3-src/tests/data/  workdir /tmp/bandcheck
+control  winnipeg.h5 frequencyA processedCenterFrequency 1.2430 GHz -> 1.2430 GHz
+control  winnipeg.h5 frequencyB processedCenterFrequency 1.2700 GHz -> 1.2700 GHz
+total processing time:  0.0126495361328125  sec
+xband    winnipeg.h5 frequencyA processedCenterFrequency 1.2430 GHz -> 9.6500 GHz
+xband    winnipeg.h5 frequencyB processedCenterFrequency 1.2700 GHz -> 9.6500 GHz
+total processing time:  0.010024547576904297  sec
+envisat  envisat.h5 frequencyA processedCenterFrequency 5.3310 GHz -> 5.3310 GHz
+total processing time:  0.01140594482421875  sec
+
+control  OK: RIFG skeleton written
+xband    ValueError: Unknown frequency encountered. Not L or S band  (raised in InSAR_base_writer.py:1299 _get_band_name)
+envisat  ValueError: Unknown frequency encountered. Not L or S band  (raised in InSAR_base_writer.py:1299 _get_band_name)
+
+REPRODUCED
+journal (isce.geometry.Topo):
+ -- Total convergence: 250000 out of 250000
+journal (rdr2geo.run):
+ -- successfully ran rdr2geo in 0.236 seconds
+journal (nisar.reader):
+ -- hasInputDataException not found at /science/LSAR/identification
+journal (geo2rdr.run):
+ -- starting geo2rdr
+journal (isce.geometry.Geo2rdr):
+ -- 
+ -- Starting acquisition time: 237331
+ -- Stop acquisition time: 237331
+ -- Azimuth line spacing in seconds: 0.000605175
+ -- Slant range spacing in meters: 7.80397
+ -- Near range (m): 826989
+ -- Far range (m): 830883
+ -- Radar image length: 500
+ -- Radar image width: 500
+ -- Geocoded lines: 500
+ -- Geocoded samples: 500
+ -- Processing block: 0 
+ --   - line start: 0
+ --   - line end  : 500
+ --   - dopplers near mid far: 0 0 0 
+journal (isce.geometry.Geo2rdr):
+ -- Total convergence: 249035 out of 250000
+journal (geo2rdr.run):
+ -- Successfully ran geo2rdr in 0.049 seconds
 journal (prepare_insar_hdf5.run):
  -- preparing InSAR HDF5 products
 journal (nisar.reader):
