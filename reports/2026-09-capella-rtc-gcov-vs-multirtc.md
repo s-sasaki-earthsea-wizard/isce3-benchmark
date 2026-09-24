@@ -39,11 +39,14 @@ The last column is over the common support. The wavelength difference (§3.1) is
 **not** corrected in any variant; it does not enter RTC but would enter any phase use.
 
 With two corrections to MultiRTC's radar grid — applied as runtime
-subclasses, its source untouched — the two paths produce the same gamma0 to
-numerical precision over the common support (median difference 3e-7 dB,
-p5–p95 ±0.0014 dB, offset 0.2 mm over 8.1 M common pixels; 5,764 edge pixels
-are valid in MultiRTC only). Without them, MultiRTC's product sits one azimuth
-line early and ~9.7 m towards near range.
+subclasses, its source untouched — the two paths agree closely: over
+8,097,578 common valid pixels, 99.9804 % differ by less than 0.01 dB
+(p5/p95: −0.001392 / +0.001389 dB); 5,764 edge pixels are valid in MultiRTC
+only. The current (biased, §3.2) correlation estimator reports a median
+along-track shift of 0.206 mm across 99 tiles; this is not an established
+sub-millimetre accuracy bound. Without the corrections, MultiRTC's radar grid
+places pixels one azimuth line early and ~9.7 m towards near range (rdr2geo,
+§3.2).
 
 The calibrated radar-domain pixels agree before any geocoding: MultiRTC's
 complex beta0 raster and the beta0 RSLC image match to 1.2e-7 relative and
@@ -111,8 +114,10 @@ Stock v0.5.4 is a diagnostic comparator here, not a reference.
 Three causes, each read from the pinned source (`src/multirtc/sicd.py`):
 
 1. **Start time.** The "last column" time is evaluated at index N, one past
-   the image. For a time-reversed azimuth axis (every left-looking INCA SICD)
-   that value becomes `sensing_start`: one line early. The PRF stays right.
+   the image. For a time-reversed azimuth axis — as on these inputs, whose
+   `TimeCAPoly` slope is negative (MultiRTC branches on its own `az_reversed`
+   flag) — that value becomes `sensing_start`: one line early. The PRF stays
+   right.
 2. **Starting range.** `get_starting_range(0)` measures from the ARP at closest
    approach to a point on the plane tangent at the SCP. That equals the RGZERO
    row-0 range `R_CA_SCP − SCPPixel.Row × Row.SS` only at the SCP column:
@@ -138,23 +143,29 @@ that MultiRTC's microsecond datetime drops.
 
 ### 3.2 Geocoded comparison
 
-Support on the shared grid (5817 × 5828 overlap): with both fixes 8,097,578
+Support on the shared grid (5817 × 5829 overlap): with both fixes 8,097,578
 common pixels, 0 GCOV-only, 5,764 MultiRTC-only (edges). Shadow masking changes
 the support by ~100 pixels and nothing else.
 
 Map offsets are reported two ways:
 
-- **predicted**: rdr2geo of 25 pixels through both radar grids (same orbit,
-  constant height 2245 m) — exact for the grid difference alone;
+- **predicted**: rdr2geo of 25 pixels through both radar grids with *our*
+  orbit and a constant height of 2245 m — a grid-only control, not the exact
+  offset of the two outputs (each path also has its own orbit sampling and
+  epoch). For the fully fixed variant its −6 mm along-track is the 0.93 µs
+  epoch difference evaluated on one orbit; with each path's own orbit the same
+  25 points differ by +0.54 mm along track (max ECEF difference 0.54 mm;
+  cross-check in the team review);
 - **measured**: phase correlation of 256 × 256 dB tiles (99 tiles).
 
-The correlation estimator (Hann window, parabolic peak) is **biased low for
-fractional shifts** — on GCOV tiles shifted by a known amount it recovered
-0.2126 px as 0.117 px and 1.40 px as 1.30 px (`estimator_bias.txt`). The
-measured magnitudes are therefore lower bounds; the prediction carries the
-magnitude, and the intervention (last row of the summary table) carries the
-attribution: removing the two grid differences removes the offset, and nothing
-else is needed to make the outputs identical.
+The correlation estimator (Hann window, parabolic peak) is **biased**, in
+both directions: on GCOV tiles shifted by a known amount it recovered
+0.2126 px as 0.117 px and 1.40 px as 1.30 px, but 1.9334 px as 1.966 px
+(`estimator_bias.txt`). The measured column is therefore a biased estimate,
+not a bound. The prediction gives the size of the grid-induced offset, and
+the intervention (last row of the summary table) gives the attribution:
+removing the two grid differences removes the offset to within what this
+estimator can resolve, and the radiometric agreement above follows.
 
 `quicklook_20240626.png`: GCOV gamma0, and MultiRTC − GCOV for the matched and
 the fully fixed variant.
@@ -162,9 +173,10 @@ the fully fixed variant.
 ## 4. What this does and does not establish
 
 - Established: the beta0 RSLC is accepted by isce3's GCOV workflow on X-band,
-  and on this scene its RTC output equals that of an independent ingest path
-  (MultiRTC's) once two identified grid differences are removed. Together with
-  the earlier report, the same RSLC serves isce3's InSAR and RTC workflows.
+  and on this scene its RTC output agrees with that of an independent ingest
+  path (MultiRTC's) to the level above once two identified grid differences
+  are removed. Together with the earlier report, the same converter feeds
+  isce3's InSAR workflow (DN mode) and its RTC workflow (beta0 mode).
 - Not established: RTC accuracy against ground truth (both paths share the
   isce3 RTC core); anything about phase (RTC is power); other scenes or
   producers. Scene 2 was converted to beta0 but not run through GCOV.
