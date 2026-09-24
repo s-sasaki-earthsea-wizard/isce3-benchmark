@@ -1,0 +1,78 @@
+{
+ "gcov": "/data/capella_reinforcement/gcov/20260204114511/gcov_20260204114511.h5",
+ "rslc": "/data/capella_reinforcement/rslc_beta0/20260204114511.h5",
+ "multirtc_run": "/data/capella_reinforcement/multirtc/20260204114511/matched-tfix-rfix",
+ "variant": "matched-tfix-rfix",
+ "radar_grid": {
+  "sensing_start_minus_ours_lines": -0.005159323921397367,
+  "sensing_start_minus_ours_s": -8.610004442743957e-07,
+  "starting_range_minus_ours_m": 0.0,
+  "starting_range_minus_ours_samples": 0.0,
+  "prf_ratio": 1.0,
+  "wavelength_multirtc_m": 0.020891472548545044,
+  "wavelength_ours_m": 0.031228398945197175,
+  "shape_multirtc": [
+   20489,
+   6684
+  ],
+  "shape_ours": [
+   20489,
+   6684
+  ],
+  "orbit_position_difference_m_max": 0.0029665381360097767
+ },
+ "predicted_offset_from_grid": {
+  "height_m": 371.373077389098,
+  "points": 25,
+  "median_along_track_m": -0.005595839326767337,
+  "median_across_track_far_positive_m": -0.0003121528592949724,
+  "range_along_m": [
+   -0.005601834571823906,
+   -0.005594785889757969
+  ],
+  "range_across_m": [
+   -0.000321189737044281,
+   -0.00030317040122432174
+  ]
+ },
+ "radar_pixels": {
+  "pixels_compared": 136891303,
+  "max_relative_difference": 1.1874300574286543e-07,
+  "max_abs_phase_difference_rad": 5.934016391662523e-08,
+  "zero_pattern_mismatches": 0
+ },
+ "geocoded": {
+  "multirtc_raster": "CAPELLA_C13_SM_SICD_HH_20260204114511_20260204114516.tif",
+  "overlap_shape": [
+   4375,
+   4975
+  ],
+  "support": {
+   "common": 4510602,
+   "gcov_only": 1,
+   "multirtc_only": 2103
+  },
+  "radiometry_db": {
+   "median": 0.0,
+   "p05": -0.0027436187041986627,
+   "p95": 0.0027442801599514275,
+   "mad": 0.0010308496565003345,
+   "frac_abs_lt_0.01db": 0.9980177812185602,
+   "frac_abs_lt_0.1db": 0.9999944575025684
+  },
+  "offset_multirtc_minus_gcov": {
+   "tiles": 49,
+   "tile_px": 256,
+   "median_px_x": -0.00014696448253983648,
+   "median_px_y": 9.28684437797799e-05,
+   "median_east_m": -0.0007348224126991824,
+   "median_north_m": -0.0004643422188988995,
+   "median_along_track_m": -0.0008646846106534498,
+   "median_across_track_far_positive_m": -6.608748037865937e-05,
+   "mad_along_m": 3.796802258441935e-05,
+   "mad_across_m": 5.118596775158116e-05,
+   "median_peak": 0.9999938715553927,
+   "flight_heading_deg_from_north": 52.87883225201872
+  }
+ }
+}

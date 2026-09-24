@@ -20,12 +20,14 @@ the same converter, templates and isce3 build.
 1. **Coverage.** L-A Mexico City pair (earlier), R-A and L-D Niscemi pairs, R-D Yumare single scene.
    The Capella open-data InSAR set has no R-D repeat pair, so R-D is covered for conversion,
    geometry and GCOV only.
-2. **Geometry.** isce3 on the converted RSLCs and sarkit on the original headers differ by up to
-   **3.4 cm** (0.055 px) on the stock sarkit projection. The difference tracks the header's
+2. **Geometry.** At the sampled points, isce3 on the converted RSLCs and sarkit on the unmodified
+   headers differ by up to **33.7 mm** (0.055 px). The difference tracks the header's
    centre-of-aperture (COA) time offset from closest approach, which is 0 on the Mexico City
-   scenes and up to 28.5 ms here. With `TimeCOAPoly` set equal to `TimeCAPoly`, the two agree
-   to **≤ 0.04 mm on all five scenes**. So the converter reproduces the header's zero-Doppler
-   definition; the centimetres sit between the SICD's own COA and closest-approach descriptions.
+   scenes and up to 28.5 ms here. After setting `TimeCOAPoly` to `TimeCAPoly`, the two
+   implementations agree within **0.04 mm** at the sampled points of all five additional scenes.
+   This localizes the stock difference to sarkit's COA-dependent INCA projection path; it does
+   not establish an inconsistency in the unmodified SICD metadata, nor absolute geolocation
+   accuracy.
 3. **Phase convention.** Both new pairs give the conventional sign, `exp(−j4πR/λ)`, as the
    Mexico City pair did: range fringe rate raw/geometric 0.959 (R-A) and 1.005 (L-D), flattened
    residual −0.017 and 0.00003 of the geometric rate.
@@ -34,8 +36,8 @@ the same converter, templates and isce3 build.
    for one of the two pairs. An isce3-only reproducer is included.
 5. **GCOV.** isce3's RTC workflow runs on all five beta0 RSLCs (2.5-3.5 min each, `radarBand = 'X'`).
    On the right-looking reference scene, MultiRTC's start time is right and only its starting
-   range differs (−7.23 m, the tangent-plane error); with that one fix, **99.80 %** of 4.5 M common
-   pixels agree within 0.01 dB (Mexico City, left-looking: 99.98 % after two fixes).
+   range differs (−7.23 m); with that one fix, **99.80 %** of the 4.5 M pixels of common valid
+   support agree within 0.01 dB (Mexico City, left-looking: 99.98 % after two fixes).
 
 ## 1. Scenes
 
@@ -83,14 +85,19 @@ own `t_COA − t_CA`, which is asymmetric: on R-A 0207 near range at 870 m HAE, 
 1.7 mm at column 0 (−1.2 ms) and 24.8 mm at the last column (−20.5 ms). The geometry tool's
 1 cm tolerance fails on the two R-A scenes.
 
-Mechanism, closed by intervention: for INCA the converter maps a column to zero-Doppler time
+Localization by intervention: for INCA the converter maps a column to closest-approach time
 through `RMA/INCA/TimeCAPoly`, and isce3 projects on that zero-Doppler grid. sarkit projects each
-pixel at its COA time (`Grid/TimeCOAPoly`) through the INCA R/Rdot model (`DRateSFPoly`).
-`tools/sicd_coa_to_ca.py` rewrites the header with `TimeCOAPoly(x, y) := TimeCAPoly(y)`; sarkit on
-that header agrees with isce3 to ≤ 0.04 mm everywhere (last column). The converter therefore
-reproduces the header's closest-approach definition exactly, and the stock difference is between
-the header's two descriptions of the same pixel. This report does not say which description is
-closer to the ground truth; both paths agree to better than 0.06 px.
+pixel at its COA time (`Grid/TimeCOAPoly`) through the INCA R/Rdot relation
+([`r_rdot_from_rgzero`](https://github.com/ValkyrieSystems/sarkit/blob/v1.12.0/sarkit/sicd/projection/_calc.py#L425-L457)):
+R² = R_CA² + DRSF·|V_CA|²·Δt² and Rdot = DRSF·|V_CA|²·Δt / R, with Δt = t_COA − t_CA.
+`tools/sicd_coa_to_ca.py` rewrites the header with `TimeCOAPoly(x, y) := TimeCAPoly(y)`, so Δt = 0,
+R = R_CA and Rdot = 0: the `DRateSFPoly` term drops out and sarkit follows the same closest-approach
+relation as isce3. On that header the two implementations agree within 0.04 mm at the sampled points
+(last column). The intervention is a special case of sarkit's projection, not the original one: it
+shows that the converter and isce3 reproduce the closest-approach relation, and that the stock
+difference comes from the COA-dependent path (Δt and `DRateSFPoly`). It does not show which path is
+closer to the ground, nor that the unmodified metadata are inconsistent. The stock difference of up
+to 33.7 mm (0.055 px) remains what an unmodified-header comparison gives.
 
 The isce3 round trip closes to ≤ 1.9e-4 line and ≤ 6e-9 sample on every scene. As on Mexico City
 (Stage U0 §6.1), the header's `GeoData/SCP/ECF` is off the polynomial geometry along track, by 5.3,
@@ -161,12 +168,15 @@ one line early, starting range from the SCP tangent plane). On a right-looking s
 second should remain. Same tools as the RTC report (`tools/multirtc_capella_rtc.py`,
 `tools/compare_rtc.py`), on 20260204114511:
 
-| MultiRTC variant | start − ours | starting range − ours | predicted offset (along / across) | common pixels | within 0.01 dB | within 0.1 dB |
+| MultiRTC variant | start − ours | starting range − ours | predicted offset, grid only (along / across) | common valid pixels | within 0.01 dB | within 0.1 dB |
 |---|---|---|---|---|---|---|
 | stock | −0.005 line | −7.23 m (−11.7 samples) | +0.49 m / −8.79 m | 4,504,457 | 0.51 % | 5.1 % |
 | matched (shadow masking off) | −0.005 line | −7.23 m | +0.49 m / −8.79 m | 4,504,819 | 0.51 % | 5.1 % |
 | matched + starting-range fix | −0.005 line | 0 | −0.006 m / −0.0003 m | 4,510,602 | **99.80 %** | 99.9994 % |
 
+- Percentages are over each variant's common valid support. The predicted offset is rdr2geo of 25
+  points through both radar grids with our orbit and a constant height, i.e. the grid difference
+  alone, not a measured geolocation error of the RTC images.
 - The start time is right on this scene, as the grid survey predicts; the −0.005 line (0.86 µs) is
   sarpy's microsecond parsing of `CollectStart`.
 - With the starting-range fix: median 0.000 dB, p5 / p95 −0.0027 / +0.0027 dB; 1 GCOV-only and
@@ -176,16 +186,22 @@ second should remain. Same tools as the RTC report (`tools/multirtc_capella_rtc.
 
 ## 7. What this does and does not establish
 
-- Established: on six Capella stripmap scenes covering both look sides and both pass directions,
-  the converted RSLCs reproduce the headers' zero-Doppler geometry in isce3 to ≤ 0.04 mm against an
-  independent implementation, three pairs from two sites give the same phase convention, and
-  isce3's GCOV runs on every beta0 RSLC; on a right-looking scene its output matches an
-  independent ingest path (MultiRTC, one grid fix) to 99.80 % within 0.01 dB.
+- Established, geometry: seven scenes (Mexico City 2 + 5 here), both look sides and both pass
+  directions, compared with sarkit at 52 points each. Unmodified headers: up to 0.08 / 0.15 mm on
+  Mexico City and up to 33.7 mm here. With `TimeCOAPoly := TimeCAPoly` on the five additional
+  scenes: within 0.04 mm.
+- Established, phase: three pairs from two sites (L-A, R-A, L-D) give the conventional sign; the
+  range raw/geo and flat/geo ratios are the observation, and R-D pairs and other modes are not
+  covered.
+- Established, RTC: isce3's GCOV runs on six beta0 RSLCs (Mexico City 1 + 5 here). On the
+  right-looking scene it agrees with an independent ingest path that shares isce3's RTC core
+  (MultiRTC with one grid fix) on 99.80 % of the common valid support within 0.01 dB; this is not a
+  ground-truth or sub-millimetre geolocation result.
 - Not established: an R-D interferogram (no repeat pair in the open-data InSAR set); sliding
   spotlight (also RGZERO, untested); any producer other than Capella; RUNW/GUNW on X-band;
   absolute geolocation against ground truth.
-- The 3.4 cm stock geometry difference is explained, not removed: the two header descriptions of a
-  pixel disagree by that much where the COA time is far from closest approach.
+- The stock geometry difference (up to 33.7 mm) is localized, not removed: it comes from sarkit's
+  COA-dependent projection path and grows with the header's `t_COA − t_CA`.
 
 ## 8. Reproduce
 
