@@ -138,8 +138,10 @@ Three causes, each read from the pinned source (`src/multirtc/sicd.py`):
    for any phase use.
 
 With both geometry fixes, the residual start difference on this scene is
-0.93 µs, equal to the nanoseconds of `Timeline/CollectStart` (`…51.301024927`)
-that MultiRTC's microsecond datetime drops.
+0.93 µs, equal to the nanoseconds of `Timeline/CollectStart` (`…51.301024927`).
+They are dropped before MultiRTC sees the value: sarpy 1.3.59 parses
+`CollectStart` at microsecond precision by default (`Timeline.py`,
+`numpy_datetime_units='us'`), and MultiRTC takes its reference epoch from that.
 
 ### 3.2 Geocoded comparison
 
