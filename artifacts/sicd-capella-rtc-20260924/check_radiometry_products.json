@@ -1,0 +1,35 @@
+{
+ "dn_mode_vs_rifg_input": {
+  "identical_datasets": 82,
+  "differing": [
+   "science/LSAR/RSLC/metadata/calibrationInformation/frequencyA/noiseEquivalentBackscatter/HH",
+   "science/LSAR/RSLC/metadata/processingInformation/inputs/conversionDiagnostics",
+   "science/LSAR/identification/processingDateTime"
+  ],
+  "only_in_new": [
+   "science/LSAR/RSLC/metadata/processingInformation/inputs/radiometricCalibration"
+  ]
+ },
+ "beta0_vs_dn_window": {
+  "pixels": 4000000,
+  "power_ratio_min": 2.416259589058084e-05,
+  "power_ratio_max": 2.4162601448136693e-05,
+  "BetaZeroSFPoly_00": 2.416259929596222e-05,
+  "max_abs_phase_change_rad": 5.581783627174725e-08,
+  "noise_dn2_db_min_max": [
+   22.090435028076172,
+   27.561092376708984
+  ],
+  "noise_beta0_db_min_max": [
+   -24.078128337860107,
+   -18.607470989227295
+  ]
+ },
+ "gcov_readers_on_beta0": {
+  "beta0_lut_at_scene_centre": 1.0,
+  "noise_product_shape": [
+   57,
+   48
+  ]
+ }
+}

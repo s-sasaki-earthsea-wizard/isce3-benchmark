@@ -21,6 +21,7 @@ logs_*/
 !configs/alos2_kujukuri/pairs_ALOS2_kujukuri.json
 !artifacts/sicd_headers/*.json
 !artifacts/sicd-capella-20260923/*.json
+!artifacts/sicd-capella-rtc-20260924/*.json
 
 # Local environment overrides
 .env
