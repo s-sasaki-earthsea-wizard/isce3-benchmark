@@ -35,10 +35,14 @@ phase.
 | matched + start-time fix | +0.16 m / 9.65 m | +0.15 m / 8.58 m | 0.2 % |
 | matched + start-time fix + starting-range fix | −0.006 m / 0.000 m | 0.000 m / 0.000 m | **99.98 %** |
 
+The last column is over the common support. The wavelength difference (§3.1) is
+**not** corrected in any variant; it does not enter RTC but would enter any phase use.
+
 With two corrections to MultiRTC's radar grid — applied as runtime
 subclasses, its source untouched — the two paths produce the same gamma0 to
-numerical precision (median difference 3e-7 dB, p5–p95 ±0.0014 dB, offset
-0.2 mm over 8.1 M pixels). Without them, MultiRTC's product sits one azimuth
+numerical precision over the common support (median difference 3e-7 dB,
+p5–p95 ±0.0014 dB, offset 0.2 mm over 8.1 M common pixels; 5,764 edge pixels
+are valid in MultiRTC only). Without them, MultiRTC's product sits one azimuth
 line early and ~9.7 m towards near range.
 
 The calibrated radar-domain pixels agree before any geocoding: MultiRTC's
@@ -128,9 +132,9 @@ Three causes, each read from the pinned source (`src/multirtc/sicd.py`):
    the wavelength, so it does not appear in the table above; it would matter
    for any phase use.
 
-With both geometry fixes, the residual start difference is 0.93 µs — exactly
-the nanoseconds of `Timeline/CollectStart` (`…51.301024927`) that MultiRTC's
-microsecond datetime drops.
+With both geometry fixes, the residual start difference on this scene is
+0.93 µs, equal to the nanoseconds of `Timeline/CollectStart` (`…51.301024927`)
+that MultiRTC's microsecond datetime drops.
 
 ### 3.2 Geocoded comparison
 
