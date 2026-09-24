@@ -1,0 +1,60 @@
+{
+ "estimator": "block-averaged range/azimuth power spectrum peak of the unit-phasor interferogram",
+ "block_px_az_rg": [
+  64,
+  512
+ ],
+ "looks_az_rg": [
+  3,
+  5
+ ],
+ "wavelength_m": 0.031228398945197175,
+ "rifg_shape": [
+  6829,
+  1336
+ ],
+ "blocks_used_range": 191,
+ "blocks_total_range": 212,
+ "blocks_used_azimuth": 226,
+ "blocks_total_azimuth": 260,
+ "coherence_mean": {
+  "flat": 0.34744805097579956,
+  "noflat": 0.3473148047924042
+ },
+ "coherence_frac_above_0.5": {
+  "flat": 0.19978574115497225,
+  "noflat": 0.19949046116289898
+ },
+ "coherence_median_blocks": {
+  "flat": 0.3520759344100952,
+  "noflat": 0.3518856465816498
+ },
+ "range_fringe_cpp": {
+  "geo_median": 0.021831063644771668,
+  "geo_wrapped_median": 0.02183106364477172,
+  "raw_median": 0.02125570469628059,
+  "flat_median": -0.0004487874511332271,
+  "raw_over_geo": 0.9589001667952368,
+  "flat_over_geo": -0.0172605099690935,
+  "raw_minus_geo_median": -0.0008795892140996964,
+  "peak_to_median_power": {
+   "raw": 93.52513883789823,
+   "flat": 114.09278438691084
+  }
+ },
+ "azimuth_fringe_cpp": {
+  "geo_median": -0.008797531297167007,
+  "geo_wrapped_median": -0.00879753129716701,
+  "raw_median": -0.009519483113849217,
+  "flat_median": -0.0007327945268259641,
+  "raw_over_geo": 1.0857657444219426,
+  "flat_over_geo": 0.08408431266764191,
+  "raw_minus_geo_median": -0.0007248157740601946,
+  "peak_to_median_power": {
+   "raw": 101.71398414196133,
+   "flat": 122.40774640748248
+  }
+ },
+ "geometric_phase_span_cycles": 84.22706639431006,
+ "verdict": "CONVENTIONAL: raw fringe rate = geometric prediction, flattened residual ~0"
+}
