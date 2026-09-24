@@ -1,0 +1,23 @@
+ Container isce3-benchmark-dev-run-f7db0c96d170 Creating 
+ Container isce3-benchmark-dev-run-f7db0c96d170 Created 
+isce3 0.26.0-dev+2919e1c97
+
+niscemi_ra (right-looking)
+  center frequency difference  26.019 Hz  (2.71e-09 relative)
+  bandwidth difference         0.542 Hz
+  bandpass triggered (!=)      True  -> target = sec
+  (high - low) - base bw       +0.000e+00 Hz
+  rg_sample_freq % new_fs      2.980e-08 Hz  (threshold 1e-7)
+  isce3 bandpass_shift_spectrum  OK
+
+niscemi_ld (left-looking)
+  center frequency difference  26.040 Hz  (2.71e-09 relative)
+  bandwidth difference         0.543 Hz
+  bandpass triggered (!=)      True  -> target = sec
+  (high - low) - base bw       -1.907e-06 Hz
+  rg_sample_freq % new_fs      2.325e-06 Hz  (threshold 1e-7)
+  isce3 bandpass_shift_spectrum  ApplicationError: splitspectrum.bandpass_shift_spectrum: application error
+
+REPRODUCED
+journal (splitspectrum.bandpass_shift_spectrum):
+ -- Resampling scaling factor 1.0000000000000095 must be an integer.

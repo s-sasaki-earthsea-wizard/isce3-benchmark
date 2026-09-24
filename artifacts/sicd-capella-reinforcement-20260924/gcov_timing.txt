@@ -1,0 +1,20 @@
+== gcov_20260204114511
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:38.34
+	Maximum resident set size (kbytes): 4092864
+	Exit status: 0
+== gcov_20260207104155
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:27.23
+	Maximum resident set size (kbytes): 3957480
+	Exit status: 0
+== gcov_20260204183253
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:46.05
+	Maximum resident set size (kbytes): 3033728
+	Exit status: 0
+== gcov_20260207172937
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:42.30
+	Maximum resident set size (kbytes): 3037828
+	Exit status: 0
+== gcov_20260627144157
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:20.79
+	Maximum resident set size (kbytes): 7617688
+	Exit status: 0

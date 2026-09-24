@@ -1,0 +1,94 @@
+# GCOV (RTC gamma0) for one Capella stripmap scene, from the beta0-calibrated
+# RSLC written by tools/sicd_to_nisar_rslc.py <sicd> <out> --radiometry beta0
+# (bench#54 reinforcement).
+#
+# Generalised from configs/gcov_capella_mexico_city_20240626.yaml, which stays
+# as the record of the Mexico City run (and documents why each setting matches
+# MultiRTC's RtcOptions); every processing setting is the same. Rendered by
+# scripts/capella_reinforcement_steps.sh gcov; placeholders:
+#   gcov_20260204183253     run tag, also the output file stem
+#   /data/capella_reinforcement/rslc_beta0/20260204183253.h5     beta0 RSLC (container path)
+#   /data/capella_reinforcement/dem_niscemi.tif      DEM (container path), Copernicus GLO-30 over Niscemi, bbox 14.20 37.00 14.57 37.29 (fetch/fetch_dem_bbox.py, dem_stitcher, ellipsoidal heights, EPSG:4326) its one-line description
+#   /data/capella_reinforcement/gcov/20260204183253      product directory, /scratch/gcov_20260204183253 scratch directory
+#   32633     UTM EPSG of the scene centre (5 m posting, snapped to 5 m)
+runconfig:
+    name: gcov_20260204183253
+
+    groups:
+        pge_name_group:
+            pge_name: GCOV_L_PGE
+
+        primary_executable:
+            product_type: GCOV
+
+        debug_level_group:
+            debug_switch: false
+
+        input_file_group:
+            input_file_path: /data/capella_reinforcement/rslc_beta0/20260204183253.h5
+
+        dynamic_ancillary_file_group:
+            dem_file: /data/capella_reinforcement/dem_niscemi.tif
+            dem_file_description: >-
+                Copernicus GLO-30 over Niscemi, bbox 14.20 37.00 14.57 37.29 (fetch/fetch_dem_bbox.py, dem_stitcher, ellipsoidal heights, EPSG:4326)
+
+        product_path_group:
+            product_path: /data/capella_reinforcement/gcov/20260204183253
+            scratch_path: /scratch/gcov_20260204183253
+            sas_output_file: /data/capella_reinforcement/gcov/20260204183253/gcov_20260204183253.h5
+
+        processing:
+            input_subset:
+                list_of_frequencies:
+                    A: [HH]
+
+            rtc:
+                output_type: gamma0
+                algorithm_type: area_projection
+                input_terrain_radiometry: beta0
+                rtc_min_value_db: -30.0
+                dem_upsampling: 2
+                area_beta_mode: auto
+
+            geocode:
+                algorithm_type: area_projection
+                apply_rtc: True
+                apply_valid_samples_sub_swath_masking: False
+                apply_shadow_masking: False
+                memory_mode: single_block
+                geogrid_upsampling: 1
+                save_nlooks: True
+                save_rtc_anf: True
+                save_mask: True
+                abs_rad_cal: 1
+                clip_max:
+                clip_min:
+                upsample_radargrid: False
+                output_epsg: 32633
+                output_posting:
+                    A:
+                        x_posting: 5.0
+                        y_posting: 5.0
+                    B:
+                        x_posting:
+                        y_posting:
+                x_snap: 5.0
+                y_snap: 5.0
+                top_left:
+                    y_abs:
+                    x_abs:
+                bottom_right:
+                    y_abs:
+                    x_abs:
+
+            geo2rdr:
+                threshold: 1.0e-7
+                maxiter: 50
+
+            dem_interpolation_method: biquintic
+
+            noise_correction:
+                apply_correction: False
+
+        worker:
+            gpu_enabled: False

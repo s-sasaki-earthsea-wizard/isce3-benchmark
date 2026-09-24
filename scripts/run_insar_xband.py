@@ -15,6 +15,15 @@ before the writer stops the run (see the failed console logs of
 This wrapper replaces that method with the IEEE band table (L, S, C, X,
 Ku, K, Ka) and then runs the workflow exactly as ``python -m
 nisar.workflows.insar`` would. It touches nothing in the isce3 source tree.
+
+Optional, off by default: ``XBAND_BANDPASS_REL_TOL=<tol>`` in the environment
+replaces ``isce3.splitspectrum.splitspectrum.check_range_bandwidth_overlap``
+(used by ``bandpass_insar`` and by the writer's ``isMixedMode``) with a version
+that treats centre frequencies and bandwidths within ``tol`` (relative) as
+equal. The stock check uses ``!=``, so Capella pairs whose header values
+differ by 26 Hz at 9.6 GHz (2.7e-9) and 0.54 Hz in bandwidth are bandpassed,
+and the bandpass then fails its integer-ratio check on float rounding for
+some pairs (``scripts/repro_bandpass_ratio_check.py``).
 Finding candidate for the upstream RFC: the check should either use the
 IEEE table or warn instead of raising.
 
@@ -24,6 +33,8 @@ Usage (inside the dev container)::
 """
 
 from __future__ import annotations
+
+import os
 
 from nisar.products.insar import InSAR_base_writer as _base
 from nisar.workflows import h5_prep
@@ -47,9 +58,39 @@ def _get_band_name_ieee(self):
     raise ValueError(f"centre frequency {ghz:.3f} GHz is outside the IEEE L..Ka bands")
 
 
+def _make_overlap_check(rel_tol: float):
+    """check_range_bandwidth_overlap with a relative tolerance instead of ``!=``."""
+    import math
+
+    from isce3.splitspectrum.splitspectrum import BandpassMetaData
+
+    def check_range_bandwidth_overlap(ref_slc, sec_slc, pols):
+        mode = {}
+        for freq in pols:
+            ref = BandpassMetaData.load_from_slc(ref_slc, freq)
+            sec = BandpassMetaData.load_from_slc(sec_slc, freq)
+            d_fc = abs(ref.center_freq - sec.center_freq)
+            d_bw = abs(ref.rg_bandwidth - sec.rg_bandwidth)
+            same = (math.isclose(ref.center_freq, sec.center_freq, rel_tol=rel_tol)
+                    and math.isclose(ref.rg_bandwidth, sec.rg_bandwidth, rel_tol=rel_tol))
+            if not same:
+                mode[freq] = "ref" if ref.rg_bandwidth > sec.rg_bandwidth else "sec"
+            print(f"run_insar_xband: overlap check freq {freq}: centre frequencies {d_fc:.3f} Hz apart, "
+                  f"bandwidths {d_bw:.3f} Hz apart, rel_tol {rel_tol:g} -> "
+                  f"{'bandpass ' + mode[freq] if freq in mode else 'no bandpass'}", flush=True)
+        return mode
+
+    return check_range_bandwidth_overlap
+
+
 def main() -> None:
     _base.InSARBaseWriter._get_band_name = _get_band_name_ieee
     print("run_insar_xband: InSARBaseWriter._get_band_name patched to the IEEE band table")
+    tol = os.environ.get("XBAND_BANDPASS_REL_TOL")
+    if tol:
+        from isce3.splitspectrum import splitspectrum as _ss
+        _ss.check_range_bandwidth_overlap = _make_overlap_check(float(tol))
+        print(f"run_insar_xband: check_range_bandwidth_overlap patched (rel_tol {float(tol):g})")
 
     args = YamlArgparse().parse()
     runcfg = InsarRunConfig(args)
