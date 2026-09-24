@@ -56,6 +56,10 @@ case "$PAIR" in
         CONFIG_DIR=${CONFIG_DIR:-configs/capella_reinforcement}
         OUT_ROOT=${OUT_ROOT:-$BENCH/data/capella_reinforcement/rifg}
         DEM=$REIN/dem_niscemi.tif; DEM_DESC=$NISCEMI_DEM_DESC; EPSG=32633; HEIGHTS=$NISCEMI_HEIGHTS
+        # Header centre frequencies differ by 26 Hz and bandwidths by 0.54 Hz: without a
+        # tolerance isce3 bandpasses the secondary and can fail on float rounding
+        # (scripts/repro_bandpass_ratio_check.py). BANDPASS_REL_TOL= (empty) runs stock.
+        BANDPASS_REL_TOL=${BANDPASS_REL_TOL-1e-6}
         if [ "$PAIR" = niscemi_ra ]; then
             REF=$REIN/rslc/20260204114511.h5; SEC=$REIN/rslc/20260207104155.h5
             TAG=rifg_capella_niscemi_ra_20260204_20260207
@@ -108,6 +112,7 @@ for v in "${VARIANTS[@]}"; do
     mkdir -p "$out" "$scratch"; rm -f "$out/.complete"
     t0=$(date +%s)
     ( docker compose run --rm -T -v "$out:/out" -v "$scratch:/scratch" \
+        -e XBAND_BANDPASS_REL_TOL="${BANDPASS_REL_TOL:-}" \
         dev /usr/bin/time -v python3 /work/scripts/run_insar_xband.py \
             "/work/$CONFIG_DIR/insar_$name.yaml" --restart
     ) > "$out/console.log" 2>&1
