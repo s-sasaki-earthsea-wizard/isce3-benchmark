@@ -24,8 +24,9 @@ the same converter, templates and isce3 build.
    **3.4 cm** (0.055 px) on the stock sarkit projection. The difference tracks the header's
    centre-of-aperture (COA) time offset from closest approach, which is 0 on the Mexico City
    scenes and up to 28.5 ms here. With `TimeCOAPoly` set equal to `TimeCAPoly`, the two agree
-   to **≤ 0.04 mm on all five scenes**. So the converter reproduces the header's zero-Doppler
-   definition; the centimetres sit between the SICD's own COA and closest-approach descriptions.
+   to **≤ 0.04 mm on all five scenes**. So the converter reproduces the header's closest-approach
+   (INCA) definition exactly; the centimetres sit between the SICD's own COA and closest-approach
+   descriptions.
 3. **Phase convention.** Both new pairs give the conventional sign, `exp(−j4πR/λ)`, as the
    Mexico City pair did: range fringe rate raw/geometric 0.959 (R-A) and 1.005 (L-D), flattened
    residual −0.017 and 0.00003 of the geometric rate.
@@ -177,8 +178,8 @@ second should remain. Same tools as the RTC report (`tools/multirtc_capella_rtc.
 ## 7. What this does and does not establish
 
 - Established: on six Capella stripmap scenes covering both look sides and both pass directions,
-  the converted RSLCs reproduce the headers' zero-Doppler geometry in isce3 to ≤ 0.04 mm against an
-  independent implementation, three pairs from two sites give the same phase convention, and
+  the converted RSLCs reproduce the headers' closest-approach (INCA) geometry in isce3 to ≤ 0.04 mm
+  against an independent implementation (with the COA time aligned), three pairs from two sites give the same phase convention, and
   isce3's GCOV runs on every beta0 RSLC; on a right-looking scene its output matches an
   independent ingest path (MultiRTC, one grid fix) to 99.80 % within 0.01 dB.
 - Not established: an R-D interferogram (no repeat pair in the open-data InSAR set); sliding
