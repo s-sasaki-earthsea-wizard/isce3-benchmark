@@ -151,6 +151,18 @@ capella-multirtc: ## MultiRTC diagnostic variants (stock, matched, matched-tfix,
 capella-rtc-compare: ## Compare isce3 GCOV with each MultiRTC variant (radar grid, pixels, geocoded gamma0) into ./data/capella_mexico_city/rtc_compare
 	$(RUN) bash scripts/capella_rtc_steps.sh compare
 
+.PHONY: data-capella-reinforcement
+data-capella-reinforcement: ## Capella reinforcement SICDs (Niscemi R-A + L-D pairs, Yumare R-D) into ./data/capella_reinforcement (~2.9 GB)
+	mkdir -p data/capella_reinforcement
+	bash fetch/fetch_capella_sicd.sh --out data/capella_reinforcement --set reinforcement \
+	    > data/capella_reinforcement/fetch.log; rc=$$?; cat data/capella_reinforcement/fetch.log; exit $$rc
+
+.PHONY: multirtc-grid-survey
+multirtc-grid-survey: ## MultiRTC RGZERO radar grid vs SICD definition on every Capella SICD on disk (metadata only; needs multirtc-setup)
+	$(RUN) bash -c 'export PYTHONPATH=/data/external/multirtc-site:$$PYTHONPATH; \
+	    python tools/multirtc_grid_survey.py /data/capella_mexico_city/*.ntf /data/capella_reinforcement/*.ntf \
+	    --out /work/artifacts/multirtc-grid-survey-20260924/survey.json'
+
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
