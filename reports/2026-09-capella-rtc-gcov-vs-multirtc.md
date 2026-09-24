@@ -22,7 +22,7 @@ The SICD → NISAR RSLC converter now has a `--radiometry beta0` option, and the
 beta0 product runs through isce3's own RTC workflow (`nisar.workflows.gcov`)
 on X-band, metadata included, in 3 min 51 s.
 
-To test that path against the one existing downstream implementation, the
+To test that path against an existing downstream implementation, the
 same SICD was run through MultiRTC with matched options on the same isce3
 build and DEM. Both paths share one geocode/RTC core, so this compares the
 **ingest and packaging**, not RTC algorithms, and it says nothing about InSAR
