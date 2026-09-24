@@ -108,13 +108,15 @@ capella-convert: ## Convert both Capella SICDs to NISAR RSLC HDF5 (tools/sicd_to
 	$(RUN) bash -c 'for s in 20240626150051_20240626150055 20240629134910_20240629134915; do \
 	    python tools/sicd_to_nisar_rslc.py /data/capella_mexico_city/CAPELLA_C14_SM_SICD_HH_$$s.ntf \
 	        /data/capella_mexico_city/rslc/$${s:0:8}.h5 --overwrite \
-	        > /data/capella_mexico_city/logs/convert_$${s:0:8}.log 2>&1 && echo "CONVERT-OK $${s:0:8}"; done'
+	        > /data/capella_mexico_city/logs/convert_$${s:0:8}.log 2>&1 \
+	        || { echo "FAIL convert $${s:0:8}" >&2; exit 1; }; echo "CONVERT-OK $${s:0:8}"; done'
 
 .PHONY: capella-geometry-check
 capella-geometry-check: ## isce3 half of the RSLC geometry round-trip (the sarkit half runs on the host, see the report)
 	$(RUN) bash -c 'for d in 20240626 20240629; do \
 	    python tools/sicd_rslc_geometry_check.py isce3 /data/capella_mexico_city/rslc/$$d.h5 \
-	        --out /data/capella_mexico_city/rslc/geom_isce3_$$d.json; done'
+	        --out /data/capella_mexico_city/rslc/geom_isce3_$$d.json \
+	        || { echo "FAIL geometry-check $$d" >&2; exit 1; }; done'
 
 .PHONY: capella-rifg
 capella-rifg: ## Run insar.py to RIFG on the Capella pair, crossmul flatten on and off (scripts/run_capella_pair.sh)
