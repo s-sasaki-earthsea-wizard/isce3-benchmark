@@ -157,6 +157,29 @@ data-capella-reinforcement: ## Capella reinforcement SICDs (Niscemi R-A + L-D pa
 	bash fetch/fetch_capella_sicd.sh --out data/capella_reinforcement --set reinforcement \
 	    > data/capella_reinforcement/fetch.log; rc=$$?; cat data/capella_reinforcement/fetch.log; exit $$rc
 
+.PHONY: capella-rein-dem capella-rein-convert capella-rein-geometry capella-rein-rifg capella-rein-gcov
+capella-rein-dem: ## Copernicus GLO-30 DEMs for the reinforcement sites (Niscemi, Yumare) into ./data/capella_reinforcement
+	$(RUN) bash scripts/capella_reinforcement_steps.sh dem
+
+capella-rein-convert: ## Convert the 5 reinforcement SICDs to DN RSLCs (InSAR) and beta0 RSLCs (GCOV)
+	$(RUN) bash -c 'bash scripts/capella_reinforcement_steps.sh convert && bash scripts/capella_reinforcement_steps.sh convert-beta0'
+
+capella-rein-geometry: ## isce3 half of the RSLC geometry round-trip on the 5 reinforcement RSLCs (sarkit half on the host)
+	$(RUN) bash scripts/capella_reinforcement_steps.sh geometry
+
+capella-rein-rifg: ## RIFG flat + noflat on the Niscemi right-looking and left-looking pairs (scripts/run_capella_pair.sh)
+	bash scripts/run_capella_pair.sh --pair niscemi_ra flat noflat
+	bash scripts/run_capella_pair.sh --pair niscemi_ld flat noflat
+
+capella-rein-gcov: ## isce3 GCOV (RTC gamma0, 5 m, local UTM) on the 5 reinforcement beta0 RSLCs, scratch in $$HOME/scratch/capella
+	mkdir -p $(HOME)/scratch/capella
+	$(COMPOSE) run --rm -T -v $(HOME)/scratch/capella:/scratch -e SCRATCH=/scratch dev \
+	    bash scripts/capella_reinforcement_steps.sh gcov
+
+.PHONY: capella-rein-multirtc
+capella-rein-multirtc: ## MultiRTC stock/matched/matched-tfix-rfix on the Niscemi right-looking reference scene, compared with its GCOV (needs multirtc-setup, capella-rein-gcov)
+	$(RUN) bash -c 'bash scripts/capella_reinforcement_steps.sh multirtc && bash scripts/capella_reinforcement_steps.sh rtc-compare'
+
 .PHONY: multirtc-grid-survey
 multirtc-grid-survey: ## MultiRTC RGZERO radar grid vs SICD definition on every Capella SICD on disk (metadata only; needs multirtc-setup)
 	$(RUN) bash -c 'export PYTHONPATH=/data/external/multirtc-site:$$PYTHONPATH; \
