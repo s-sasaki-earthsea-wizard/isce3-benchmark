@@ -1,0 +1,10 @@
+isce3 0.26.0-dev+2919e1c97  test data /opt/isce3-src/tests/data/  workdir /tmp/bandcheck
+control  winnipeg.h5 frequencyA processedCenterFrequency 1.2430 GHz -> 1.2430 GHz
+control  winnipeg.h5 frequencyB processedCenterFrequency 1.2700 GHz -> 1.2700 GHz
+xband    winnipeg.h5 frequencyA processedCenterFrequency 1.2430 GHz -> 9.6500 GHz
+xband    winnipeg.h5 frequencyB processedCenterFrequency 1.2700 GHz -> 9.6500 GHz
+envisat  envisat.h5 frequencyA processedCenterFrequency 5.3310 GHz -> 5.3310 GHz
+control  OK: RIFG skeleton written
+xband    ValueError: Unknown frequency encountered. Not L or S band  (raised in InSAR_base_writer.py:1299 _get_band_name)
+envisat  ValueError: Unknown frequency encountered. Not L or S band  (raised in InSAR_base_writer.py:1299 _get_band_name)
+REPRODUCED
