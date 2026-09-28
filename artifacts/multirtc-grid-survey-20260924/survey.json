@@ -1,0 +1,465 @@
+{
+ "env": {
+  "isce3": "0.26.0-dev+2919e1c97",
+  "sarpy": "1.3.59",
+  "multirtc_sha": "a0edba80a05c923b03ffae378e4a1faf293b0f0f",
+  "numpy": "1.26.4"
+ },
+ "scenes": [
+  {
+   "scene": "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055",
+   "side_of_track": "L",
+   "shape_rows_cols": [
+    10631,
+    19191
+   ],
+   "grid_type": "RGZERO",
+   "time_ca_poly_slope": -0.00015154078753322782,
+   "multirtc_az_reversed": true,
+   "sensing_start": {
+    "multirtc_s": 0.5883730818414261,
+    "sicd_s": 0.58853409392818,
+    "diff_lines": -0.9999999999990263
+   },
+   "prf": {
+    "multirtc_hz": 6210.713867260765,
+    "sicd_hz": 6210.713867260765,
+    "ratio": 1.0
+   },
+   "starting_range": {
+    "multirtc_m": 761269.2346059134,
+    "rgzero_row0_m": 761275.5576171188,
+    "diff_m": -6.323011205415241,
+    "diff_samples": -10.244878915103175,
+    "per_column": [
+     {
+      "col": 0,
+      "ycol_km": -10.1946875,
+      "multirtc_minus_rgzero_m": -6.323011205415241
+     },
+     {
+      "col": 4797,
+      "ycol_km": -5.097875,
+      "multirtc_minus_rgzero_m": -1.5810225881868973
+     },
+     {
+      "col": 9595,
+      "ycol_km": 0.0,
+      "multirtc_minus_rgzero_m": 0.00011015962809324265
+     },
+     {
+      "col": 14393,
+      "ycol_km": 5.097875,
+      "multirtc_minus_rgzero_m": -1.5811635385034606
+     },
+     {
+      "col": 19190,
+      "ycol_km": 10.1946875,
+      "multirtc_minus_rgzero_m": -6.323725812486373
+     }
+    ]
+   },
+   "wavelength": {
+    "multirtc_m": 0.02078283965270747,
+    "tx_centre_m": 0.03106657637062402,
+    "multirtc_centre_ghz": 14.424999808,
+    "tx_centre_ghz": 9.649999872
+   },
+   "collect_start": {
+    "xml": "2024-06-26T15:00:51.301024927Z",
+    "sarpy": "2024-06-26T15:00:51.301024",
+    "dropped_ns": 927
+   }
+  },
+  {
+   "scene": "CAPELLA_C14_SM_SICD_HH_20240629134910_20240629134915",
+   "side_of_track": "L",
+   "shape_rows_cols": [
+    10610,
+    19142
+   ],
+   "grid_type": "RGZERO",
+   "time_ca_poly_slope": -0.00015149381426573624,
+   "multirtc_az_reversed": true,
+   "sensing_start": {
+    "multirtc_s": 0.5997506841305629,
+    "sicd_s": 0.5999116463082201,
+    "diff_lines": -0.9999999999995014
+   },
+   "prf": {
+    "multirtc_hz": 6212.639606111653,
+    "sicd_hz": 6212.639606111651,
+    "ratio": 1.0000000000000002
+   },
+   "starting_range": {
+    "multirtc_m": 759629.3077884635,
+    "rgzero_row0_m": 759635.5998340332,
+    "diff_m": -6.292045569629408,
+    "diff_samples": -10.194706745728661,
+    "per_column": [
+     {
+      "col": 0,
+      "ycol_km": -10.168125,
+      "multirtc_minus_rgzero_m": -6.292045569629408
+     },
+     {
+      "col": 4785,
+      "ycol_km": -5.0840625,
+      "multirtc_minus_rgzero_m": -1.573031151900068
+     },
+     {
+      "col": 9570,
+      "ycol_km": 0.0,
+      "multirtc_minus_rgzero_m": 1.5750061720609665e-05
+     },
+     {
+      "col": 14356,
+      "ycol_km": 5.085125,
+      "multirtc_minus_rgzero_m": -1.5737927380250767
+     },
+     {
+      "col": 19141,
+      "ycol_km": 10.1691875,
+      "multirtc_minus_rgzero_m": -6.293997417669743
+     }
+    ]
+   },
+   "wavelength": {
+    "multirtc_m": 0.02078283965270747,
+    "tx_centre_m": 0.03106657637062402,
+    "multirtc_centre_ghz": 14.424999808,
+    "tx_centre_ghz": 9.649999872
+   },
+   "collect_start": {
+    "xml": "2024-06-29T13:49:10.447271642Z",
+    "sarpy": "2024-06-29T13:49:10.447271",
+    "dropped_ns": 642
+   }
+  },
+  {
+   "scene": "CAPELLA_C13_SM_SICD_HH_20260204114511_20260204114516",
+   "side_of_track": "R",
+   "shape_rows_cols": [
+    6684,
+    20489
+   ],
+   "grid_type": "RGZERO",
+   "time_ca_poly_slope": 0.00015367589446753843,
+   "multirtc_az_reversed": false,
+   "sensing_start": {
+    "multirtc_s": 0.8672335477618773,
+    "sicd_s": 0.8672335477618773,
+    "diff_lines": 0.0
+   },
+   "prf": {
+    "multirtc_hz": 5992.243042040895,
+    "sicd_hz": 5992.243042040895,
+    "ratio": 1.0
+   },
+   "starting_range": {
+    "multirtc_m": 983682.1228239334,
+    "rgzero_row0_m": 983689.3577408057,
+    "diff_m": -7.234916872344911,
+    "diff_samples": -11.7223969577234,
+    "per_column": [
+     {
+      "col": 0,
+      "ycol_km": -11.12434375,
+      "multirtc_minus_rgzero_m": -7.234916872344911
+     },
+     {
+      "col": 5122,
+      "ycol_km": -5.562171875,
+      "multirtc_minus_rgzero_m": -1.8086553058819845
+     },
+     {
+      "col": 10244,
+      "ycol_km": 0.0,
+      "multirtc_minus_rgzero_m": 0.00018628325778990984
+     },
+     {
+      "col": 15366,
+      "ycol_km": 5.562171875,
+      "multirtc_minus_rgzero_m": -1.8086786716012284
+     },
+     {
+      "col": 20488,
+      "ycol_km": 11.12434375,
+      "multirtc_minus_rgzero_m": -7.235501684597693
+     }
+    ]
+   },
+   "wavelength": {
+    "multirtc_m": 0.020891472548545044,
+    "tx_centre_m": 0.031228398945197175,
+    "multirtc_centre_ghz": 14.349991715681076,
+    "tx_centre_ghz": 9.599994496231037
+   },
+   "collect_start": {
+    "xml": "2026-02-04T11:45:11.267517861Z",
+    "sarpy": "2026-02-04T11:45:11.267517",
+    "dropped_ns": 861
+   }
+  },
+  {
+   "scene": "CAPELLA_C13_SM_SICD_HH_20260204183253_20260204183257",
+   "side_of_track": "L",
+   "shape_rows_cols": [
+    4832,
+    19910
+   ],
+   "grid_type": "RGZERO",
+   "time_ca_poly_slope": -0.00015039056739497083,
+   "multirtc_az_reversed": true,
+   "sensing_start": {
+    "multirtc_s": 0.6724955437396916,
+    "sicd_s": 0.6726576835701641,
+    "diff_lines": -0.9999999999989314
+   },
+   "prf": {
+    "multirtc_hz": 6167.516008155413,
+    "sicd_hz": 6167.516008155412,
+    "ratio": 1.0000000000000002
+   },
+   "starting_range": {
+    "multirtc_m": 735154.8441499044,
+    "rgzero_row0_m": 735162.0201273747,
+    "diff_m": -7.17597747023683,
+    "diff_samples": -11.626900204940688,
+    "per_column": [
+     {
+      "col": 0,
+      "ycol_km": -10.73165625,
+      "multirtc_minus_rgzero_m": -7.17597747023683
+     },
+     {
+      "col": 4977,
+      "ycol_km": -5.365828125,
+      "multirtc_minus_rgzero_m": -1.7940036497311667
+     },
+     {
+      "col": 9954,
+      "ycol_km": 0.0,
+      "multirtc_minus_rgzero_m": 1.596938818693161e-05
+     },
+     {
+      "col": 14932,
+      "ycol_km": 5.36690625,
+      "multirtc_minus_rgzero_m": -1.7944656528998166
+     },
+     {
+      "col": 19909,
+      "ycol_km": 10.732734375,
+      "multirtc_minus_rgzero_m": -7.17651547677815
+     }
+    ]
+   },
+   "wavelength": {
+    "multirtc_m": 0.02089147255398537,
+    "tx_centre_m": 0.031228398953273052,
+    "multirtc_centre_ghz": 14.34999171194421,
+    "tx_centre_ghz": 9.599994493748413
+   },
+   "collect_start": {
+    "xml": "2026-02-04T18:32:53.365997883Z",
+    "sarpy": "2026-02-04T18:32:53.365997",
+    "dropped_ns": 883
+   }
+  },
+  {
+   "scene": "CAPELLA_C13_SM_SICD_HH_20260207104155_20260207104201",
+   "side_of_track": "R",
+   "shape_rows_cols": [
+    6683,
+    20270
+   ],
+   "grid_type": "RGZERO",
+   "time_ca_poly_slope": 0.0001536743996574173,
+   "multirtc_az_reversed": false,
+   "sensing_start": {
+    "multirtc_s": 0.8596668345622276,
+    "sicd_s": 0.8596668345622276,
+    "diff_lines": 0.0
+   },
+   "prf": {
+    "multirtc_hz": 5949.499176986601,
+    "sicd_hz": 5949.499176986602,
+    "ratio": 0.9999999999999998
+   },
+   "starting_range": {
+    "multirtc_m": 983805.554862847,
+    "rgzero_row0_m": 983812.7381134487,
+    "diff_m": -7.183250601752661,
+    "diff_samples": -11.63868451929545,
+    "per_column": [
+     {
+      "col": 0,
+      "ycol_km": -11.08515625,
+      "multirtc_minus_rgzero_m": -7.183250601752661
+     },
+     {
+      "col": 5067,
+      "ycol_km": -5.543125,
+      "multirtc_minus_rgzero_m": -1.7963141503278166
+     },
+     {
+      "col": 10135,
+      "ycol_km": 0.0,
+      "multirtc_minus_rgzero_m": -0.00011498993262648582
+     },
+     {
+      "col": 15202,
+      "ycol_km": 5.54203125,
+      "multirtc_minus_rgzero_m": -1.795617677969858
+     },
+     {
+      "col": 20269,
+      "ycol_km": 11.0840625,
+      "multirtc_minus_rgzero_m": -7.182325463974848
+     }
+    ]
+   },
+   "wavelength": {
+    "multirtc_m": 0.020891472605562428,
+    "tx_centre_m": 0.031228399029836467,
+    "multirtc_centre_ghz": 14.349991676516819,
+    "tx_centre_ghz": 9.599994470211875
+   },
+   "collect_start": {
+    "xml": "2026-02-07T10:41:56.095487671Z",
+    "sarpy": "2026-02-07T10:41:56.095487",
+    "dropped_ns": 671
+   }
+  },
+  {
+   "scene": "CAPELLA_C13_SM_SICD_HH_20260207172937_20260207172942",
+   "side_of_track": "L",
+   "shape_rows_cols": [
+    4834,
+    19936
+   ],
+   "grid_type": "RGZERO",
+   "time_ca_poly_slope": -0.00015038905742890832,
+   "multirtc_az_reversed": true,
+   "sensing_start": {
+    "multirtc_s": 0.6736112907424359,
+    "sicd_s": 0.6737734289449766,
+    "diff_lines": -1.0000000000012244
+   },
+   "prf": {
+    "multirtc_hz": 6167.5779324737205,
+    "sicd_hz": 6167.5779324737205,
+    "ratio": 1.0
+   },
+   "starting_range": {
+    "multirtc_m": 735325.4888676803,
+    "rgzero_row0_m": 735332.6822046275,
+    "diff_m": -7.193336947239004,
+    "diff_samples": -11.655026952488512,
+    "per_column": [
+     {
+      "col": 0,
+      "ycol_km": -10.745671875,
+      "multirtc_minus_rgzero_m": -7.193336947239004
+     },
+     {
+      "col": 4984,
+      "ycol_km": -5.372296875,
+      "multirtc_minus_rgzero_m": -1.7980195033596829
+     },
+     {
+      "col": 9967,
+      "ycol_km": 0.0,
+      "multirtc_minus_rgzero_m": 7.347215432673693e-05
+     },
+     {
+      "col": 14952,
+      "ycol_km": 5.374453125,
+      "multirtc_minus_rgzero_m": -1.7988831212278455
+     },
+     {
+      "col": 19935,
+      "ycol_km": 10.74675,
+      "multirtc_minus_rgzero_m": -7.193232595222071
+     }
+    ]
+   },
+   "wavelength": {
+    "multirtc_m": 0.02089147261104849,
+    "tx_centre_m": 0.031228399037980234,
+    "multirtc_centre_ghz": 14.349991672748537,
+    "tx_centre_ghz": 9.599994467708381
+   },
+   "collect_start": {
+    "xml": "2026-02-07T17:29:38.133028256Z",
+    "sarpy": "2026-02-07T17:29:38.133028",
+    "dropped_ns": 256
+   }
+  },
+  {
+   "scene": "CAPELLA_C15_SM_SICD_HH_20260627144157_20260627144201",
+   "side_of_track": "R",
+   "shape_rows_cols": [
+    11408,
+    23254
+   ],
+   "grid_type": "RGZERO",
+   "time_ca_poly_slope": 0.00014381240717902444,
+   "multirtc_az_reversed": false,
+   "sensing_start": {
+    "multirtc_s": 1.000725324,
+    "sicd_s": 1.000725324,
+    "diff_lines": 0.0
+   },
+   "prf": {
+    "multirtc_hz": 9043.553592271806,
+    "sicd_hz": 9043.553592271805,
+    "ratio": 1.0000000000000002
+   },
+   "starting_range": {
+    "multirtc_m": 830342.3612299253,
+    "rgzero_row0_m": 830347.135803603,
+    "diff_m": -4.774573677685112,
+    "diff_samples": -7.736018110679675,
+    "per_column": [
+     {
+      "col": 0,
+      "ycol_km": -8.939890516658009,
+      "multirtc_minus_rgzero_m": -4.774573677685112
+     },
+     {
+      "col": 5813,
+      "ycol_km": -4.470329703607953,
+      "multirtc_minus_rgzero_m": -1.193880493636243
+     },
+     {
+      "col": 11627,
+      "ycol_km": 0.0,
+      "multirtc_minus_rgzero_m": -9.049312211573124e-06
+     },
+     {
+      "col": 17440,
+      "ycol_km": 4.469560813050057,
+      "multirtc_minus_rgzero_m": -1.1931723116431385
+     },
+     {
+      "col": 23253,
+      "ycol_km": 8.939121626100114,
+      "multirtc_minus_rgzero_m": -4.77274296793621
+     }
+    ]
+   },
+   "wavelength": {
+    "multirtc_m": 0.020782840028993343,
+    "tx_centre_m": 0.03106657692923067,
+    "multirtc_centre_ghz": 14.424999546826664,
+    "tx_centre_ghz": 9.649999698483809
+   },
+   "collect_start": {
+    "xml": "2026-06-27T14:41:56.939136065Z",
+    "sarpy": "2026-06-27T14:41:56.939136",
+    "dropped_ns": 65
+   }
+  }
+ ]
+}
