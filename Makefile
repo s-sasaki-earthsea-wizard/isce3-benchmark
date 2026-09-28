@@ -199,7 +199,7 @@ smoke: ## Tiny end-to-end smoke run on REE (CPU+GPU). Dry-runs the two smoke con
 	$(RUN) bash scripts/run_bench.sh smoke
 
 .PHONY: smoke-s1
-smoke-s1: ## Sentinel-1 Boso bench (CSLC ref+sec + crossmul, CPU+GPU, repeats=1)
+smoke-s1: ## Sentinel-1 Boso bench (CSLC ref+sec + crossmul, CPU+GPU, repeats=3)
 	$(RUN) bash scripts/run_bench.sh s1
 
 .PHONY: bench

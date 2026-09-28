@@ -35,7 +35,7 @@ isce3-benchmark/
 ## Host requirements
 
 - NVIDIA GPU with CUDA 12.8+ support (sm_120 = Blackwell tested on RTX 5080)
-- NVIDIA driver ≥ 555 and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+- NVIDIA driver ≥ 570 (the CUDA 12.8 minimum on Linux) and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
   configured for Docker
 - Docker 25+ with `docker compose`
 - The isce3 source tree checked out somewhere on the host (path goes in `.env`)
