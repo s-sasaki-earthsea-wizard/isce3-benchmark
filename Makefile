@@ -191,8 +191,11 @@ multirtc-grid-survey: ## MultiRTC RGZERO radar grid vs SICD definition on every 
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
 	$(RUN) bash scripts/dry_run.sh
 
+SMOKE_CONFIGS := configs/smoke_ree_rslc_cpu.yaml configs/smoke_ree_rslc_gpu.yaml
+
 .PHONY: smoke
-smoke: dry-run ## Tiny end-to-end smoke run on REE (CPU+GPU). Runs dry-run first.
+smoke: ## Tiny end-to-end smoke run on REE (CPU+GPU). Dry-runs the two smoke configs first.
+	$(RUN) bash scripts/dry_run.sh $(SMOKE_CONFIGS)
 	$(RUN) bash scripts/run_bench.sh smoke
 
 .PHONY: smoke-s1
