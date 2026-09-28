@@ -17,7 +17,11 @@ mkdir -p "${BUILD}"
 
 : "${CONDA_PREFIX:?CONDA_PREFIX not set; entrypoint must activate the isce3 env first}"
 
-if [ ! -f "${BUILD}/CMakeCache.txt" ]; then
+if [ ! -f "${BUILD}/build.ninja" ]; then
+    # A configure that stopped part-way leaves CMakeCache.txt without
+    # build.ninja; start over instead of handing ninja an empty tree.
+    rm -rf "${BUILD}/CMakeCache.txt" "${BUILD}/CMakeFiles"
+
     # Disable isce3's FetchContent fallbacks — all of these libraries are
     # already in the conda env and we want REQUIRED CONFIG to use them.
     # CMAKE_PREFIX_PATH points find_package() at the conda env's lib/cmake/...

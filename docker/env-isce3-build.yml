@@ -9,7 +9,9 @@ dependencies:
   # --- isce3 upstream deps ---
   - backoff
   - cmake>=3.18
-  - cxx-compiler
+  # CUDA 12.8's nvcc rejects host GCC > 14 at CMake configure. cxx-compiler
+  # 2.x pulls GCC 15 (2026-09); 1.11 stays on GCC 14.
+  - cxx-compiler=1.11
   # isce3 pins Eigen 3.3.7 with SAME_MAJOR_VERSION compatibility, so newer
   # Eigen on conda-forge (4.x / 5.x) is rejected at find_package() time.
   - eigen>=3.3,<4

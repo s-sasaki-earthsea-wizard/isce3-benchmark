@@ -47,6 +47,8 @@ record_provenance() {
         if [ -d /opt/isce3-src/.git ]; then
             (cd /opt/isce3-src && git rev-parse HEAD)
             (cd /opt/isce3-src && git status --porcelain | head -5)
+        else
+            echo "(no .git in /opt/isce3-src; VERSION.txt: $(cat /opt/isce3-src/VERSION.txt 2>/dev/null || echo unknown))"
         fi
         echo
         echo "## env"

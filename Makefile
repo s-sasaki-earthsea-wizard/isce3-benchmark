@@ -41,8 +41,8 @@ isce3: ## Build isce3 from the bind-mounted source tree (CUDA enabled)
 	$(RUN) bash scripts/build_isce3.sh
 
 .PHONY: isce3-clean
-isce3-clean: ## Wipe the persistent isce3 build directory
-	rm -rf $(ISCE3_BUILD_DIR)
+isce3-clean: ## Wipe the persistent isce3 build directory (from inside the container: the files are root-owned)
+	$(RUN) bash -c 'find /opt/isce3-build -mindepth 1 -delete'
 
 # --- data ---------------------------------------------------------------------
 .PHONY: data-ree
@@ -191,12 +191,15 @@ multirtc-grid-survey: ## MultiRTC RGZERO radar grid vs SICD definition on every 
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
 	$(RUN) bash scripts/dry_run.sh
 
+SMOKE_CONFIGS := configs/smoke_ree_rslc_cpu.yaml configs/smoke_ree_rslc_gpu.yaml
+
 .PHONY: smoke
-smoke: dry-run ## Tiny end-to-end smoke run on REE (CPU+GPU). Runs dry-run first.
+smoke: ## Tiny end-to-end smoke run on REE (CPU+GPU). Dry-runs the two smoke configs first.
+	$(RUN) bash scripts/dry_run.sh $(SMOKE_CONFIGS)
 	$(RUN) bash scripts/run_bench.sh smoke
 
 .PHONY: smoke-s1
-smoke-s1: ## Sentinel-1 Boso bench (CSLC ref+sec + crossmul, CPU+GPU, repeats=1)
+smoke-s1: ## Sentinel-1 Boso bench (CSLC ref+sec + crossmul, CPU+GPU, repeats=3)
 	$(RUN) bash scripts/run_bench.sh s1
 
 .PHONY: bench
@@ -257,8 +260,11 @@ profile-pyspy-gcov-freqA: ## py-spy profile of NISAR GCOV freqA (~30 min, ~59 GB
 
 # --- analysis -----------------------------------------------------------------
 .PHONY: report
-report: ## Aggregate latest log dir into a markdown report
-	python tools/parse_timing.py --logs $(BENCH_LOG_DIR) --out reports/
+report: ## Write <run>/timing.csv (wall time, max RSS, ...) for the latest run in BENCH_LOG_DIR, or RUN_DIR=<dir>
+	$(RUN) bash -c 'd="$(RUN_DIR)"; \
+	    [ -n "$$d" ] || d=$$(ls -d $(BENCH_LOG_DIR)/*T*Z_*/ 2>/dev/null | sort | tail -1); \
+	    [ -n "$$d" ] || { echo "no run directory under $(BENCH_LOG_DIR)" >&2; exit 1; }; \
+	    python tools/parse_timing.py --logs "$${d%/}" && cat "$${d%/}/timing.csv"'
 
 .PHONY: clean
 clean: ## Remove local logs (data/ untouched)
