@@ -41,8 +41,8 @@ isce3: ## Build isce3 from the bind-mounted source tree (CUDA enabled)
 	$(RUN) bash scripts/build_isce3.sh
 
 .PHONY: isce3-clean
-isce3-clean: ## Wipe the persistent isce3 build directory
-	rm -rf $(ISCE3_BUILD_DIR)
+isce3-clean: ## Wipe the persistent isce3 build directory (from inside the container: the files are root-owned)
+	$(RUN) bash -c 'find /opt/isce3-build -mindepth 1 -delete'
 
 # --- data ---------------------------------------------------------------------
 .PHONY: data-ree
