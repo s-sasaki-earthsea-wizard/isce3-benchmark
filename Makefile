@@ -260,8 +260,11 @@ profile-pyspy-gcov-freqA: ## py-spy profile of NISAR GCOV freqA (~30 min, ~59 GB
 
 # --- analysis -----------------------------------------------------------------
 .PHONY: report
-report: ## Aggregate latest log dir into a markdown report
-	python tools/parse_timing.py --logs $(BENCH_LOG_DIR) --out reports/
+report: ## Write <run>/timing.csv (wall time, max RSS, ...) for the latest run in BENCH_LOG_DIR, or RUN_DIR=<dir>
+	$(RUN) bash -c 'd="$(RUN_DIR)"; \
+	    [ -n "$$d" ] || d=$$(ls -d $(BENCH_LOG_DIR)/*T*Z_*/ 2>/dev/null | sort | tail -1); \
+	    [ -n "$$d" ] || { echo "no run directory under $(BENCH_LOG_DIR)" >&2; exit 1; }; \
+	    python tools/parse_timing.py --logs "$${d%/}" && cat "$${d%/}/timing.csv"'
 
 .PHONY: clean
 clean: ## Remove local logs (data/ untouched)
