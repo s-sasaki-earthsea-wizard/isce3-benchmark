@@ -2,11 +2,14 @@
 upstream module required)."""
 
 import json
+import shutil
+import subprocess
 
 import numpy as np
 import pytest
 
-from aggregate_mitigation_results import (aggregate_candidate,
+from aggregate_mitigation_results import (GENERATING_INPUTS,
+                                          aggregate_candidate,
                                           validate_archive,
                                           build_summary,
                                           collect_flip_events,
@@ -287,14 +290,34 @@ def test_g4_rejects_budget_stop_and_unknown_and_missing():
                               "GOOD")["g4_termination"]
 
 
-def test_provenance_partial_resolution_fails_closed():
+def _repo_with_generating_inputs(root):
+    """Throwaway git repo holding every generating input, so the test
+    does not depend on this checkout carrying its own .git."""
+    git = shutil.which("git")
+    if git is None:
+        pytest.skip("git executable not available")
+    for rel in GENERATING_INPUTS:
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(rel + "\n")
+    for args in (["init", "-q"], ["add", "."],
+                 ["-c", "user.name=test", "-c", "user.email=test@invalid",
+                  "-c", "commit.gpgsign=false",
+                  "commit", "-q", "-m", "fixture"]):
+        subprocess.run([git] + args, cwd=root, check=True,
+                       capture_output=True)
+    return root
+
+
+def test_provenance_partial_resolution_fails_closed(tmp_path):
     # One resolvable HEAD plus one bogus HEAD must not assert blob
     # identity (fail closed on partial resolution).
+    repo = _repo_with_generating_inputs(tmp_path)
     seeds = [_seed(1, {"C0": {"base": _base(), "flips": []}},
                    commit="HEAD"),
              _seed(2, {"C0": {"base": _base(), "flips": []}},
                    commit="0" * 40)]
-    prov = provenance_distribution(seeds)
+    prov = provenance_distribution(seeds, repo_root=repo)
     assert prov["generating_input_blobs"]["HEAD"] is not None
     assert prov["generating_inputs_identical"] is False
     assert prov["scope"] == "seed_records_only"

@@ -45,7 +45,7 @@ mkdir -p "${run_dir}"
     echo "install: ${ISCE3_INSTALL}"
     (cd /opt/src/isce3 2>/dev/null && git log --oneline -1) || true
     echo; echo "## bench repo"
-    (cd "${BENCH_ROOT}" && git log --oneline -1 && git status --short | head)
+    (cd "${BENCH_ROOT}" && git log --oneline -1 && git status --short | head) || echo "(no .git)"
     echo; echo "## env"
     echo "OMP_NUM_THREADS=${OMP_NUM_THREADS:-unset}"
 } > "${run_dir}/provenance.txt"
