@@ -1,0 +1,44 @@
+ Container isce3-benchmark-dev-run-910ae9251c1d Creating 
+ Container isce3-benchmark-dev-run-910ae9251c1d Created 
+isce3 0.26.0-dev+2919e1c97
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:228: UserWarning: isUrgentObservation is boolean but expected string
+  warn("isUrgentObservation is boolean but expected string")
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:238: UserWarning: Could not find isJointObservation in product identification.
+  warn("Could not find isJointObservation in product identification.")
+/opt/isce3-build/install/packages/nisar/products/readers/Base/Identification.py:247: UserWarning: Could not find hasInputDataException in product identification.  Assuming there are no anomalies.
+  warn("Could not find hasInputDataException in product "
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+<unknown>:1: SyntaxWarning: invalid escape sequence '\d'
+Topo progress (block 1/1): Done
+Layover/shadow mask progress (block 1/1): 0%Layover/shadow mask progress (block 1/1): 0%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 2%Layover/shadow mask progress (block 1/1): 3%Layover/shadow mask progress (block 1/1): 7%Layover/shadow mask progress (block 1/1): 7%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 8%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 9%Layover/shadow mask progress (block 1/1): 10%Layover/shadow mask progress (block 1/1): 12%Layover/shadow mask progress (block 1/1): 13%Layover/shadow mask progress (block 1/1): 14%Layover/shadow mask progress (block 1/1): 15%Layover/shadow mask progress (block 1/1): 17%Layover/shadow mask progress (block 1/1): 18%Layover/shadow mask progress (block 1/1): 19%Layover/shadow mask progress (block 1/1): 19%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 20%Layover/shadow mask progress (block 1/1): 22%Layover/shadow mask progress (block 1/1): 24%Layover/shadow mask progress (block 1/1): 25%Layover/shadow mask progress (block 1/1): 26%Layover/shadow mask progress (block 1/1): 26%Layover/shadow mask progress (block 1/1): 29%Layover/shadow mask progress (block 1/1): 29%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 30%Layover/shadow mask progress (block 1/1): 31%Layover/shadow mask progress (block 1/1): 32%Layover/shadow mask progress (block 1/1): 33%Layover/shadow mask progress (block 1/1): 34%Layover/shadow mask progress (block 1/1): 35%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 38%Layover/shadow mask progress (block 1/1): 39%Layover/shadow mask progress (block 1/1): 40%Layover/shadow mask progress (block 1/1): 41%Layover/shadow mask progress (block 1/1): 41%Layover/shadow mask progress (block 1/1): 43%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 44%Layover/shadow mask progress (block 1/1): 45%Layover/shadow mask progress (block 1/1): 46%Layover/shadow mask progress (block 1/1): 49%Layover/shadow mask progress (block 1/1): 49%Layover/shadow mask progress (block 1/1): 51%Layover/shadow mask progress (block 1/1): 52%Layover/shadow mask progress (block 1/1): 53%Layover/shadow mask progress (block 1/1): 54%Layover/shadow mask progress (block 1/1): 55%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 56%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 61%Layover/shadow mask progress (block 1/1): 62%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 63%Layover/shadow mask progress (block 1/1): 65%Layover/shadow mask progress (block 1/1): 66%Layover/shadow mask progress (block 1/1): 67%Layover/shadow mask progress (block 1/1): 68%Layover/shadow mask progress (block 1/1): 70%Layover/shadow mask progress (block 1/1): 71%Layover/shadow mask progress (block 1/1): 72%Layover/shadow mask progress (block 1/1): 72%Layover/shadow mask progress (block 1/1): 74%Layover/shadow mask progress (block 1/1): 76%Layover/shadow mask progress (block 1/1): 77%Layover/shadow mask progress (block 1/1): 77%Layover/shadow mask progress (block 1/1): 78%Layover/shadow mask progress (block 1/1): 80%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 81%Layover/shadow mask progress (block 1/1): 83%Layover/shadow mask progress (block 1/1): 83%Layover/shadow mask progress (block 1/1): 85%Layover/shadow mask progress (block 1/1): 86%Layover/shadow mask progress (block 1/1): 88%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 89%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 91%Layover/shadow mask progress (block 1/1): 92%Layover/shadow mask progress (block 1/1): 93%Layover/shadow mask progress (block 1/1): 95%Layover/shadow mask progress (block 1/1): 96%Layover/shadow mask progress (block 1/1): 97%Layover/shadow mask progress (block 1/1): 98%Layover/shadow mask progress (block 1/1): 99%Layover/shadow mask progress (block 1/1): 100%Layover/shadow mask progress (block 1/1): 100%
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/opt/isce3-build/install/packages/nisar/workflows/insar.py", line 190, in <module>
+    run(insar_runcfg.cfg, out_paths, persist.run_steps)
+  File "/opt/isce3-build/install/packages/nisar/workflows/insar.py", line 50, in run
+    prepare_insar_hdf5.run(cfg)
+  File "/opt/isce3-build/install/packages/nisar/workflows/prepare_insar_hdf5.py", line 66, in run
+    prepare_insar_hdf5(cfg, out_path, sub_prod_type)
+  File "/opt/isce3-build/install/packages/nisar/workflows/prepare_insar_hdf5.py", line 41, in prepare_insar_hdf5
+    rifg.save_to_hdf5()
+  File "/opt/isce3-build/install/packages/nisar/products/insar/InSAR_L1_writer.py", line 54, in save_to_hdf5
+    super().save_to_hdf5()
+  File "/opt/isce3-build/install/packages/nisar/products/insar/InSAR_base_writer.py", line 210, in save_to_hdf5
+    self.add_identification_to_hdf5()
+  File "/opt/isce3-build/install/packages/nisar/products/insar/InSAR_base_writer.py", line 938, in add_identification_to_hdf5
+    radar_band_name = self._get_band_name()
+                      ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/isce3-build/install/packages/nisar/products/insar/InSAR_base_writer.py", line 1299, in _get_band_name
+    raise ValueError("Unknown frequency encountered. Not L or S band")
+ValueError: Unknown frequency encountered. Not L or S band
+total processing time:  0.010200977325439453  sec
+
