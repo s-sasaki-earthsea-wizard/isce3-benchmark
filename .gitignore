@@ -24,6 +24,7 @@ logs_*/
 !artifacts/sicd-capella-rtc-20260924/*.json
 !artifacts/sicd-capella-reinforcement-20260924/*.json
 !artifacts/multirtc-grid-survey-20260924/*.json
+!artifacts/sicd-rgzero-port-20260930/*.json
 
 # Local environment overrides
 .env

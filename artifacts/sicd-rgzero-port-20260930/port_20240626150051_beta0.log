@@ -1,0 +1,13 @@
+{
+ "output": "/data/sicd_port_check/port.h5",
+ "grid": "RGZERO/INCA",
+ "shape_az_rg": [
+  19191,
+  10631
+ ],
+ "polarization": "HH",
+ "look_side": "Left",
+ "azimuth_flipped": true,
+ "radiometry": "beta0",
+ "elapsed_s": 77.2
+}

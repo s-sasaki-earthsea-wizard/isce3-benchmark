@@ -1,0 +1,41 @@
+{
+ "first": "/data/sicd_port_check/bench.h5",
+ "second": "/data/sicd_port_check/port.h5",
+ "datasets_compared": 85,
+ "differences": [
+  {
+   "path": "science/LSAR/RSLC/metadata/processingInformation/inputs/conversionDiagnostics",
+   "kind": "only in first",
+   "class": "EXPECTED"
+  },
+  {
+   "path": "science/LSAR/RSLC/metadata/processingInformation/inputs/converter",
+   "kind": "shape/dtype",
+   "detail": "() |S43 vs () |S48",
+   "class": "EXPECTED"
+  },
+  {
+   "path": "science/LSAR/RSLC/swaths/frequencyA/validSamplesSubSwath1@description",
+   "kind": "attribute value differs",
+   "class": "EXPECTED"
+  },
+  {
+   "path": "science/LSAR/identification/hasInputDataException@description",
+   "kind": "attribute value differs",
+   "class": "EXPECTED"
+  },
+  {
+   "path": "science/LSAR/identification/processingCenter",
+   "kind": "shape/dtype",
+   "detail": "() |S162 vs () |S167",
+   "class": "EXPECTED"
+  },
+  {
+   "path": "science/LSAR/identification/processingDateTime",
+   "kind": "value",
+   "class": "EXPECTED"
+  }
+ ],
+ "unexpected": 0,
+ "verdict": "IDENTICAL except expected"
+}
