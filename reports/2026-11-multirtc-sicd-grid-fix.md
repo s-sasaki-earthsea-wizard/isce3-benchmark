@@ -37,9 +37,12 @@ subclass, and checks it on the same data.
   the 3 right-looking scenes the sensing start is the v0.5.4 value bit for bit,
   so the start-time change acts only where the azimuth axis is time-reversed.
 - **RTC, Mexico City.** Against isce3 GCOV on the same SICD, DEM and isce3
-  build, the patched MultiRTC places pixels 0.000 m / 0.000 m (along / across
-  track) from GCOV, and **99.974 %** of 8,097,578 common pixels agree within
-  0.01 dB (v0.5.4: 0.17 %).
+  build, the median tile-correlation offset of the patched MultiRTC from GCOV
+  rounds to 0.000 m / 0.000 m (along track / toward near range; +0.00024 m /
+  +0.00001 m,
+  a relative estimate from a biased estimator, not absolute geolocation), and
+  **99.974 %** of 8,097,578 common pixels agree within 0.01 dB
+  (v0.5.4: 0.17 %).
 - **Same radar grid as the prototype.** The patched grid is bit-identical to
   the `matched-tfix-rfix` prototype's except for the wavelength. The prototype
   agreed on 99.980 % of pixels, slightly more than the patch. The difference is
@@ -104,12 +107,14 @@ its formula. Patched: `artifacts/multirtc-grid-survey-20261108-patched/`.
 Same comparison as `reports/2026-09-capella-rtc-gcov-vs-multirtc.md`
 (`tools/compare_rtc.py`): radar grid against our beta0 RSLC, the map offset
 the grid difference implies (rdr2geo, 25 points, our orbit, 2245 m), the
-offset measured by tile correlation (biased estimator, see that report §3.2),
-and gamma0 on the common support of the two 5 m grids. Options are matched
+offset measured by tile correlation (median of 99 tiles of 256 px; biased
+estimator, see that report §3.2), and gamma0 on the common support of the two
+5 m grids (finite and positive on both sides, GCOV mask 1–254). "Within
+0.01 dB" means |10 log10(MultiRTC / GCOV)| < 0.01 dB on that support. Options are matched
 (input beta0, output gamma0, area projection, biquintic DEM, no shadow
 masking) except `stock`.
 
-| MultiRTC | sensing start − ours | starting range − ours | wavelength | offset predicted (along / toward near range) | offset measured | common pixels | within 0.01 dB | within 0.1 dB |
+| MultiRTC | sensing start − ours | starting range − ours | wavelength | offset predicted (along / toward near range) | offset measured (tile-correlation median) | common pixels | within 0.01 dB | within 0.1 dB |
 |---|---|---|---|---|---|---|---|---|
 | v0.5.4, stock | −1.006 line | −6.323 m | 2.078 cm | −0.907 m / 9.667 m | −1.172 m / 8.843 m | 8,094,872 | 0.17 % | 1.75 % |
 | v0.5.4, matched | −1.006 line | −6.323 m | 2.078 cm | −0.907 m / 9.667 m | −1.172 m / 8.843 m | 8,094,986 | 0.17 % | 1.75 % |
@@ -179,9 +184,10 @@ the prototype: its orbit is 7.37 mm from ours, against 7.28 mm.
   Capella stripmap scenes, both look directions, three satellites. With the
   patch, the Mexico City RTC agrees with isce3 GCOV to the level the 2026-09
   prototype reached.
-- On right-looking scenes the patched grid is the v0.5.4 sensing start and PRF
-  (bit for bit) plus the corrected starting range. That is the grid of the
-  `matched + starting-range fix` run on Niscemi
+- On right-looking scenes the patched grid has the v0.5.4 sensing start (bit
+  for bit) and PRF (to floating-point rounding, at most 1.8e-12 Hz), plus the
+  corrected starting range and wavelength. Up to that rounding and the
+  wavelength, it is the grid of the `matched + starting-range fix` run on Niscemi
   (`reports/2026-09-capella-reinforcement.md` §6.1, 99.80 % within 0.01 dB).
   Its orbit is also sampled from the same start. The patched RTC was not
   re-run there.
