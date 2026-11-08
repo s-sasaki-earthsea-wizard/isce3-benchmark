@@ -1,0 +1,155 @@
+From 9792571d22f30a7c84791c7e4b5d80cfcef5db7a Mon Sep 17 00:00:00 2001
+From: s-sasaki-earthsea-wizard <syota.sasaki@earthsea-wizard.com>
+Date: Sun, 8 Nov 2026 16:21:20 +0900
+Subject: [PATCH 1/3] Fix SICD center frequency operator precedence
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+TxFrequency.Min + TxFrequency.Max / 2 evaluates as Min + (Max / 2). For a
+Capella X-band SICD (9.55-9.75 GHz) it gives 14.425 GHz instead of 9.650 GHz,
+so the wavelength is 2.078 cm instead of 3.107 cm.
+
+🤖 Assisted by [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ CHANGELOG.md         | 5 +++++
+ src/multirtc/sicd.py | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index ab8af55..5b7ef1a 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+ and this project adheres to [PEP 440](https://www.python.org/dev/peps/pep-0440/)
+ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
++## [0.5.5]
++
++### Fixed
++* SICD center frequency (and so the wavelength) is now the mean of `TxFrequency.Min` and `TxFrequency.Max`; operator precedence gave `Min + Max / 2`.
++
+ ## [0.5.4]
+ 
+ ### Fixed
+diff --git a/src/multirtc/sicd.py b/src/multirtc/sicd.py
+index 2f6e6a0..33fa746 100644
+--- a/src/multirtc/sicd.py
++++ b/src/multirtc/sicd.py
+@@ -39,7 +39,7 @@ class SicdSlc:
+         self.local_epsg = define_geogrid.get_point_epsg(self.center.y, self.center.x)
+         self.scp_hae = sicd.GeoData.SCP.LLH.HAE
+         self.lookside = 'right' if sicd.SCPCOA.SideOfTrack == 'R' else 'left'
+-        center_frequency = sicd.RadarCollection.TxFrequency.Min + sicd.RadarCollection.TxFrequency.Max / 2
++        center_frequency = (sicd.RadarCollection.TxFrequency.Min + sicd.RadarCollection.TxFrequency.Max) / 2
+         self.wavelength = isce3.core.speed_of_light / center_frequency
+         self.polarization = sicd.RadarCollection.RcvChannels[0].TxRcvPolarization.replace(':', '')
+         self.shape = (sicd.ImageData.NumRows, sicd.ImageData.NumCols)
+
+From 384a5b73dd47167f98566ada29068039598100dd Mon Sep 17 00:00:00 2001
+From: s-sasaki-earthsea-wizard <syota.sasaki@earthsea-wizard.com>
+Date: Sun, 8 Nov 2026 16:21:42 +0900
+Subject: [PATCH 2/3] Fix one-line-early sensing start on time-reversed RGZERO
+ SICDs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+last_col_time was evaluated at column index NumCols, one past the image. When
+the azimuth axis is time-reversed, that value becomes sensing_start, one line
+before the first output line. Evaluate it at NumCols - 1 and compute the PRF
+over NumCols - 1 intervals, so the PRF is unchanged for a linear TimeCAPoly
+and non-reversed scenes keep the same sensing_start.
+
+🤖 Assisted by [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ CHANGELOG.md         | 1 +
+ src/multirtc/sicd.py | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 5b7ef1a..9d7835c 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -10,6 +10,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
+ ### Fixed
+ * SICD center frequency (and so the wavelength) is now the mean of `TxFrequency.Min` and `TxFrequency.Max`; operator precedence gave `Min + Max / 2`.
++* `SicdRzdSlc` sensing start for RGZERO SICDs whose azimuth axis is time-reversed (as on left-looking Capella scenes). The last column time was taken at index `NumCols`, one past the image, which put `sensing_start` one line early; it is now taken at `NumCols - 1` and the PRF is computed over `NumCols - 1` intervals.
+ 
+ ## [0.5.4]
+ 
+diff --git a/src/multirtc/sicd.py b/src/multirtc/sicd.py
+index 33fa746..964ab32 100644
+--- a/src/multirtc/sicd.py
++++ b/src/multirtc/sicd.py
+@@ -166,13 +166,13 @@ class SicdRzdSlc(Slc, SicdSlc):
+         super().__init__(sicd_path)
+         assert self.source.Grid.Type == 'RGZERO', 'Only range zero doppler grids are supported for by this class'
+         first_col_time = self.source.RMA.INCA.TimeCAPoly(-self.shift[1] * self.spacing[1])
+-        last_col_time = self.source.RMA.INCA.TimeCAPoly((self.shape[1] - self.shift[1]) * self.spacing[1])
++        last_col_time = self.source.RMA.INCA.TimeCAPoly((self.shape[1] - 1 - self.shift[1]) * self.spacing[1])
+         self.az_reversed = last_col_time < first_col_time
+         self.sensing_start = min(first_col_time, last_col_time)
+         self.sensing_end = max(first_col_time, last_col_time)
+         self.starting_range = self.get_starting_range(0)
+         self.az_reversed = last_col_time < first_col_time
+-        self.prf = self.shape[1] / (self.sensing_end - self.sensing_start)
++        self.prf = (self.shape[1] - 1) / (self.sensing_end - self.sensing_start)
+         self.orbit = self.get_orbit()
+         self.radar_grid = self.get_radar_grid()
+         self.doppler_centroid_grid = isce3.core.LUT2d()
+
+From e67aaa117846634769c8a5c3b62300990e1ffaa5 Mon Sep 17 00:00:00 2001
+From: s-sasaki-earthsea-wizard <syota.sasaki@earthsea-wizard.com>
+Date: Sun, 8 Nov 2026 16:21:58 +0900
+Subject: [PATCH 3/3] Fix RGZERO starting range of SicdRzdSlc
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+get_starting_range(0) measures from the ARP at closest approach to a point on
+the plane tangent at the SCP. That equals the RGZERO row-0 range only at the
+SCP column; elsewhere it is short by a term quadratic in the along-track
+distance (-6.3 m at column 0 on a 19191-column Capella stripmap scene), and the
+column-0 value was used for the whole grid. In an RGZERO/INCA grid the row
+coordinate is R_CA - R_CA_SCP, so the row-0 range is the same for every column:
+R_CA_SCP - (SCPPixel.Row - FirstRow) * Row.SS.
+
+🤖 Assisted by [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ CHANGELOG.md         | 1 +
+ src/multirtc/sicd.py | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 9d7835c..1d61bf9 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -11,6 +11,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ ### Fixed
+ * SICD center frequency (and so the wavelength) is now the mean of `TxFrequency.Min` and `TxFrequency.Max`; operator precedence gave `Min + Max / 2`.
+ * `SicdRzdSlc` sensing start for RGZERO SICDs whose azimuth axis is time-reversed (as on left-looking Capella scenes). The last column time was taken at index `NumCols`, one past the image, which put `sensing_start` one line early; it is now taken at `NumCols - 1` and the PRF is computed over `NumCols - 1` intervals.
++* `SicdRzdSlc` starting range is now the RGZERO row-0 range `R_CA_SCP - (SCPPixel.Row - FirstRow) * Row.SS`. `get_starting_range(0)` measured to a point on the plane tangent at the SCP, which matches only at the SCP column (-6.3 m at column 0 on a Capella stripmap scene), and that value was applied to the whole grid.
+ 
+ ## [0.5.4]
+ 
+diff --git a/src/multirtc/sicd.py b/src/multirtc/sicd.py
+index 964ab32..83d5522 100644
+--- a/src/multirtc/sicd.py
++++ b/src/multirtc/sicd.py
+@@ -170,7 +170,7 @@ class SicdRzdSlc(Slc, SicdSlc):
+         self.az_reversed = last_col_time < first_col_time
+         self.sensing_start = min(first_col_time, last_col_time)
+         self.sensing_end = max(first_col_time, last_col_time)
+-        self.starting_range = self.get_starting_range(0)
++        self.starting_range = self.source.RMA.INCA.R_CA_SCP - self.shift[0] * self.spacing[0]
+         self.az_reversed = last_col_time < first_col_time
+         self.prf = (self.shape[1] - 1) / (self.sensing_end - self.sensing_start)
+         self.orbit = self.get_orbit()
