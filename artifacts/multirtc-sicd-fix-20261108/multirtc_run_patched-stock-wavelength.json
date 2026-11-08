@@ -1,0 +1,152 @@
+{
+ "env": {
+  "isce3": "0.26.0-dev+2919e1c9",
+  "sarpy": "1.3.59",
+  "multirtc_sha": "a0edba80a05c923b03ffae378e4a1faf293b0f0f",
+  "multirtc_package": "/data/external/multirtc-site-patched/multirtc",
+  "multirtc_tree_sha256": "bcdf462f0944f34838d90cb3b0634d29abded44cf561764d17f68c7f10d49753",
+  "multirtc_sicd_py_sha256": "751360db0aee60b058cb405cc93a5d9ec327890e7491ed3edc430858d7420673",
+  "multirtc_checkout_path": "/data/external/MultiRTC-a0edba8-patched",
+  "multirtc_checkout": "a0edba80a05c923b03ffae378e4a1faf293b0f0f",
+  "multirtc_checkout_diff_sha256": "e54cf4a3c177e0f7e858b9f07432f78d2046001df6b6fa77069ce50e06d89546"
+ },
+ "variant": "patched-stock-wavelength",
+ "resolution_m": 5.0,
+ "dem": "/data/capella_mexico_city/dem.tif",
+ "elapsed_s": 516.9141492843628,
+ "options": {
+  "output_dir": "/data/capella_mexico_city/multirtc/20240626/patched-stock-wavelength/output",
+  "dem_path": "/data/capella_mexico_city/dem.tif",
+  "apply_rtc": true,
+  "resolution": 5.0,
+  "apply_thermal_noise": true,
+  "apply_abs_rad": true,
+  "apply_bistatic_delay": false,
+  "apply_static_tropo": false,
+  "terrain_radiometry": "gamma0",
+  "apply_valid_samples_sub_swath_masking": true,
+  "apply_shadow_masking": false,
+  "dem_interpolation_method": "biquintic",
+  "geocode_algorithm": "area_projection",
+  "correction_lut_azimuth_spacing_in_meters": 120,
+  "correction_lut_range_spacing_in_meters": 120,
+  "memory_mode": "single_block",
+  "geogrid_upsampling": 1,
+  "shadow_dilation_size": 0,
+  "abs_cal_factor": 1,
+  "clip_min": NaN,
+  "clip_max": NaN,
+  "upsample_radar_grid": false,
+  "rtc_algorithm_type": "area_projection",
+  "input_terrain_radiometry": "beta0",
+  "rtc_min_value_db": -30.0,
+  "rtc_upsampling": 2,
+  "rtc_area_beta_mode": "auto",
+  "geo2rdr_threshold": 1e-07,
+  "geo2rdr_numiter": 50,
+  "rdr2geo_threshold": 1e-07,
+  "rdr2geo_numiter": 25,
+  "output_epsg": null,
+  "layer_name_rtc_anf": "rtc_anf_gamma0_to_beta0",
+  "dem_interpolation_method_isce3": "DataInterpMethod.BIQUINTIC",
+  "geocode_algorithm_isce3": "GeocodeOutputMode.AREA_PROJECTION",
+  "memory_mode_isce3": "GeocodeMemoryMode.SingleBlock",
+  "rtc_algorithm_isce3": "RtcAlgorithm.RTC_AREA_PROJECTION",
+  "input_terrain_radiometry_isce3": "RtcInputTerrainRadiometry.BETA_NAUGHT",
+  "terrain_radiometry_isce3": "RtcOutputTerrainRadiometry.GAMMA_NAUGHT",
+  "rtc_area_beta_mode_isce3": "RtcAreaBetaMode.AUTO"
+ },
+ "grid": {
+  "multirtc_sha": "a0edba80a05c923b03ffae378e4a1faf293b0f0f",
+  "class": "PatchedStockWavelength",
+  "az_reversed": true,
+  "ref_epoch": "2024-06-26T15:00:51.301024000",
+  "sensing_start_s": 0.58853409392818,
+  "sensing_stop_s": 3.678356038738487,
+  "prf_hz": 6210.713867260765,
+  "starting_range_m": 761275.5576171188,
+  "range_pixel_spacing_m": 0.6171875,
+  "length": 19191,
+  "width": 10631,
+  "wavelength_m": 0.02078283965270747,
+  "lookside": "LookSide.Left",
+  "orbit_samples": [
+   {
+    "t": 0.58853409392818,
+    "pos": [
+     -693062.4364977038,
+     -6656901.673398494,
+     1961373.9444963725
+    ],
+    "vel": [
+     5148.532530438377,
+     933.833766257964,
+     4968.322487377317
+    ]
+   },
+   {
+    "t": 1.3609895801307568,
+    "pos": [
+     -689085.1419891571,
+     -6656178.227606851,
+     1965211.0620080938
+    ],
+    "vel": [
+     5149.26297363628,
+     939.2728581709089,
+     4966.534226806718
+    ]
+   },
+   {
+    "t": 2.1334450663333335,
+    "pos": [
+     -685107.2843983684,
+     -6655450.5806442695,
+     1969046.796818482
+    ],
+    "vel": [
+     5149.9904324489435,
+     944.7112104416274,
+     4964.742472014971
+    ]
+   },
+   {
+    "t": 2.9059005525359103,
+    "pos": [
+     -681128.8660308762,
+     -6654718.733083428,
+     1972881.146228889
+    ],
+    "vel": [
+     5150.714906270856,
+     950.14881958958,
+     4962.947224257048
+    ]
+   },
+   {
+    "t": 3.678356038738487,
+    "pos": [
+     -677149.8891926851,
+     -6653982.685499698,
+     1976714.1075416387
+    ],
+    "vel": [
+     5151.436394501048,
+     955.585682158242,
+     4961.148484784455
+    ]
+   }
+  ],
+  "stock_sensing_start_s": 0.58853409392818,
+  "stock_starting_range_m": 761275.5576171188
+ },
+ "geogrid_requested": {
+  "start_x": 483450.0,
+  "start_y": 2156240.0,
+  "spacing_x": 5.0,
+  "spacing_y": -5.0,
+  "width": 5829,
+  "length": 5817,
+  "epsg": 32614
+ }
+}
