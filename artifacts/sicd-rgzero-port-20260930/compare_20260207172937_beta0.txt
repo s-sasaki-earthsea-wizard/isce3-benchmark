@@ -1,0 +1,7 @@
+EXPECTED   only in first                science/LSAR/RSLC/metadata/processingInformation/inputs/conversionDiagnostics
+EXPECTED   shape/dtype                  science/LSAR/RSLC/metadata/processingInformation/inputs/converter
+EXPECTED   attribute value differs      science/LSAR/RSLC/swaths/frequencyA/validSamplesSubSwath1@description
+EXPECTED   attribute value differs      science/LSAR/identification/hasInputDataException@description
+EXPECTED   shape/dtype                  science/LSAR/identification/processingCenter
+EXPECTED   value                        science/LSAR/identification/processingDateTime
+88 datasets compared, 6 differences, 0 unexpected: IDENTICAL except expected
