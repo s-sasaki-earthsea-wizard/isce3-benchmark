@@ -9,10 +9,14 @@
   `--no-deps` twice: as is (`make multirtc-setup`), and with
   `patches/multirtc/sicd-rgzero-radar-grid.patch` applied
   (`make multirtc-patched-setup`). sarpy 1.3.59 in both.
-- The patch: three commits on `a0edba80` (`9792571`, `384a5b7`, `e67aaa1`,
-  branch `fix/sicd-rgzero-radar-grid`), the candidate upstream fix for the
-  three radar-grid defects of `reports/2026-09-capella-rtc-gcov-vs-multirtc.md`
-  §3.1. Patch file sha256 `4763a54f739b3c3154eb8f5adde767e149575bdafd93c7f9115d6313e8849662`.
+- The patch: three commits on `a0edba80` (`adfac02`, `67ab961`, `e7aa57b`,
+  branch `fix/sicd-rgzero-radar-grid` of `s-sasaki-earthsea-wizard/MultiRTC`),
+  the candidate upstream fix for the three radar-grid defects of
+  `reports/2026-09-capella-rtc-gcov-vs-multirtc.md` §3.1. Patch file sha256
+  `afcc4907…`. The run used an earlier export of the same commits with an
+  AI-assistance trailer in the messages, since removed. Its code is identical:
+  the patched checkout's `git diff HEAD` sha256 `e54cf4a3…` is the same for
+  both files and is the value recorded in the run (`patches/multirtc/README.md`).
 - Data: Capella open data. RTC: `CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055`
   (Mexico City, stripmap, left-looking, 19191 × 10631), Copernicus GLO-30 DEM,
   the same files for both paths. Radar-grid survey: the 7 Capella stripmap
@@ -53,15 +57,15 @@ subclass, and checks it on the same data.
 
 | commit | `src/multirtc/sicd.py` at a0edba80 | v0.5.4 | patched |
 |---|---|---|---|
-| `9792571` | L42 (`SicdSlc`, all SICD inputs) | `Min + Max / 2` | `(Min + Max) / 2` |
-| `384a5b7` | L169, L175 (`SicdRzdSlc`) | last column time at `NumCols`; PRF = `NumCols / (t_end − t_start)` | at `NumCols − 1`; PRF = `(NumCols − 1) / (t_end − t_start)` |
-| `e67aaa1` | L173 (`SicdRzdSlc`) | `get_starting_range(0)` (SCP tangent plane, column 0) | `R_CA_SCP − (SCPPixel.Row − FirstRow) × Row.SS` |
+| `adfac02` | L42 (`SicdSlc`, all SICD inputs) | `Min + Max / 2` | `(Min + Max) / 2` |
+| `67ab961` | L169, L175 (`SicdRzdSlc`) | last column time at `NumCols`; PRF = `NumCols / (t_end − t_start)` | at `NumCols − 1`; PRF = `(NumCols − 1) / (t_end − t_start)` |
+| `e7aa57b` | L173 (`SicdRzdSlc`) | `get_starting_range(0)` (SCP tangent plane, column 0) | `R_CA_SCP − (SCPPixel.Row − FirstRow) × Row.SS` |
 
-The two lines of `384a5b7` belong together. Moving only `last_col_time` would
+The two lines of `67ab961` belong together. Moving only `last_col_time` would
 scale the PRF by `NumCols / (NumCols − 1)`, a drift of about one line across
 the image. With both lines changed, a linear `TimeCAPoly` gives the same PRF as
 before, and a scene that is not time-reversed keeps its sensing start.
-`get_starting_range()` has no caller after `e67aaa1` and is left in place.
+`get_starting_range()` has no caller after `e7aa57b` and is left in place.
 
 Provenance is recorded from what was actually imported, not from the pinned SHA
 (`tools/multirtc_provenance.py`: package path, hashes of its `*.py` files and of
@@ -151,7 +155,7 @@ interpolated DEM) it is **bit-identical** to the patched run
 (`runs_patched_vs_control.json`). Its GCOV comparison differs from the patched
 one only in the recorded wavelength. With the zero-Doppler `LUT2d()` of
 `SicdRzdSlc`, the wavelength reaches `RadarGridParameters` and
-`get_radar_grid()` but not the geocoded output, so fix `9792571` changes
+`get_radar_grid()` but not the geocoded output, so fix `adfac02` changes
 metadata and any phase use, not gamma0.
 
 That leaves the orbit as the only difference between the patched run and the

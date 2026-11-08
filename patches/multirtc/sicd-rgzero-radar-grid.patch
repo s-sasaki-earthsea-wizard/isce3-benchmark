@@ -1,18 +1,11 @@
-From 9792571d22f30a7c84791c7e4b5d80cfcef5db7a Mon Sep 17 00:00:00 2001
+From adfac02ce01f50f69f3f41c8ff916e1235c7c63c Mon Sep 17 00:00:00 2001
 From: s-sasaki-earthsea-wizard <syota.sasaki@earthsea-wizard.com>
 Date: Sun, 8 Nov 2026 16:21:20 +0900
 Subject: [PATCH 1/3] Fix SICD center frequency operator precedence
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
 TxFrequency.Min + TxFrequency.Max / 2 evaluates as Min + (Max / 2). For a
 Capella X-band SICD (9.55-9.75 GHz) it gives 14.425 GHz instead of 9.650 GHz,
 so the wavelength is 2.078 cm instead of 3.107 cm.
-
-🤖 Assisted by [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ---
  CHANGELOG.md         | 5 +++++
  src/multirtc/sicd.py | 2 +-
@@ -48,24 +41,17 @@ index 2f6e6a0..33fa746 100644
          self.polarization = sicd.RadarCollection.RcvChannels[0].TxRcvPolarization.replace(':', '')
          self.shape = (sicd.ImageData.NumRows, sicd.ImageData.NumCols)
 
-From 384a5b73dd47167f98566ada29068039598100dd Mon Sep 17 00:00:00 2001
+From 67ab961b6469dd1c05dc636e068145b5a5d91c6a Mon Sep 17 00:00:00 2001
 From: s-sasaki-earthsea-wizard <syota.sasaki@earthsea-wizard.com>
 Date: Sun, 8 Nov 2026 16:21:42 +0900
 Subject: [PATCH 2/3] Fix one-line-early sensing start on time-reversed RGZERO
  SICDs
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
 last_col_time was evaluated at column index NumCols, one past the image. When
 the azimuth axis is time-reversed, that value becomes sensing_start, one line
 before the first output line. Evaluate it at NumCols - 1 and compute the PRF
 over NumCols - 1 intervals, so the PRF is unchanged for a linear TimeCAPoly
 and non-reversed scenes keep the same sensing_start.
-
-🤖 Assisted by [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ---
  CHANGELOG.md         | 1 +
  src/multirtc/sicd.py | 4 ++--
@@ -104,13 +90,10 @@ index 33fa746..964ab32 100644
          self.radar_grid = self.get_radar_grid()
          self.doppler_centroid_grid = isce3.core.LUT2d()
 
-From e67aaa117846634769c8a5c3b62300990e1ffaa5 Mon Sep 17 00:00:00 2001
+From e7aa57bc53d916c29a4023df84d9d8bffdd83fb6 Mon Sep 17 00:00:00 2001
 From: s-sasaki-earthsea-wizard <syota.sasaki@earthsea-wizard.com>
 Date: Sun, 8 Nov 2026 16:21:58 +0900
 Subject: [PATCH 3/3] Fix RGZERO starting range of SicdRzdSlc
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
 get_starting_range(0) measures from the ARP at closest approach to a point on
 the plane tangent at the SCP. That equals the RGZERO row-0 range only at the
@@ -119,10 +102,6 @@ distance (-6.3 m at column 0 on a 19191-column Capella stripmap scene), and the
 column-0 value was used for the whole grid. In an RGZERO/INCA grid the row
 coordinate is R_CA - R_CA_SCP, so the row-0 range is the same for every column:
 R_CA_SCP - (SCPPixel.Row - FirstRow) * Row.SS.
-
-🤖 Assisted by [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ---
  CHANGELOG.md         | 1 +
  src/multirtc/sicd.py | 2 +-
