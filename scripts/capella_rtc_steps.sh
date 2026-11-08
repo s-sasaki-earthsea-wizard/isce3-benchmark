@@ -14,13 +14,17 @@
 #   CAPELLA_DATA   /data/capella_mexico_city
 #   PYTHON         python
 #   MULTIRTC_SITE  /data/external/multirtc-site   (prepended to PYTHONPATH for multirtc)
+#   MULTIRTC_VARIANTS    "stock matched matched-tfix matched-tfix-rfix" (multirtc, compare)
+#   MULTIRTC_RUN_PREFIX  ""  prefixed to each variant's run directory and compare JSON,
+#                        e.g. "patched-" for make capella-multirtc-patched
 set -uo pipefail
 
 CAPELLA_DATA=${CAPELLA_DATA:-/data/capella_mexico_city}
 PYTHON=${PYTHON:-python}
 MULTIRTC_SITE=${MULTIRTC_SITE:-/data/external/multirtc-site}
 SCENES=(20240626150051_20240626150055 20240629134910_20240629134915)
-VARIANTS=(stock matched matched-tfix matched-tfix-rfix)
+read -r -a VARIANTS <<< "${MULTIRTC_VARIANTS:-stock matched matched-tfix matched-tfix-rfix}"
+RUN_PREFIX=${MULTIRTC_RUN_PREFIX:-}
 REF_SCENE=CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055
 
 die() { echo "FAIL $*" >&2; exit 1; }
@@ -40,12 +44,12 @@ convert_beta0() {
 multirtc() {
     export PYTHONPATH="$MULTIRTC_SITE${PYTHONPATH:+:$PYTHONPATH}"
     for v in "${VARIANTS[@]}"; do
-        local w="$CAPELLA_DATA/multirtc/20240626/$v"
+        local w="$CAPELLA_DATA/multirtc/20240626/$RUN_PREFIX$v"
         mkdir -p "$w" || die "mkdir $w"
         "$PYTHON" tools/multirtc_capella_rtc.py rtc "$CAPELLA_DATA/$REF_SCENE.ntf" --variant "$v" \
             --dem "$CAPELLA_DATA/dem.tif" --resolution 5 --work-dir "$w" \
-            > "$w/console.log" 2>&1 || die "multirtc $v (see $w/console.log)"
-        echo "MULTIRTC-OK $v"
+            > "$w/console.log" 2>&1 || die "multirtc $RUN_PREFIX$v (see $w/console.log)"
+        echo "MULTIRTC-OK $RUN_PREFIX$v"
     done
 }
 
@@ -54,10 +58,10 @@ compare() {
     for v in "${VARIANTS[@]}"; do
         "$PYTHON" tools/compare_rtc.py --gcov "$CAPELLA_DATA/gcov/20240626/gcov_20240626.h5" \
             --rslc "$CAPELLA_DATA/rslc_beta0/20240626.h5" \
-            --multirtc-run "$CAPELLA_DATA/multirtc/20240626/$v" \
-            --out "$CAPELLA_DATA/rtc_compare/20240626_$v.json" > /dev/null \
-            || die "compare $v"
-        echo "COMPARE-OK $v"
+            --multirtc-run "$CAPELLA_DATA/multirtc/20240626/$RUN_PREFIX$v" \
+            --out "$CAPELLA_DATA/rtc_compare/20240626_$RUN_PREFIX$v.json" > /dev/null \
+            || die "compare $RUN_PREFIX$v"
+        echo "COMPARE-OK $RUN_PREFIX$v"
     done
 }
 
