@@ -4,12 +4,21 @@
 MultiRTC (github.com/MultiSAR/MultiRTC, BSD-3) is used **read-only**: a
 checkout pinned at a0edba80 (v0.5.4) is installed with ``--no-deps`` into a
 separate target directory and put on ``PYTHONPATH``; nothing of it is copied
-into this repository and the dev image is not modified. It runs against the
+into this repository (only the fix under test, as a diff) and the dev image is
+not modified. It runs against the
 same isce3 build as our GCOV path, so both sides share one geocode/RTC core
 and a difference between them is an ingest / packaging difference. Prepend
 to ``PYTHONPATH``; replacing it drops ``/opt/isce3-build/install/packages``
 and silently falls back to the conda-forge isce3 in the image. ``_env()``
 records the isce3 version actually imported.
+
+The same driver also runs the candidate upstream fix: ``make
+multirtc-patched-setup`` installs a0edba80 with
+``patches/multirtc/sicd-rgzero-radar-grid.patch`` applied into a second
+target directory, and ``make capella-multirtc-patched`` runs the ``matched``
+variant against it (no runtime subclass needed). Which install was imported is
+recorded by ``multirtc_provenance`` (package path and file hashes, checkout
+HEAD and diff hash), not assumed from the pinned SHA.
 
 Sub-commands::
 
@@ -61,7 +70,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -76,8 +84,8 @@ import numpy as np  # noqa: E402
 from multirtc.create_rtc import rtc  # noqa: E402
 from multirtc.rtc_options import RtcOptions  # noqa: E402
 from multirtc.sicd import SicdRzdSlc  # noqa: E402
-
-MULTIRTC_SHA = "a0edba80a05c923b03ffae378e4a1faf293b0f0f"
+from multirtc_provenance import MULTIRTC_BASE_SHA as MULTIRTC_SHA  # noqa: E402
+from multirtc_provenance import multirtc_provenance  # noqa: E402
 
 
 class SicdRzdSlcStartFix(SicdRzdSlc):
@@ -143,14 +151,7 @@ def _grid_dict(slc) -> dict:
 
 def _env() -> dict:
     import sarpy
-    out = {"isce3": isce3.__version__, "sarpy": sarpy.__version__, "multirtc_sha": MULTIRTC_SHA}
-    try:
-        out["multirtc_checkout"] = subprocess.run(
-            ["git", "-C", "/data/external/MultiRTC-a0edba8", "rev-parse", "HEAD"],
-            capture_output=True, text=True, check=True).stdout.strip()
-    except Exception as exc:  # noqa: BLE001 -- provenance only
-        out["multirtc_checkout"] = f"unavailable: {exc}"
-    return out
+    return {"isce3": isce3.__version__, "sarpy": sarpy.__version__, **multirtc_provenance()}
 
 
 def cmd_inspect(args) -> int:

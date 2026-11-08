@@ -1,0 +1,178 @@
+{
+ "run_a": "/data/capella_mexico_city/multirtc/20240626/patched-matched",
+ "run_b": "/data/capella_mexico_city/multirtc/20240626/patched-stock-wavelength",
+ "only_in_a": [],
+ "only_in_b": [],
+ "rasters": {
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0,
+   "positive_compared": 8103342,
+   "abs_db": {
+    "p50": 0.0,
+    "p90": 0.0,
+    "p99": 0.0,
+    "p99.9": 0.0,
+    "p99.99": 0.0,
+    "max": 0.0,
+    "frac_lt_0.001db": 1.0,
+    "frac_lt_0.01db": 1.0,
+    "count_gt_0.1db": 0
+   },
+   "relative_difference": {
+    "p50": 0.0,
+    "p99": 0.0,
+    "max": 0.0
+   }
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_incidence_angle.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_interpolated_dem.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_local_incidence_angle.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_mask.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_number_of_looks.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0,
+   "positive_compared": 8111052,
+   "abs_db": {
+    "p50": 0.0,
+    "p90": 0.0,
+    "p99": 0.0,
+    "p99.9": 0.0,
+    "p99.99": 0.0,
+    "max": 0.0,
+    "frac_lt_0.001db": 1.0,
+    "frac_lt_0.01db": 1.0,
+    "count_gt_0.1db": 0
+   },
+   "relative_difference": {
+    "p50": 0.0,
+    "p99": 0.0,
+    "max": 0.0
+   }
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_rtc_anf_gamma0_to_beta0.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_rtc_anf_gamma0_to_sigma0.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  }
+ }
+}

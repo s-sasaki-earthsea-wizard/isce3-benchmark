@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Survey MultiRTC's RGZERO radar grid against the SICD definition, per scene.
 
-For each SICD, builds MultiRTC's own ``SicdRzdSlc`` (pinned v0.5.4, read-only)
-and compares the radar-grid quantities it derives with values taken directly
-from the SICD metadata:
+For each SICD, builds MultiRTC's own ``SicdRzdSlc`` (whichever install is on
+``PYTHONPATH``: the read-only v0.5.4 pin, or the same commit with
+``patches/multirtc/sicd-rgzero-radar-grid.patch``) and compares the radar-grid
+quantities it derives with values taken directly from the SICD metadata. The
+descriptions below are of v0.5.4; with the patch the first three differences
+should be zero:
 
 * sensing start -- MultiRTC evaluates ``TimeCAPoly`` at column N (one past the
   image) for the "last column"; with a time-reversed azimuth axis that value
@@ -13,7 +16,8 @@ from the SICD metadata:
   approach to a point on the SCP tangent plane) vs the RGZERO row-0 range
   ``R_CA_SCP - (SCPPixel.Row - FirstRow) * Row.SS``, at five columns; the
   column-0 value is what MultiRTC uses for the whole grid.
-* wavelength -- MultiRTC's ``Min + Max / 2`` vs c / ((Min + Max) / 2).
+* wavelength -- MultiRTC's (v0.5.4: c / (``Min + Max / 2``)) vs
+  c / ((Min + Max) / 2).
 * CollectStart -- the sub-microsecond part in the SICD XML, which sarpy's
   default microsecond parsing (and so MultiRTC's reference epoch) drops.
 
@@ -21,6 +25,9 @@ No pixels are read. Usage (inside the dev container)::
 
     PYTHONPATH=/data/external/multirtc-site:$PYTHONPATH \\
         python tools/multirtc_grid_survey.py SICD [SICD ...] --out survey.json
+
+``make multirtc-grid-survey`` / ``multirtc-grid-survey-patched`` run it on every
+Capella SICD on disk against the pin / the patched install.
 """
 
 from __future__ import annotations
@@ -40,8 +47,7 @@ import numpy as np  # noqa: E402
 import sarpy  # noqa: E402
 
 from multirtc.sicd import SicdRzdSlc  # noqa: E402
-
-MULTIRTC_SHA = "a0edba80a05c923b03ffae378e4a1faf293b0f0f"
+from multirtc_provenance import multirtc_provenance  # noqa: E402
 C = isce3.core.speed_of_light
 
 
@@ -116,7 +122,7 @@ def survey(path: Path) -> dict:
         "wavelength": {
             "multirtc_m": float(slc.wavelength),
             "tx_centre_m": float(C / ((f_min + f_max) / 2)),
-            "multirtc_centre_ghz": float((f_min + f_max / 2) / 1e9),
+            "multirtc_centre_ghz": float(C / slc.wavelength / 1e9),
             "tx_centre_ghz": float((f_min + f_max) / 2 / 1e9)},
         "collect_start": _collect_start(path, s.Timeline.CollectStart),
     }
@@ -129,7 +135,7 @@ def main() -> int:
     args = ap.parse_args()
     rows = [survey(p) for p in args.sicd]
     out = {"env": {"isce3": isce3.__version__, "sarpy": sarpy.__version__,
-                   "multirtc_sha": MULTIRTC_SHA, "numpy": np.__version__},
+                   "numpy": np.__version__, **multirtc_provenance()},
            "scenes": rows}
     args.out.write_text(json.dumps(out, indent=1))
     hdr = ("scene", "side", "cols", "slope", "start[lines]", "prf ratio",

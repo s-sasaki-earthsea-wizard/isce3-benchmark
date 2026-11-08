@@ -1,0 +1,178 @@
+{
+ "run_a": "/data/capella_mexico_city/multirtc/20240626/patched-stock-wavelength",
+ "run_b": "/data/capella_mexico_city/multirtc/20240626/matched-tfix-rfix",
+ "only_in_a": [],
+ "only_in_b": [],
+ "rasters": {
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 0.0015610798697875442,
+   "max_abs_difference": 4.991369247436523,
+   "positive_compared": 8103342,
+   "abs_db": {
+    "p50": 0.000196091534490754,
+    "p90": 0.0008055007833379056,
+    "p99": 0.0023390726613326425,
+    "p99.9": 0.0045677247357002165,
+    "p99.99": 0.007597682575948315,
+    "max": 2.942681679747008,
+    "frac_lt_0.001db": 0.9310042695964208,
+    "frac_lt_0.01db": 0.9999734677371386,
+    "count_gt_0.1db": 4
+   },
+   "relative_difference": {
+    "p50": 4.51516754435998e-05,
+    "p99": 0.0005386268745709309,
+    "max": 0.969101794544487
+   }
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_incidence_angle.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_interpolated_dem.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 1.0,
+   "max_abs_difference": 0.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_local_incidence_angle.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 0.9999997050781966,
+   "max_abs_difference": 3.814697265625e-06
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_mask.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 33907293,
+   "bit_identical_fraction": 0.999999911523459,
+   "max_abs_difference": 2.0
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_number_of_looks.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 0.0003937836916838901,
+   "max_abs_difference": 0.9424953460693359,
+   "positive_compared": 8111052,
+   "abs_db": {
+    "p50": 0.00023176133392572044,
+    "p90": 0.0005579238992755714,
+    "p99": 0.0008557834247142378,
+    "p99.9": 0.0011068455910139283,
+    "p99.99": 0.004573266122660888,
+    "max": 1.7321082505371335,
+    "frac_lt_0.001db": 0.997483803580596,
+    "frac_lt_0.01db": 0.9999530270549369,
+    "count_gt_0.1db": 40
+   },
+   "relative_difference": {
+    "p50": 5.336493207602815e-05,
+    "p99": 0.00019705299702286485,
+    "max": 0.49008425257915944
+   }
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_rtc_anf_gamma0_to_beta0.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 0.08504075673537785,
+   "max_abs_difference": 0.11962890625
+  },
+  "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055_rtc_anf_gamma0_to_sigma0.tif": {
+   "shape_a": [
+    5817,
+    5829
+   ],
+   "shape_b": [
+    5817,
+    5829
+   ],
+   "same_geotransform": true,
+   "same_projection": true,
+   "pixels": 33907293,
+   "nan_pattern_mismatches": 0,
+   "finite_compared": 8111052,
+   "bit_identical_fraction": 0.09198967039047462,
+   "max_abs_difference": 0.0002849102020263672
+  }
+ }
+}

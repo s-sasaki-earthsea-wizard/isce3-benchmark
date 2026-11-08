@@ -143,6 +143,20 @@ multirtc-setup: ## Pinned read-only MultiRTC v0.5.4 (a0edba80) + sarpy 1.3.59 in
 	    pip install -q --no-deps --require-hashes --target /data/external/multirtc-site -r /tmp/sarpy-req.txt && \
 	    pip install -q --no-deps --no-build-isolation --target /data/external/multirtc-site /data/external/MultiRTC-a0edba8'
 
+MULTIRTC_PATCH := patches/multirtc/sicd-rgzero-radar-grid.patch
+
+.PHONY: multirtc-patched-setup
+multirtc-patched-setup: ## MultiRTC a0edba80 + patches/multirtc/sicd-rgzero-radar-grid.patch (+ sarpy 1.3.59) into ./data/external/multirtc-site-patched, fresh each run
+	mkdir -p data/external
+	rm -rf data/external/MultiRTC-a0edba8-patched
+	git clone -q https://github.com/MultiSAR/MultiRTC.git data/external/MultiRTC-a0edba8-patched
+	git -C data/external/MultiRTC-a0edba8-patched checkout -q a0edba80a05c923b03ffae378e4a1faf293b0f0f
+	git -C data/external/MultiRTC-a0edba8-patched apply $(CURDIR)/$(MULTIRTC_PATCH)
+	$(RUN) bash -c 'rm -rf /data/external/multirtc-site-patched && \
+	    echo "sarpy==1.3.59 --hash=sha256:b0fd9ba9d9306967a2307e981067cadb3287c39aa5c7b50244d86cecfc960748" > /tmp/sarpy-req.txt && \
+	    pip install -q --no-deps --require-hashes --target /data/external/multirtc-site-patched -r /tmp/sarpy-req.txt && \
+	    pip install -q --no-deps --no-build-isolation --target /data/external/multirtc-site-patched /data/external/MultiRTC-a0edba8-patched'
+
 .PHONY: capella-multirtc
 capella-multirtc: ## MultiRTC diagnostic variants (stock, matched, matched-tfix, matched-tfix-rfix) on the 2024-06-26 SICD
 	$(RUN) bash scripts/capella_rtc_steps.sh multirtc
@@ -150,6 +164,13 @@ capella-multirtc: ## MultiRTC diagnostic variants (stock, matched, matched-tfix,
 .PHONY: capella-rtc-compare
 capella-rtc-compare: ## Compare isce3 GCOV with each MultiRTC variant (radar grid, pixels, geocoded gamma0) into ./data/capella_mexico_city/rtc_compare
 	$(RUN) bash scripts/capella_rtc_steps.sh compare
+
+.PHONY: capella-multirtc-patched
+capella-multirtc-patched: ## Patched MultiRTC (matched options, no runtime subclass) on the 2024-06-26 SICD + GCOV compare, as variant patched-matched (needs multirtc-patched-setup, capella-gcov)
+	$(RUN) bash -c 'export MULTIRTC_SITE=/data/external/multirtc-site-patched \
+	    MULTIRTC_CHECKOUT=/data/external/MultiRTC-a0edba8-patched \
+	    MULTIRTC_VARIANTS=matched MULTIRTC_RUN_PREFIX=patched- && \
+	    bash scripts/capella_rtc_steps.sh multirtc && bash scripts/capella_rtc_steps.sh compare'
 
 .PHONY: data-capella-reinforcement
 data-capella-reinforcement: ## Capella reinforcement SICDs (Niscemi R-A + L-D pairs, Yumare R-D) into ./data/capella_reinforcement (~2.9 GB)
@@ -185,6 +206,15 @@ multirtc-grid-survey: ## MultiRTC RGZERO radar grid vs SICD definition on every 
 	$(RUN) bash -c 'export PYTHONPATH=/data/external/multirtc-site:$$PYTHONPATH; \
 	    python tools/multirtc_grid_survey.py /data/capella_mexico_city/*.ntf /data/capella_reinforcement/*.ntf \
 	    --out /work/artifacts/multirtc-grid-survey-20260924/survey.json'
+
+.PHONY: multirtc-grid-survey-patched
+multirtc-grid-survey-patched: ## As multirtc-grid-survey, against the patched MultiRTC, into ./artifacts/multirtc-grid-survey-20261108-patched (needs multirtc-patched-setup)
+	mkdir -p artifacts/multirtc-grid-survey-20261108-patched
+	$(COMPOSE) run --rm -T dev bash -c 'export PYTHONPATH=/data/external/multirtc-site-patched:$$PYTHONPATH \
+	    MULTIRTC_CHECKOUT=/data/external/MultiRTC-a0edba8-patched; \
+	    python tools/multirtc_grid_survey.py /data/capella_mexico_city/*.ntf /data/capella_reinforcement/*.ntf \
+	    --out /work/artifacts/multirtc-grid-survey-20261108-patched/survey.json' \
+	    | tee artifacts/multirtc-grid-survey-20261108-patched/survey_table.txt
 
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run

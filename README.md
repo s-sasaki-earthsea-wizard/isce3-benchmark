@@ -97,4 +97,9 @@ SLC phase convention is measured by `tools/rifg_fringe_rate.py`
 The same converter with `--radiometry beta0` feeds isce3's GCOV (RTC) workflow;
 that path is cross-checked against MultiRTC in
 `reports/2026-09-capella-rtc-gcov-vs-multirtc.md` (`make capella-gcov`,
-`multirtc-setup`, `capella-multirtc`, `capella-rtc-compare`).
+`multirtc-setup`, `capella-multirtc`, `capella-rtc-compare`). The three
+MultiRTC radar-grid defects found there are fixed by a candidate upstream
+patch, `patches/multirtc/sicd-rgzero-radar-grid.patch`, verified on the same
+data in `reports/2026-11-multirtc-sicd-grid-fix.md`
+(`make multirtc-patched-setup`, `capella-multirtc-patched`,
+`multirtc-grid-survey-patched`).

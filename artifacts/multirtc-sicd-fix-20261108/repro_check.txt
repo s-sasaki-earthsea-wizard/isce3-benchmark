@@ -1,0 +1,5 @@
+rtc_compare stock: 48 shared fields, 0 differ; only in rerun: ['radar_pixels.max_abs_phase_difference_rad', 'radar_pixels.max_relative_difference', 'radar_pixels.pixels_compared', 'radar_pixels.zero_pattern_mismatches']
+rtc_compare matched: 48 shared fields, 0 differ; only in rerun: ['radar_pixels.max_abs_phase_difference_rad', 'radar_pixels.max_relative_difference', 'radar_pixels.pixels_compared', 'radar_pixels.zero_pattern_mismatches']
+rtc_compare matched-tfix: 48 shared fields, 0 differ; only in rerun: ['radar_pixels.max_abs_phase_difference_rad', 'radar_pixels.max_relative_difference', 'radar_pixels.pixels_compared', 'radar_pixels.zero_pattern_mismatches']
+rtc_compare matched-tfix-rfix: 52 shared fields, 0 differ
+grid survey (stock) scenes: 273 shared fields, 4 differ ['0.wavelength.multirtc_centre_ghz', '1.wavelength.multirtc_centre_ghz', '5.wavelength.multirtc_centre_ghz', '6.wavelength.multirtc_centre_ghz']

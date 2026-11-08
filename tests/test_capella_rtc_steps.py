@@ -31,10 +31,13 @@ exit 0
     return stub, counter
 
 
-def _run(tmp_path, step, fail_on):
+def _run(tmp_path, step, fail_on, **extra_env):
     stub, counter = _stub(tmp_path, fail_on)
-    env = dict(os.environ, CAPELLA_DATA=str(tmp_path / "data"), PYTHON=str(stub),
-               MULTIRTC_SITE=str(tmp_path / "site"))
+    # Start from a caller environment without MULTIRTC_* so a shell that has
+    # MULTIRTC_VARIANTS exported cannot change the call counts below.
+    env = {k: v for k, v in os.environ.items() if not k.startswith("MULTIRTC_")}
+    env.update(CAPELLA_DATA=str(tmp_path / "data"), PYTHON=str(stub),
+               MULTIRTC_SITE=str(tmp_path / "site"), **extra_env)
     p = subprocess.run(["bash", str(SCRIPT), step], cwd=ROOT, env=env,
                        capture_output=True, text=True)
     return p, int(counter.read_text())
@@ -55,6 +58,20 @@ def test_a_failing_iteration_fails_the_step_and_stops(tmp_path, step, which):
     assert p.returncode != 0
     assert "FAIL" in p.stderr
     assert calls == fail_on, "the loop must stop at the failing iteration"
+
+
+@pytest.mark.parametrize("step", ["multirtc", "compare"])
+def test_variant_override_runs_only_those_variants_under_the_prefix(tmp_path, step):
+    """make capella-multirtc-patched: one variant, its own run dir, stock dirs untouched."""
+    p, calls = _run(tmp_path, step, fail_on=0,
+                    MULTIRTC_VARIANTS="matched", MULTIRTC_RUN_PREFIX="patched-")
+    assert p.returncode == 0, p.stderr
+    assert calls == 1
+    assert p.stdout.split() == [f"{'MULTIRTC' if step == 'multirtc' else 'COMPARE'}-OK",
+                                "patched-matched"]
+    if step == "multirtc":
+        runs = tmp_path / "data" / "multirtc" / "20240626"
+        assert sorted(d.name for d in runs.iterdir()) == ["patched-matched"]
 
 
 def test_unknown_step_is_a_usage_error(tmp_path):
