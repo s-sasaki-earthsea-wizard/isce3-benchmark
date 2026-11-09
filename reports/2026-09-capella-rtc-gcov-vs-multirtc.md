@@ -150,7 +150,7 @@ slip. The fix for all three is verified in
    later line follows one Δt = 1.610e-4 s early. The PRF stays right
    (6210.7 Hz). Geocoded, this is about one line along track
    (`Col.SS` = 1.0625 m): the start-time fix alone moves the predicted
-   along-track offset by 1.07 m (summary table).
+   along-track offset by 1.063 m, from −0.907 to +0.156 m (Figure 3).
 
    ![Figure 1: sensing start](figures/2026-09-capella-rtc-gcov-vs-multirtc-1.svg)
 

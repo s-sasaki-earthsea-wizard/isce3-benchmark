@@ -99,7 +99,7 @@
   </g>
 
   <text x="20" y="362" font-size="12.5" fill="#cf222e">Every line is stamped one Δt early: the first pixel line (column N−1) gets the time of the non-existent column N.</text>
-  <text x="20" y="381" font-size="12.5">→ The geocoded image shifts about one line along track (Col.SS = 1.0625 m; the start-time fix alone moves the predicted offset by 1.07 m).</text>
+  <text x="20" y="381" font-size="12.5">→ The geocoded image shifts about one line along track (Col.SS = 1.0625 m; the start-time fix alone moves the predicted offset by 1.063 m).</text>
   <text x="20" y="401" font-size="12" fill="#57606a">Mexico City (C14, L, N = 19191), s after CollectStart: t(N−1) = 0.588534, t(N) = 0.588373, Δt = 1.610e-4 s (PRF 6210.7 Hz).</text>
 
   <!-- ================= Panel B: time increasing ================= -->
