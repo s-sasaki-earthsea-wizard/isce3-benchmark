@@ -217,7 +217,7 @@ multirtc-grid-survey-patched: ## As multirtc-grid-survey, against the patched Mu
 	    | tee artifacts/multirtc-grid-survey-20261108-patched/survey_table.txt
 
 .PHONY: multirtc-plane-curvature
-multirtc-plane-curvature: ## Toy model (circular orbit) of MultiRTC v0.5.4's flat-plane starting-range shortfall on every Capella SICD on disk, into ./artifacts/multirtc-plane-curvature-20261109 (metadata only; needs multirtc-setup)
+multirtc-plane-curvature: ## Second-order expansion (plus circular-orbit toy model) of MultiRTC v0.5.4's flat-plane starting-range shortfall on every Capella SICD on disk, into ./artifacts/multirtc-plane-curvature-20261109 (metadata only; needs multirtc-setup)
 	mkdir -p artifacts/multirtc-plane-curvature-20261109
 	$(COMPOSE) run --rm -T dev bash -c 'export PYTHONPATH=/data/external/multirtc-site:$$PYTHONPATH; \
 	    python tools/multirtc_plane_curvature.py /data/capella_mexico_city/*.ntf /data/capella_reinforcement/*.ntf \
