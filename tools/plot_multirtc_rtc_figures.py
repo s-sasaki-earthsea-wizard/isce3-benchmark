@@ -50,6 +50,7 @@ SWATCH_GCOV, SWATCH_MULTIRTC = "#b000b0", "#00b000"
 
 plt.rcParams.update({
     "font.family": "DejaVu Sans", "font.size": 10, "svg.fonttype": "none",
+    "svg.hashsalt": "isce3-benchmark",  # stable element ids, so reruns give the same file
     "text.color": INK, "axes.labelcolor": INK, "axes.edgecolor": AXIS,
     "axes.linewidth": 0.8, "xtick.color": MUTED, "ytick.color": MUTED,
     "xtick.labelcolor": INK, "axes.spines.top": False, "axes.spines.right": False,
@@ -151,7 +152,7 @@ def figure_offsets(rows: list[dict], out: Path) -> None:
                frameon=False, fontsize=9.5, handletextpad=0.4, columnspacing=1.6)
     fig.suptitle("MultiRTC minus isce3 GCOV on the Mexico City SICD, one radar-grid fix at a time",
                  x=0.115, y=0.985, ha="left", fontsize=12, fontweight="bold")
-    fig.savefig(out, bbox_inches="tight", pad_inches=0.15)
+    fig.savefig(out, bbox_inches="tight", pad_inches=0.15, metadata={"Date": None})
     plt.close(fig)
 
 
