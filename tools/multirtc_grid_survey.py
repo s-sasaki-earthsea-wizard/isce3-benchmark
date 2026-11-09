@@ -13,9 +13,9 @@ should be zero:
   becomes ``sensing_start``. Reference: the time of column N-1 when reversed,
   of column 0 otherwise. Reported in lines (x PRF).
 * starting range -- MultiRTC's ``get_starting_range(col)`` (ARP at closest
-  approach to a point on the SCP tangent plane) vs the RGZERO row-0 range
-  ``R_CA_SCP - (SCPPixel.Row - FirstRow) * Row.SS``, at five columns; the
-  column-0 value is what MultiRTC uses for the whole grid.
+  approach to a point on the flat slant plane through the SCP) vs the RGZERO
+  row-0 range ``R_CA_SCP - (SCPPixel.Row - FirstRow) * Row.SS``, at five
+  columns; the column-0 value is what MultiRTC uses for the whole grid.
 * wavelength -- MultiRTC's (v0.5.4: c / (``Min + Max / 2``)) vs
   c / ((Min + Max) / 2).
 * CollectStart -- the sub-microsecond part in the SICD XML, which sarpy's

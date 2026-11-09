@@ -62,7 +62,7 @@ subclass, and checks it on the same data.
 |---|---|---|---|
 | `adfac02` | L42 (`SicdSlc`, all SICD inputs) | `Min + Max / 2` | `(Min + Max) / 2` |
 | `67ab961` | L169, L175 (`SicdRzdSlc`) | last column time at `NumCols`; PRF = `NumCols / (t_end − t_start)` | at `NumCols − 1`; PRF = `(NumCols − 1) / (t_end − t_start)` |
-| `e7aa57b` | L173 (`SicdRzdSlc`) | `get_starting_range(0)` (SCP tangent plane, column 0) | `R_CA_SCP − (SCPPixel.Row − FirstRow) × Row.SS` |
+| `e7aa57b` | L173 (`SicdRzdSlc`) | `get_starting_range(0)` (flat plane through the SCP, column 0) | `R_CA_SCP − (SCPPixel.Row − FirstRow) × Row.SS` |
 
 The two lines of `67ab961` belong together. Moving only `last_col_time` would
 scale the PRF by `NumCols / (NumCols − 1)`, a drift of about one line across
