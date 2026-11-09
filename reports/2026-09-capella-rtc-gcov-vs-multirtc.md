@@ -17,7 +17,8 @@
   InSAR phase). Tracking: bench#54.
 - Added 2026-11-09: the code walk-through and Figures 1–2 in §3.1, with a
   second-order check of the starting-range shortfall
-  (`artifacts/multirtc-plane-curvature-20261109/`). No earlier number changed.
+  (`artifacts/multirtc-plane-curvature-20261109/`), and Figures 3–4 in §3.2.
+  No earlier number changed.
 
 ## Summary
 
@@ -288,8 +289,38 @@ the intervention (last row of the summary table) gives the attribution:
 removing the two grid differences removes the offset to within what this
 estimator can resolve, and the radiometric agreement above follows.
 
-`quicklook_20240626.png`: GCOV gamma0, and MultiRTC − GCOV for the matched and
-the fully fixed variant.
+Figure 3 shows the intervention one fix at a time. The start-time fix moves
+the along-track offset by one line (1.063 m) and leaves the 9.65 m toward near
+range, and the agreement stays at 0.18 %. Only when the starting-range fix
+removes the near-range offset as well does gamma0 agree (99.98 %). The
+measured offsets track the predicted ones: smaller toward near range (8.84 vs
+9.67 m), larger along track (−1.17 vs −0.91 m), within the estimator's bias in
+both directions shown above.
+
+![Figure 3: offsets and agreement, one fix at a time](figures/2026-09-capella-rtc-gcov-vs-multirtc-3.svg)
+
+*Figure 3. MultiRTC minus GCOV on this scene, one radar-grid fix at a time
+(matched options; stock has the same offsets). Hollow: predicted by rdr2geo
+through both radar grids. Filled: measured by tile phase correlation. Right:
+share of common pixels whose gamma0 agrees within 0.01 dB. Data:
+`20240626_*.json` in this report's artifacts.*
+
+Figure 4 shows the 9.7 m on the ground. The chip is picked automatically
+(`tools/plot_multirtc_rtc_figures.py`) for edges that cross the near-range
+direction, where a shift shows as fringes. With the v0.5.4 grid, every bright
+building front has a green fringe on its near-range (south-east) side and a
+magenta one on its far-range side: MultiRTC's image sits about two pixels
+toward near range. With both fixes the overlay is gray.
+
+![Figure 4: one gamma0 chip, GCOV over MultiRTC](figures/2026-09-capella-rtc-gcov-vs-multirtc-4.png)
+
+*Figure 4. Geocoded gamma0 on one 400 m chip (80 × 80 pixels of 5 m). Left:
+isce3 GCOV. Middle and right: GCOV in magenta over MultiRTC in green, with the
+same dB stretch for both; equal brightness is gray.*
+
+`quicklook_20240626.png` (whole scene, MultiRTC − GCOV in dB) stays in the
+artifacts. At that scale a two-pixel shift reads as speckle-like noise rather
+than as a shift, which is why Figure 4 zooms in.
 
 ## 4. What this does and does not establish
 
@@ -315,5 +346,6 @@ make capella-multirtc          # four variants
 make capella-rtc-compare       # comparisons -> data/capella_mexico_city/rtc_compare/
 make multirtc-grid-survey      # §3.1 radar grid on 7 SICDs, metadata only
 make multirtc-plane-curvature  # §3.1 second-order check of the starting-range shortfall
+make multirtc-rtc-figures      # §3.2 Figures 3-4 (needs the GCOV and MultiRTC rasters)
 docker compose run --rm dev python -m pytest -q tests/test_sicd_radiometry.py
 ```

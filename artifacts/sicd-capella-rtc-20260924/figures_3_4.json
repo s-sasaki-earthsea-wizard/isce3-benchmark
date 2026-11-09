@@ -1,0 +1,45 @@
+{
+ "steps": [
+  {
+   "variant": "matched",
+   "label": "v0.5.4\ngrid",
+   "pred_along": -0.9070340093582088,
+   "pred_near": 9.667279144992044,
+   "meas_along": -1.1715284446675658,
+   "meas_near": 8.843266547595022,
+   "agree_pct": 0.17332951533208335,
+   "heading_deg": 44.15331160860555
+  },
+  {
+   "variant": "matched-tfix",
+   "label": "+ start-\ntime fix",
+   "pred_along": 0.15568557822374363,
+   "pred_near": 9.650267323658706,
+   "meas_along": 0.14940142428662284,
+   "meas_near": 8.577681928343994,
+   "agree_pct": 0.1758279223486381,
+   "heading_deg": 44.15331160860555
+  },
+  {
+   "variant": "matched-tfix-rfix",
+   "label": "+ starting-\nrange fix",
+   "pred_along": -0.0061213591071133016,
+   "pred_near": 9.799218692320855e-05,
+   "meas_along": 0.00020619625988726358,
+   "meas_near": 1.2549525601586605e-05,
+   "agree_pct": 99.98042624597132,
+   "heading_deg": 44.15331160860555
+  }
+ ],
+ "chip": {
+  "chip_row": 4140,
+  "chip_col": 1660,
+  "size_px": 80,
+  "utm_e_upper_left": 491757.5,
+  "utm_n_upper_left": 2135532.5,
+  "stretch_db": [
+   -16.19346659192297,
+   7.823206992213459
+  ]
+ }
+}
