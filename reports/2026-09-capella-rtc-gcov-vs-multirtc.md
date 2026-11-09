@@ -185,11 +185,12 @@ slip. The fix for all three is verified in
    `get_starting_range` instead treats (xrow, ycol) as Cartesian coordinates
    on the plane through the SCP spanned by `Row.UVectECF` and `Col.UVectECF`:
    the slant plane, with `Row.UVectECF` along the line of sight and
-   `Col.UVectECF` along the ARP's direction of motion. It measures from the ARP
-   at the column's time to that plane point. At the SCP column the plane point
-   lies on the line of sight (`Row.UVectECF` · line of sight = 1 to within
-   2e-16), so the distance is exact. Away from it the ARP and the plane point
-   drift apart, and the distance comes out short (Figure 2):
+   `Col.UVectECF` along track (against the ARP velocity on this scene, as in
+   item 1). It measures from the ARP at the column's time to that plane point.
+   At the SCP column the plane point lies on the line of sight
+   (`Row.UVectECF` · line of sight = 1 to within 2e-16), so the distance is
+   exact. Away from it the ARP and the plane point drift apart, and the
+   distance comes out short (Figure 2):
 
    | SICD column (ycol) | MultiRTC − RGZERO row-0 range |
    |---|---|
