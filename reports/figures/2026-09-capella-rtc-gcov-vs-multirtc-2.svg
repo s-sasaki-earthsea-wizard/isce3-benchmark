@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="672" viewBox="0 0 1060 672"
+     font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">
+  <rect width="1060" height="672" fill="#ffffff"/>
+  <text x="20" y="28" font-size="16" font-weight="bold">MultiRTC v0.5.4 SicdRzdSlc: starting range (src/multirtc/sicd.py L173, L181–L191)</text>
+
+  <!-- ================= Panel A: geometry (orbit axis O at (300, 1170), off canvas) ================= -->
+  <text x="20" y="56" font-size="14" font-weight="bold">A. Geometry seen along the orbit axis (schematic, curvature exaggerated)</text>
+
+  <!-- ARP track: radius 1080 -->
+  <path d="M12.0,129.1 A1080,1080 0 0 1 588.0,129.1" fill="none" stroke="#57606a" stroke-width="1.8"/>
+  <text x="594" y="134" font-size="12" fill="#57606a">ARP track</text>
+  <!-- row-0 curve of constant R_CA: radius 800 -->
+  <path d="M63.6,405.7 A800,800 0 0 1 536.4,405.7" fill="none" stroke="#1a7f37" stroke-width="2"/>
+  <!-- flat plane through the SCP -->
+  <line x1="45" y1="370" x2="555" y2="370" stroke="#cf222e" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="318" y="356" font-size="12" fill="#cf222e">flat plane through the SCP (MultiRTC)</text>
+
+  <!-- ranges -->
+  <line x1="300" y1="90" x2="300" y2="370" stroke="#1a7f37" stroke-width="1.6"/>
+  <line x1="22.3" y1="126.3" x2="94.3" y2="396.9" stroke="#1a7f37" stroke-width="1.6"/>
+  <line x1="22.3" y1="126.3" x2="92.0" y2="370" stroke="#cf222e" stroke-width="1.6" stroke-dasharray="5,3"/>
+
+  <!-- guides toward the orbit axis -->
+  <g stroke="#8c959f" stroke-dasharray="2,3">
+    <line x1="300" y1="374" x2="300" y2="432"/>
+    <line x1="95.3" y1="400.8" x2="104.6" y2="435.5"/>
+    <line x1="504.7" y1="400.8" x2="495.4" y2="435.5"/>
+  </g>
+  <text x="300" y="452" text-anchor="middle" font-size="12" fill="#57606a">↓ toward the orbit axis (ρ ≈ 6362 km from the SCP)</text>
+
+  <!-- points -->
+  <circle cx="300" cy="90" r="5" fill="#1f2328"/>
+  <circle cx="22.3" cy="126.3" r="5" fill="#1f2328"/>
+  <circle cx="577.7" cy="126.3" r="5" fill="#1f2328"/>
+  <circle cx="300" cy="370" r="5" fill="#1a7f37"/>
+  <circle cx="94.3" cy="396.9" r="5" fill="#1a7f37"/>
+  <circle cx="505.7" cy="396.9" r="5" fill="#1a7f37"/>
+  <circle cx="92.0" cy="370" r="5" fill="#cf222e"/>
+  <circle cx="508.0" cy="370" r="5" fill="#cf222e"/>
+
+  <text x="308" y="82" font-size="12">ARP at the SCP column's time</text>
+  <text x="44" y="165" font-size="12">ARP at col 0's time</text>
+  <text x="308" y="402" font-size="12" fill="#1a7f37">row 0, SCP column</text>
+  <text x="70" y="424" text-anchor="end" font-size="12">col 0</text>
+  <text x="530" y="424" font-size="12">col N−1</text>
+  <!-- delta -->
+  <line x1="80" y1="374" x2="80" y2="393" stroke="#1f2328" stroke-width="1"/>
+  <line x1="76" y1="374" x2="84" y2="374" stroke="#1f2328" stroke-width="1"/>
+  <line x1="76" y1="393" x2="84" y2="393" stroke="#1f2328" stroke-width="1"/>
+  <text x="72" y="389" text-anchor="end" font-size="13" font-style="italic">δ</text>
+
+  <!-- legend A -->
+  <line x1="20" y1="476" x2="48" y2="476" stroke="#1a7f37" stroke-width="2"/>
+  <text x="56" y="480" font-size="12">true row-0 range: 761 275.56 m at every column</text>
+  <line x1="20" y1="497" x2="48" y2="497" stroke="#cf222e" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="56" y="501" font-size="12">get_starting_range(0): to the flat-plane point, 6.32 m short</text>
+
+  <!-- ================= Panel B: per-column difference ================= -->
+  <text x="700" y="56" font-size="14" font-weight="bold">B. get_starting_range(col)</text>
+  <text x="700" y="74" font-size="14" font-weight="bold">    − RGZERO row-0 range [m]</text>
+  <text x="700" y="94" font-size="12" fill="#57606a">Mexico City C14 (L), NumCols = 19191</text>
+
+  <!-- axes: x = 740 + col/19190*240, y = 130 + (1 - v)*35 -->
+  <line x1="740" y1="118" x2="740" y2="415" stroke="#57606a" stroke-width="1.2"/>
+  <line x1="740" y1="415" x2="980" y2="415" stroke="#57606a" stroke-width="1.2"/>
+  <g font-size="11.5" text-anchor="end" fill="#57606a">
+    <text x="733" y="169">0</text>
+    <text x="733" y="239">−2</text>
+    <text x="733" y="309">−4</text>
+    <text x="733" y="379">−6</text>
+  </g>
+  <g stroke="#57606a">
+    <line x1="736" y1="165" x2="740" y2="165"/>
+    <line x1="736" y1="235" x2="740" y2="235"/>
+    <line x1="736" y1="305" x2="740" y2="305"/>
+    <line x1="736" y1="375" x2="740" y2="375"/>
+    <line x1="740" y1="415" x2="740" y2="419"/>
+    <line x1="860" y1="415" x2="860" y2="419"/>
+    <line x1="980" y1="415" x2="980" y2="419"/>
+  </g>
+  <g font-size="11.5" text-anchor="middle" fill="#57606a">
+    <text x="740" y="433">0</text>
+    <text x="860" y="433">9595</text>
+    <text x="860" y="448">(SCP)</text>
+    <text x="980" y="433">19190</text>
+  </g>
+  <text x="860" y="468" text-anchor="middle" font-size="12" fill="#57606a">SICD column (azimuth)</text>
+
+  <line x1="740" y1="165" x2="980" y2="165" stroke="#1a7f37" stroke-width="2"/>
+  <line x1="740" y1="386.3" x2="980" y2="386.3" stroke="#cf222e" stroke-width="2" stroke-dasharray="6,4"/>
+  <path d="M740,386.3 Q860,-56.3 980,386.3" fill="none" stroke="#57606a" stroke-width="1.8"/>
+  <g fill="#1f2328">
+    <circle cx="740" cy="386.3" r="3.5"/>
+    <circle cx="800" cy="220.3" r="3.5"/>
+    <circle cx="860" cy="165" r="3.5"/>
+    <circle cx="920" cy="220.3" r="3.5"/>
+    <circle cx="980" cy="386.3" r="3.5"/>
+  </g>
+  <g font-size="11">
+    <text x="746" y="404">−6.323</text>
+    <text x="974" y="404" text-anchor="end">−6.324</text>
+    <text x="794" y="216" text-anchor="end">−1.581</text>
+    <text x="926" y="216">−1.581</text>
+    <text x="860" y="155" text-anchor="middle">0.000</text>
+  </g>
+
+  <!-- legend B -->
+  <line x1="700" y1="496" x2="728" y2="496" stroke="#1a7f37" stroke-width="2"/>
+  <text x="736" y="500" font-size="12">RGZERO row 0 (true): one range for all columns</text>
+  <line x1="700" y1="517" x2="728" y2="517" stroke="#57606a" stroke-width="1.8"/>
+  <text x="736" y="521" font-size="12">get_starting_range(col): flat-plane point</text>
+  <line x1="700" y1="538" x2="728" y2="538" stroke="#cf222e" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="736" y="542" font-size="12">the col-0 value, used for the whole grid:</text>
+  <text x="736" y="558" font-size="12">starting_range 6.32 m (10.24 samples) short</text>
+
+  <!-- ================= notes ================= -->
+  <g font-size="12">
+    <text x="20" y="592">• RGZERO / INCA: pixel (row, col) is the point at closest-approach range R_CA_SCP + xrow, reached at time TimeCAPoly(ycol).</text>
+    <text x="20" y="610">   Row 0 therefore has one range at every column: R_CA_SCP − (SCPPixel.Row − FirstRow) · Row.SS = 761 275.56 m here.</text>
+    <text x="20" y="628">• Toy model (circular orbit, no Earth rotation): y = 10.19 km, ρ = 6362 km → δ = y²/(2ρ) = 8.17 m; × cos 36.7° (LOS vs radial) = 6.55 m. Code: 6.32 m.</text>
+    <text x="20" y="654" font-size="12.5"><tspan font-weight="bold">Fix (2026-11 patch):</tspan> starting_range = R_CA_SCP − shift[0] · Row.SS, the RGZERO definition, with no plane involved.</text>
+  </g>
+</svg>
