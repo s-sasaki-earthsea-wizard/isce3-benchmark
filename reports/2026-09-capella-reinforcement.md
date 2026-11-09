@@ -164,8 +164,8 @@ its bounding box.
 ### 6.1 MultiRTC on the right-looking scene
 
 The Mexico City comparison was left-looking, where MultiRTC v0.5.4 has two grid errors (start time
-one line early, starting range from the SCP tangent plane). On a right-looking scene only the
-second should remain. Same tools as the RTC report (`tools/multirtc_capella_rtc.py`,
+one line early, starting range from a flat plane through the SCP). On a right-looking scene only
+the second should remain. Same tools as the RTC report (`tools/multirtc_capella_rtc.py`,
 `tools/compare_rtc.py`), on 20260204114511:
 
 | MultiRTC variant | start − ours | starting range − ours | predicted offset, grid only (along / across) | common valid pixels | within 0.01 dB | within 0.1 dB |

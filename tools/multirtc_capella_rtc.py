@@ -45,8 +45,9 @@ azimuth axis makes ``sensing_start`` one line early (1.6101e-4 s on the
 2024-06-26 scene).
 
 Hypothesis 2 (``rfix``): ``get_starting_range(0)`` measures the range from the
-ARP at closest approach to a point on the plane tangent at the SCP, which
-equals the RGZERO row-0 range only at the SCP column; on the 2024-06-26 scene
+ARP at closest approach to a point on the flat plane through the SCP spanned
+by ``Row.UVectECF`` and ``Col.UVectECF`` (the slant plane), which equals the
+RGZERO row-0 range only at the SCP column; on the 2024-06-26 scene
 it is -6.32 m (-10.2 samples) short at column 0, and that value is applied to
 the whole grid.
 
