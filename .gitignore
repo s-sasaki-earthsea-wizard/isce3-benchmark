@@ -27,6 +27,7 @@ logs_*/
 !artifacts/sicd-rgzero-port-20260930/*.json
 !artifacts/multirtc-grid-survey-20261108-patched/*.json
 !artifacts/multirtc-sicd-fix-20261108/*.json
+!artifacts/multirtc-plane-curvature-20261109/*.json
 
 # Local environment overrides
 .env

@@ -15,6 +15,9 @@
 - Evidence: `artifacts/sicd-capella-rtc-20260924/`.
 - Follows `reports/2026-09-capella-sicd-stage-u0.md` (converter, geometry,
   InSAR phase). Tracking: bench#54.
+- Added 2026-11-09: the code walk-through and Figures 1–2 in §3.1, with a
+  second-order check of the starting-range shortfall
+  (`artifacts/multirtc-plane-curvature-20261109/`). No earlier number changed.
 
 ## Summary
 
@@ -36,7 +39,8 @@ phase.
 | matched + start-time fix + starting-range fix | −0.006 m / 0.000 m | 0.000 m / 0.000 m | **99.98 %** |
 
 The last column is over the common support. The wavelength difference (§3.1) is
-**not** corrected in any variant; it does not enter RTC but would enter any phase use.
+**not** corrected in any variant; with the zero-Doppler LUT used here it does
+not reach gamma0 (§3.1, item 3), but it would enter phase use.
 
 With two corrections to MultiRTC's radar grid — applied as runtime
 subclasses, its source untouched — the two paths agree closely: over
@@ -111,16 +115,80 @@ Stock v0.5.4 is a diagnostic comparator here, not a reference.
 | wavelength | 2.078 cm vs 3.107 cm |
 | orbit positions at common times | ≤ 7.3 mm |
 
-Three causes, each read from the pinned source (`src/multirtc/sicd.py`):
+Three causes, each read from the pinned source (`src/multirtc/sicd.py`).
+Figures 1 and 2 draw the first two; the third is an operator-precedence
+slip. The fix for all three is verified in
+`reports/2026-11-multirtc-sicd-grid-fix.md`.
 
-1. **Start time.** The "last column" time is evaluated at index N, one past
-   the image. For a time-reversed azimuth axis — as on these inputs, whose
-   `TimeCAPoly` slope is negative (MultiRTC branches on its own `az_reversed`
-   flag) — that value becomes `sensing_start`: one line early. The PRF stays
-   right.
-2. **Starting range.** `get_starting_range(0)` measures from the ARP at closest
-   approach to a point on the plane tangent at the SCP. That equals the RGZERO
-   row-0 range `R_CA_SCP − SCPPixel.Row × Row.SS` only at the SCP column:
+1. **Start time** (`sicd.py` L168–L175):
+
+   ```python
+   first_col_time = self.source.RMA.INCA.TimeCAPoly(-self.shift[1] * self.spacing[1])
+   last_col_time = self.source.RMA.INCA.TimeCAPoly((self.shape[1] - self.shift[1]) * self.spacing[1])
+   self.az_reversed = last_col_time < first_col_time
+   self.sensing_start = min(first_col_time, last_col_time)
+   self.sensing_end = max(first_col_time, last_col_time)
+   ...
+   self.prf = self.shape[1] / (self.sensing_end - self.sensing_start)
+   ```
+
+   The columns are 0 … N−1, but the "last column" time is evaluated at
+   index N, one past the image. `min()` and `max()` then take start and end
+   whichever way time runs along the columns.
+
+   When `TimeCAPoly` increases with column, the extra point lands on the end
+   (Figure 1B). It only feeds the PRF, where `N / (t(N) − t(0))` spans N
+   intervals and is exactly 1/Δt for a linear `TimeCAPoly` (as on all 7
+   surveyed scenes); the grid length comes from `NumCols`.
+
+   When it decreases, the extra point becomes `sensing_start` (Figure 1A).
+   On this scene the slope is −1.5154e-4 s/m: `Col.UVectECF` points against
+   the ARP velocity, as on every left-looking scene in the survey below. The
+   pixels are flipped (`data[:, ::-1].T`), so isce3 line 0 is column N−1 at
+   t(N−1) = 0.588534 s after `CollectStart`. MultiRTC stamps it with
+   t(N) = 0.588373 s, the time of a column that does not exist, and every
+   later line follows one Δt = 1.610e-4 s early. The PRF stays right
+   (6210.7 Hz). Geocoded, this is about one line along track
+   (`Col.SS` = 1.0625 m): the start-time fix alone moves the predicted
+   along-track offset by 1.07 m (summary table).
+
+   ![Figure 1: sensing start](figures/2026-09-capella-rtc-gcov-vs-multirtc-1.svg)
+
+   *Figure 1. (A) Time-reversed azimuth: the one-past column N becomes
+   `sensing_start`, so each pixel line is stamped one Δt early. (B) Time
+   increasing with column: the same point is only the end.*
+
+2. **Starting range** (`sicd.py` L173, L181–L191):
+
+   ```python
+   self.starting_range = self.get_starting_range(0)
+
+   def get_starting_range(self, col: int) -> float:
+       ycol = (col - self.shift[1]) * self.spacing[1]
+       xrow = -self.shift[0] * self.spacing[0]  # fixing to first row
+       inca_time = self.source.RMA.INCA.TimeCAPoly(ycol)
+       arp_pos = self.arp_pos_poly(inca_time)
+       row_offset = self.source.Grid.Row.UVectECF.get_array() * xrow
+       col_offset = self.source.Grid.Col.UVectECF.get_array() * ycol
+       grid_pos = self.source.GeoData.SCP.ECF.get_array() + row_offset + col_offset
+       starting_range = np.linalg.norm(arp_pos - grid_pos)
+       return starting_range
+   ```
+
+   In an RGZERO / INCA grid, pixel (row, col) is the point at closest-approach
+   range `R_CA_SCP + xrow`, reached at time `TimeCAPoly(ycol)`. The SICD grid
+   already is a range × zero-Doppler-time grid, and row 0 has one range at
+   every column: `R_CA_SCP − (SCPPixel.Row − FirstRow) × Row.SS`,
+   761 275.56 m here.
+
+   `get_starting_range` instead treats (xrow, ycol) as Cartesian coordinates
+   on the plane through the SCP spanned by `Row.UVectECF` and `Col.UVectECF`:
+   the slant plane, with `Row.UVectECF` along the line of sight and
+   `Col.UVectECF` along the ARP's direction of motion. It measures from the ARP
+   at the column's time to that plane point. At the SCP column the plane point
+   lies on the line of sight (`Row.UVectECF` · line of sight = 1 to within
+   2e-16), so the distance is exact. Away from it the ARP and the plane point
+   drift apart, and the distance comes out short (Figure 2):
 
    | SICD column (ycol) | MultiRTC − RGZERO row-0 range |
    |---|---|
@@ -130,12 +198,64 @@ Three causes, each read from the pinned source (`src/multirtc/sicd.py`):
    | 14393 (+5.1 km) | −1.581 m |
    | 19190 (+10.2 km) | −6.324 m |
 
-   Quadratic in the along-track distance, and the column-0 value is applied to
-   the whole grid.
-3. **Wavelength.** `TxFrequency.Min + TxFrequency.Max / 2` (precedence) gives
-   14.425 GHz instead of 9.650 GHz. Zero-Doppler geometry and RTC do not use
-   the wavelength, so it does not appear in the table above; it would matter
-   for any phase use.
+   The shortfall grows with the square of the along-track distance (×4 from
+   5.1 to 10.2 km). Expanding the code's own distance to second order about
+   the SCP column (`tools/multirtc_plane_curvature.py`) splits it into two
+   terms. Both come from the SICD's ECF `ARPPoly` and `TimeCAPoly`; no Earth
+   model enters either the code's value or the RGZERO range it is compared
+   with.
+
+   - **The ARP falls toward the scene.** Between the SCP column and column 0
+     lie Δt = 1.545 s. The ARP's ECF acceleration has a component of
+     5.80 m/s² along the line of sight toward the scene, so at column 0 the
+     ARP is ½ · 5.80 · 1.545² = 6.92 m closer to the scene than a straight
+     track would put it. The flat plane does not follow the orbit's curvature.
+   - **The ARP outruns the plane point.** The ARP moves 1.093 m along track
+     per metre of the plane line (`TimeCAPoly` slope × ARP speed). At column 0 it is
+     therefore 0.093 × 10.19 km = 952 m farther along track than the plane
+     point, which lengthens the distance by 952² / (2 × 761 276 m) = 0.60 m.
+
+   Together they give −6.32 m, against −6.323 m from the code. On all 7
+   surveyed scenes the expansion matches the code to within 0.4 mm at every
+   sampled column (0.99994–1.00005 × at column 0). A circular-orbit,
+   non-rotating toy model of the same geometry, kept in the output for
+   reference, lands only within 11 % (0.89–1.06 ×): it leaves out the Earth
+   rotation and orbit eccentricity that the ECF `ARPPoly` carries.
+
+   The constant offset comes from the next step: `RadarGridParameters` takes
+   one starting range, and MultiRTC evaluates it at column 0, an edge column
+   where the shortfall is near its largest. The whole grid is therefore 6.32 m
+   (10.24 samples) short in range: a uniform shift, not a curved one. At the
+   SCP incidence angle of 40.93° that is 6.32 m / sin 40.93° = 9.65 m on the
+   ground, matching the 9.65–9.67 m near-range offset predicted by rdr2geo
+   (summary table).
+
+   ![Figure 2: starting range](figures/2026-09-capella-rtc-gcov-vs-multirtc-2.svg)
+
+   *Figure 2. (A) The slant plane through the SCP, not to scale: the ARP
+   track bends toward the scene while the flat plane does not, and the ARP
+   covers slightly more ground than the plane point. (B) MultiRTC's per-column
+   difference on this scene, and the column-0 value it applies to the whole
+   grid.*
+
+3. **Wavelength** (`sicd.py` L42):
+
+   ```python
+   center_frequency = sicd.RadarCollection.TxFrequency.Min + sicd.RadarCollection.TxFrequency.Max / 2
+   ```
+
+   Operator precedence makes this `Min + (Max / 2)`: 14.425 GHz instead of
+   9.650 GHz. With the zero-Doppler LUT and area projection used here, the
+   wavelength does not reach gamma0, so it does not appear in the table above.
+   A control run in `reports/2026-11-multirtc-sicd-grid-fix.md` §4 confirms
+   this: restoring the v0.5.4 wavelength in the fixed grid leaves all 8 output
+   rasters bit-identical. Phase use and non-zero Doppler were not tested.
+
+Survey: `artifacts/multirtc-grid-survey-20260924/` (7 Capella stripmap
+SICDs, metadata only) and `artifacts/multirtc-plane-curvature-20261109/`
+(second-order expansion, toy model, and the sign of `Col.UVectECF` against
+the ARP velocity: −1 on all 4 left-looking scenes, +1 on all 3 right-looking
+ones).
 
 With both geometry fixes, the residual start difference on this scene is
 0.93 µs, equal to the nanoseconds of `Timeline/CollectStart` (`…51.301024927`).
@@ -156,8 +276,7 @@ Map offsets are reported two ways:
   offset of the two outputs (each path also has its own orbit sampling and
   epoch). For the fully fixed variant its −6 mm along-track is the 0.93 µs
   epoch difference evaluated on one orbit; with each path's own orbit the same
-  25 points differ by +0.54 mm along track (max ECEF difference 0.54 mm;
-  cross-check in the team review);
+  25 points differ by +0.54 mm along track (max ECEF difference 0.54 mm);
 - **measured**: phase correlation of 256 × 256 dB tiles (99 tiles).
 
 The correlation estimator (Hann window, parabolic peak) is **biased**, in
@@ -194,5 +313,7 @@ make capella-gcov              # isce3 GCOV on 2024-06-26
 make multirtc-setup            # pinned MultiRTC + sarpy into data/external (read-only)
 make capella-multirtc          # four variants
 make capella-rtc-compare       # comparisons -> data/capella_mexico_city/rtc_compare/
+make multirtc-grid-survey      # §3.1 radar grid on 7 SICDs, metadata only
+make multirtc-plane-curvature  # §3.1 second-order check of the starting-range shortfall
 docker compose run --rm dev python -m pytest -q tests/test_sicd_radiometry.py
 ```

@@ -23,5 +23,5 @@ from there.
 ## Layout
 
 - `YYYY-MM-DD-<topic>.md` — narrative + tables + links to figures
-- `figures/YYYY-MM-DD-<topic>-<n>.png` — plots referenced from the report
+- `figures/YYYY-MM-DD-<topic>-<n>.{png,svg}` — plots and diagrams referenced from the report
 - Raw `.csv` summaries belong here too if they're cited (small, OK to track)
