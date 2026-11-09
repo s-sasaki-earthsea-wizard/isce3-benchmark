@@ -224,6 +224,11 @@ multirtc-plane-curvature: ## Second-order expansion (plus circular-orbit toy mod
 	    --out /work/artifacts/multirtc-plane-curvature-20261109/curvature.json' \
 	    | tee artifacts/multirtc-plane-curvature-20261109/curvature_table.txt
 
+.PHONY: multirtc-rtc-figures
+multirtc-rtc-figures: ## Figures 3-4 of reports/2026-09-capella-rtc-gcov-vs-multirtc.md §3.2 (offsets by fix step; one gamma0 chip overlay) into ./reports/figures (needs capella-gcov, capella-multirtc)
+	$(COMPOSE) run --rm -T dev python tools/plot_multirtc_rtc_figures.py --out-dir reports/figures \
+	    | tee artifacts/sicd-capella-rtc-20260924/figures_3_4.json
+
 # --- benchmarks ---------------------------------------------------------------
 .PHONY: dry-run
 dry-run: ## Validate every config (schema + loader + input existence). Fast gate.
