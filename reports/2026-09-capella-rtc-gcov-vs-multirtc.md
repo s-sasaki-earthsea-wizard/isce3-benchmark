@@ -257,8 +257,7 @@ Map offsets are reported two ways:
   offset of the two outputs (each path also has its own orbit sampling and
   epoch). For the fully fixed variant its −6 mm along-track is the 0.93 µs
   epoch difference evaluated on one orbit; with each path's own orbit the same
-  25 points differ by +0.54 mm along track (max ECEF difference 0.54 mm;
-  cross-check in the team review);
+  25 points differ by +0.54 mm along track (max ECEF difference 0.54 mm);
 - **measured**: phase correlation of 256 × 256 dB tiles (99 tiles).
 
 The correlation estimator (Hann window, parabolic peak) is **biased**, in
