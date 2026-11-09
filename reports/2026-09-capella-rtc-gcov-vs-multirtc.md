@@ -16,7 +16,7 @@
 - Follows `reports/2026-09-capella-sicd-stage-u0.md` (converter, geometry,
   InSAR phase). Tracking: bench#54.
 - Added 2026-11-09: the code walk-through and Figures 1–2 in §3.1, with a
-  toy-model check of the starting-range shortfall
+  second-order check of the starting-range shortfall
   (`artifacts/multirtc-plane-curvature-20261109/`). No earlier number changed.
 
 ## Summary
@@ -39,7 +39,8 @@ phase.
 | matched + start-time fix + starting-range fix | −0.006 m / 0.000 m | 0.000 m / 0.000 m | **99.98 %** |
 
 The last column is over the common support. The wavelength difference (§3.1) is
-**not** corrected in any variant; it does not enter RTC but would enter any phase use.
+**not** corrected in any variant; with the zero-Doppler LUT used here it does
+not reach gamma0 (§3.1, item 3), but it would enter phase use.
 
 With two corrections to MultiRTC's radar grid — applied as runtime
 subclasses, its source untouched — the two paths agree closely: over
@@ -137,7 +138,8 @@ slip. The fix for all three is verified in
 
    When `TimeCAPoly` increases with column, the extra point lands on the end
    (Figure 1B). It only feeds the PRF, where `N / (t(N) − t(0))` spans N
-   intervals and is exactly 1/Δt; the grid length comes from `NumCols`.
+   intervals and is exactly 1/Δt for a linear `TimeCAPoly` (as on all 7
+   surveyed scenes); the grid length comes from `NumCols`.
 
    When it decreases, the extra point becomes `sensing_start` (Figure 1A).
    On this scene the slope is −1.5154e-4 s/m: `Col.UVectECF` points against
@@ -180,12 +182,13 @@ slip. The fix for all three is verified in
    761 275.56 m here.
 
    `get_starting_range` instead treats (xrow, ycol) as Cartesian coordinates
-   on the plane through the SCP spanned by `Row.UVectECF` and `Col.UVectECF`.
-   It measures from the ARP at the column's time to that plane point. At the
-   SCP column the plane point lies on the line of sight (`Row.UVectECF` ·
-   line of sight = 1 to within 2e-16), so the distance is exact. Away from it the
-   plane leaves the curved row-0 locus toward the ARP, and the distance comes
-   out short (Figure 2):
+   on the plane through the SCP spanned by `Row.UVectECF` and `Col.UVectECF`:
+   the slant plane, with `Row.UVectECF` along the line of sight and
+   `Col.UVectECF` along the ARP's direction of motion. It measures from the ARP
+   at the column's time to that plane point. At the SCP column the plane point
+   lies on the line of sight (`Row.UVectECF` · line of sight = 1 to within
+   2e-16), so the distance is exact. Away from it the ARP and the plane point
+   drift apart, and the distance comes out short (Figure 2):
 
    | SICD column (ycol) | MultiRTC − RGZERO row-0 range |
    |---|---|
@@ -196,17 +199,28 @@ slip. The fix for all three is verified in
    | 19190 (+10.2 km) | −6.324 m |
 
    The shortfall grows with the square of the along-track distance (×4 from
-   5.1 to 10.2 km), as a straight line leaves the arc it touches:
-   δ ≈ y²/(2ρ). A toy model makes this quantitative
-   (`tools/multirtc_plane_curvature.py`). It assumes a circular orbit and no
-   Earth rotation, so the row-0 points lie on a circle about the orbit axis.
-   The SCP is ρ = 6361.6 km from that axis, and the outward radial direction
-   is 36.74° from the direction to the ARP. At column 0 that gives
-   8.17 m × cos 36.74° = 6.55 m, against 6.32 m from MultiRTC's code. Over the
-   7 surveyed scenes the model gives 0.89–1.06 × the code's column-0 value:
-   1.035–1.062 on the 4 left-looking scenes, 0.891–0.978 on the 3
-   right-looking ones. That remainder is not resolved here; the model leaves
-   out Earth rotation and orbit eccentricity.
+   5.1 to 10.2 km). Expanding the code's own distance to second order about
+   the SCP column (`tools/multirtc_plane_curvature.py`) splits it into two
+   terms. Both come from the SICD's ECF `ARPPoly` and `TimeCAPoly`; no Earth
+   model enters either the code's value or the RGZERO range it is compared
+   with.
+
+   - **The ARP falls toward the scene.** Between the SCP column and column 0
+     lie Δt = 1.545 s. The ARP's ECF acceleration has a component of
+     5.80 m/s² along the line of sight toward the scene, so at column 0 the
+     ARP is ½ · 5.80 · 1.545² = 6.92 m closer to the scene than a straight
+     track would put it. The flat plane does not follow the orbit's curvature.
+   - **The ARP outruns the plane point.** The ARP moves 1.093 m along track
+     per metre of the plane line (`TimeCAPoly` slope × ARP speed). At column 0 it is
+     therefore 0.093 × 10.19 km = 952 m farther along track than the plane
+     point, which lengthens the distance by 952² / (2 × 761 276 m) = 0.60 m.
+
+   Together they give −6.32 m, against −6.323 m from the code. On all 7
+   surveyed scenes the expansion matches the code to within 0.4 mm at every
+   sampled column (0.99994–1.00005 × at column 0). A circular-orbit,
+   non-rotating toy model of the same geometry, kept in the output for
+   reference, lands only within 11 % (0.89–1.06 ×): it leaves out the Earth
+   rotation and orbit eccentricity that the ECF `ARPPoly` carries.
 
    The constant offset comes from the next step: `RadarGridParameters` takes
    one starting range, and MultiRTC evaluates it at column 0, an edge column
@@ -218,10 +232,11 @@ slip. The fix for all three is verified in
 
    ![Figure 2: starting range](figures/2026-09-capella-rtc-gcov-vs-multirtc-2.svg)
 
-   *Figure 2. (A) Schematic seen along the orbit axis, curvature exaggerated:
-   the flat plane through the SCP against the constant-range row-0 curve.
-   (B) MultiRTC's per-column difference on this scene, and the column-0 value
-   it applies to the whole grid.*
+   *Figure 2. (A) The slant plane through the SCP, not to scale: the ARP
+   track bends toward the scene while the flat plane does not, and the ARP
+   covers slightly more ground than the plane point. (B) MultiRTC's per-column
+   difference on this scene, and the column-0 value it applies to the whole
+   grid.*
 
 3. **Wavelength** (`sicd.py` L42):
 
@@ -230,13 +245,17 @@ slip. The fix for all three is verified in
    ```
 
    Operator precedence makes this `Min + (Max / 2)`: 14.425 GHz instead of
-   9.650 GHz. Zero-Doppler geometry and RTC do not use the wavelength, so it
-   does not appear in the table above; it would matter for any phase use.
+   9.650 GHz. With the zero-Doppler LUT and area projection used here, the
+   wavelength does not reach gamma0, so it does not appear in the table above.
+   A control run in `reports/2026-11-multirtc-sicd-grid-fix.md` §4 confirms
+   this: restoring the v0.5.4 wavelength in the fixed grid leaves all 8 output
+   rasters bit-identical. Phase use and non-zero Doppler were not tested.
 
 Survey: `artifacts/multirtc-grid-survey-20260924/` (7 Capella stripmap
 SICDs, metadata only) and `artifacts/multirtc-plane-curvature-20261109/`
-(toy model and the sign of `Col.UVectECF` against the ARP velocity: −1 on all
-4 left-looking scenes, +1 on all 3 right-looking ones).
+(second-order expansion, toy model, and the sign of `Col.UVectECF` against
+the ARP velocity: −1 on all 4 left-looking scenes, +1 on all 3 right-looking
+ones).
 
 With both geometry fixes, the residual start difference on this scene is
 0.93 µs, equal to the nanoseconds of `Timeline/CollectStart` (`…51.301024927`).
@@ -295,6 +314,6 @@ make multirtc-setup            # pinned MultiRTC + sarpy into data/external (rea
 make capella-multirtc          # four variants
 make capella-rtc-compare       # comparisons -> data/capella_mexico_city/rtc_compare/
 make multirtc-grid-survey      # §3.1 radar grid on 7 SICDs, metadata only
-make multirtc-plane-curvature  # §3.1 toy model of the starting-range shortfall
+make multirtc-plane-curvature  # §3.1 second-order check of the starting-range shortfall
 docker compose run --rm dev python -m pytest -q tests/test_sicd_radiometry.py
 ```
