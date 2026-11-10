@@ -67,6 +67,35 @@ After a smoke run, results land in `$BENCH_LOG_DIR` and can be summarised with
 
 See [data/README.md](data/README.md) for fetch instructions per stage.
 
+### Data credits
+
+The reports, figures and quicklooks here are derived from the datasets below;
+none of their raw data is redistributed. Each notice is the one the provider
+asks for, quoted as given.
+
+- **Capella Space Open Data**, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+  ([terms](https://www.capellaspace.com/legal/data-licensing)):
+  © Capella Space Corp, All Rights Reserved.
+  Modified here: SICDs converted to NISAR RSLC and processed to interferograms,
+  GCOV / RTC gamma0, and the figures and quicklooks derived from them.
+- **Copernicus DEM GLO-30**
+  ([licence](https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM)):
+  produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus
+  Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European
+  Union and ESA; all rights reserved.
+- **ALOS-2 PALSAR-2 sample products**
+  ([JAXA](https://www.eorc.jaxa.jp/ALOS-2/en/doc/sam_index.htm)): the original
+  data are provided by JAXA as the ALOS-2 sample product. ©JAXA
+- **Sentinel-1**: Contains modified Copernicus Sentinel data 2025-2026.
+- **NISAR** (NASA, distributed by the ASF DAAC): free and open,
+  [CC0](https://creativecommons.org/publicdomain/zero/1.0/) under the
+  [NASA ESDIS data use guidance](https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance),
+  which asks that NASA be acknowledged and the datasets cited. Source: NASA.
+  Dataset: NISAR Provisional Range Doppler Single Look Complex Product
+  (Version 1), <https://doi.org/10.5067/NIL1RSLC-P1>. The official L2 GCOV
+  and GUNW products used as references are NASA products of the same
+  release (CRID `P05023`).
+
 ## Workflow targets
 
 isce3 GPU paths exist for: `focus` (RSLC), `geo2rdr`, `rdr2geo`, `crossmul`,

@@ -7,6 +7,10 @@
 - Tracking issue: [bench#54](https://github.com/s-sasaki-earthsea-wizard/isce3-benchmark/issues/54).
 - Follows `reports/2026-09-capella-sicd-stage-u0.md` (converter, geometry, phase convention on one
   pair) and `reports/2026-09-capella-rtc-gcov-vs-multirtc.md` (beta0, GCOV, MultiRTC on one scene).
+- Credits: Capella data © Capella Space Corp, All Rights Reserved
+  ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), modified here
+  (converted and processed); the Copernicus DEM notice and other credits are in
+  [README § Data credits](../README.md#data-credits).
 - Independent reference: sarkit 1.12.0, host venv, never sees isce3.
 - Evidence: `artifacts/sicd-capella-reinforcement-20260924/`, headers in
   `artifacts/sicd_headers/reinforcement/`.
