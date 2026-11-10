@@ -11,6 +11,10 @@
   `..._20240629134910_20240629134915.ntf` (secondary); 2 d 22 h 48 m apart.
   SICD 1.3.0 written by "Capella SAR Processor (3.2.1)". DEM: Copernicus GLO-30
   via `fetch/fetch_dem_bbox.py` (bbox −99.25 19.10 −98.75 19.60, ellipsoidal).
+- Credits: Capella data © Capella Space Corp, All Rights Reserved
+  ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), modified here
+  (converted and processed); the Copernicus DEM notice and other credits are in
+  [README § Data credits](../README.md#data-credits).
 - Independent reference: sarkit 1.12.0 (Valkyrie Systems' toolkit for the NGA SAR standards),
   host venv, never sees isce3.
 - Evidence: `artifacts/sicd-capella-20260923/` (conversion summaries, both

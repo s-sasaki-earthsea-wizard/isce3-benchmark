@@ -21,6 +21,10 @@
   (Mexico City, stripmap, left-looking, 19191 × 10631), Copernicus GLO-30 DEM,
   the same files for both paths. Radar-grid survey: the 7 Capella stripmap
   SICDs of the 2026-09 reports (4 left-looking, 3 right-looking).
+- Credits: Capella data © Capella Space Corp, All Rights Reserved
+  ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), modified here
+  (converted and processed); the Copernicus DEM notice and other credits are in
+  [README § Data credits](../README.md#data-credits).
 - Evidence: `artifacts/multirtc-sicd-fix-20261108/`,
   `artifacts/multirtc-grid-survey-20261108-patched/`.
 

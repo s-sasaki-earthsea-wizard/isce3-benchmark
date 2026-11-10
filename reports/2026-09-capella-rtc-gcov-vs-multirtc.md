@@ -12,6 +12,10 @@
 - Data: Capella open data, `CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055`
   (Mexico City, stripmap, left-looking, 19191 × 10631). DEM: Copernicus GLO-30
   (`fetch/fetch_dem_bbox.py`, ellipsoidal) — the same file for both paths.
+- Credits: Capella data © Capella Space Corp, All Rights Reserved
+  ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), modified here
+  (converted and processed); the Copernicus DEM notice and other credits are in
+  [README § Data credits](../README.md#data-credits).
 - Evidence: `artifacts/sicd-capella-rtc-20260924/`.
 - Follows `reports/2026-09-capella-sicd-stage-u0.md` (converter, geometry,
   InSAR phase). Tracking: bench#54.
@@ -317,7 +321,8 @@ toward near range. With both fixes the overlay is gray.
 
 *Figure 4. Geocoded gamma0 on one 400 m chip (80 × 80 pixels of 5 m). Left:
 isce3 GCOV. Middle and right: GCOV in magenta over MultiRTC in green, with the
-same dB stretch for both; equal brightness is gray.*
+same dB stretch for both; equal brightness is gray. The Capella and Copernicus
+DEM notices are printed below the panels.*
 
 `quicklook_20240626.png` (whole scene, MultiRTC − GCOV in dB) stays in the
 artifacts. At that scale a two-pixel shift reads as speckle-like noise rather

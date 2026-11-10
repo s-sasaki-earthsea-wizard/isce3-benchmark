@@ -39,6 +39,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from compare_rtc import _overlap, read_gcov, read_tif  # noqa: E402
 
 STEM = "CAPELLA_C14_SM_SICD_HH_20240626150051_20240626150055"
+# Notices the data licences ask for, printed on the image so they travel with it:
+# Capella (https://www.capellaspace.com/legal/data-licensing, CC BY 4.0: credit
+# and indicate changes) and Copernicus DEM GLO-30 (notice for adapted data, from
+# the COP-DEM page of dataspace.copernicus.eu). Both RTC paths used the GLO-30 DEM.
+CHIP_CREDIT = (
+    "Contains modified Capella Space Open Data: © Capella Space Corp, All Rights Reserved "
+    "(CC BY 4.0).\n"
+    "Gamma0 produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence "
+    "and Space GmbH 2014-2018\nprovided under COPERNICUS by the European Union and ESA; "
+    "all rights reserved."
+)
+
 STEPS = [("matched", "v0.5.4\ngrid"),
          ("matched-tfix", "+ start-\ntime fix"),
          ("matched-tfix-rfix", "+ starting-\nrange fix")]
@@ -281,6 +293,8 @@ def figure_chips(data: Path, heading_deg: float, out: Path, size: int = 80) -> d
              f"5 m pixels, {size} × {size} px chip at UTM E {x[0]:.0f}, N {y[0]:.0f} (upper left); "
              f"stretch {lo:.1f} to {hi:.1f} dB from GCOV, same for both layers.",
              ha="left", va="bottom", fontsize=9, color=MUTED)
+    fig.text(0.125, 0.065, CHIP_CREDIT, ha="left", va="top", fontsize=8, color=MUTED,
+             linespacing=1.4)
     fig.suptitle("Geocoded gamma0 on one 400 m chip of the Mexico City scene",
                  x=0.125, y=0.95, ha="left", fontsize=12, fontweight="bold")
     fig.savefig(out, dpi=110, bbox_inches="tight", pad_inches=0.15)
