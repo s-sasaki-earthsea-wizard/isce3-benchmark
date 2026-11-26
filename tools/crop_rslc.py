@@ -127,9 +127,11 @@ def crop_copy(fin, fout, freq, win):
             kw["chunks"] = None
         elif name.startswith(f"{freq_grp}/validSamplesSubSwath"):
             sub = d[l0:l1]
-            # samples are re-indexed to the crop; clip to the new width
-            sub = np.clip(sub - s0, 0, s1 - s0)
-            data = sub
+            # samples are re-indexed to the crop; clip to the new width.
+            # NISAR stores them as uint32, so subtract in int64: an unsigned
+            # difference wraps and the clip then puts the start at the far edge.
+            sub = np.clip(sub.astype(np.int64) - s0, 0, s1 - s0)
+            data = sub.astype(d.dtype)
             kw["chunks"] = None
         elif (name.startswith(freq_grp + "/") and d.ndim == 2
               and d.shape == (win["full_length"], win["full_width"])):
