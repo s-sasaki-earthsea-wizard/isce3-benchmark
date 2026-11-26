@@ -90,7 +90,9 @@ make alos2-run         # sequential GPU batch -> data/ALOS2-kujukuri/gunw/<pair>
   so each pair costs about half of the validated NISAR chain
   (nisar-displacement `run_gunw_batch.sh`: ~33 GB RSS, ~150 GB scratch,
   75 min CPU per NISAR pair). `tools/crop_rslc.py` can cut a sub-scene
-  around a geographic point if that is ever wanted.
+  around a geographic point if that is ever wanted. It cuts every
+  frequency band to one slant-range span, so a 40+5 MHz NISAR RSLC keeps
+  the B band its ionosphere correction needs.
 - **Same processor as the NISAR closure study.** The template
   `configs/insar_alos2_kujukuri_template.yaml` is the nisar-displacement
   DES118_071 template with sensor-forced changes only (looks 8x12 + 4x4,
