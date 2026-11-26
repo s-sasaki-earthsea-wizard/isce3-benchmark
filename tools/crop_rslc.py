@@ -6,15 +6,27 @@ NISAR frame, which the validated GUNW chain processes at ~33 GB RSS and
 ~150 GB scratch per pair. All C(12,2) pairs of the Kujukuri stack only fit
 this machine if every scene is cut to a NISAR-frame-sized pixel budget.
 
+A NISAR 40+5 MHz frame is in the same position: frequency A alone is
+31920 x 52943 (~1.7 Gpx), twice the width of a 20 MHz frame.
+
 The window is defined once in geographic terms (a centre point) and turned
 into per-scene line/sample indices with zero-Doppler geo2rdr, so scenes whose
 near-range start differs (the stack has 21120/21184/21248-sample widths)
 still crop to the same ground patch. Coregistration absorbs the residual
 sub-pixel differences.
 
-What is sliced: the image array(s), ``swaths/zeroDopplerTime``,
-``swaths/frequency*/slantRange`` and ``validSamplesSubSwath*``, plus the
-identification start/end times and the bounding polygon (recomputed with
+Every frequency of the product is cropped to the same lines and slant-range
+span, so a dual-band RSLC (NISAR 40+5 MHz, whose B band the ionosphere
+correction needs) stays consistent: the bands share ``swaths/zeroDopplerTime``,
+and B starts at A's first slant range with 8x its spacing. The window of
+``--freq`` sets the span; it is snapped to the coarsest band's samples so
+that every band again starts at one slant range. A product whose bands do
+not share a start range and an integer spacing ratio is refused.
+
+What is sliced: the image arrays, ``inputDataExceptionMask``,
+``swaths/zeroDopplerTime``, ``swaths/frequency*/slantRange`` and
+``validSamplesSubSwath*`` of every frequency, plus the identification
+start/end times and the bounding polygon (recomputed with
 ``get_geo_perimeter_wkt``). Calibration and Doppler LUTs keep their own
 coordinate vectors and are copied untouched: a crop is a subset of the grid
 they already cover. Every other dataset/attribute is copied as is.
@@ -25,11 +37,13 @@ Usage::
         --center-lon 140.36 --center-lat 35.44 \
         --half-lines 4500 --half-samples 4000 [--dem dem.tif] [--freq A]
 
-Prints the chosen window as JSON on stdout (one line) for provenance.
+Prints the chosen window as JSON on stdout (one line) for provenance;
+``frequencies`` holds the sample window of each band.
 """
 
 import argparse
 import json
+import math
 import sys
 
 import h5py
@@ -56,7 +70,8 @@ def parse_args():
                     help="ellipsoidal height of the centre point [m]")
     ap.add_argument("--half-lines", type=int, required=True)
     ap.add_argument("--half-samples", type=int, required=True)
-    ap.add_argument("--freq", default="A")
+    ap.add_argument("--freq", default="A",
+                    help="frequency whose grid the window is computed on")
     ap.add_argument("--dem", default=None,
                     help="DEM for the bounding polygon (default: h=0 ellipsoid)")
     ap.add_argument("--dry-run", action="store_true",
@@ -101,15 +116,89 @@ def window_for(slc, freq, lon, lat, height, half_lines, half_samples):
                 clamped=clamped, full_length=grid.length, full_width=grid.width)
 
 
+def frequency_letters(fin):
+    """Frequencies present under ``swaths/``, e.g. ['A', 'B']."""
+    return sorted(k[len("frequency"):] for k in fin[SWATHS]
+                  if k.startswith("frequency"))
+
+
+def frequency_windows(fin, freq, win):
+    """Sample windows of every frequency over the slant-range span of ``win``.
+
+    Args:
+        fin: open source RSLC.
+        freq: frequency letter whose samples ``win`` counts.
+        win: window from window_for (line0/line1/sample0/sample1).
+
+    Returns:
+        dict letter -> dict(sample0, sample1, full_width), half-open sample
+        indices that start every band at one slant range.
+
+    Raises:
+        ValueError: if a band does not start at the slant range of the others,
+            its spacing is not an integer multiple of the finest band's, or
+            its images do not have one line per ``swaths/zeroDopplerTime``.
+    """
+    n_lines = fin[f"{SWATHS}/zeroDopplerTime"].shape[0]
+    bands = {}
+    for f in frequency_letters(fin):
+        g = fin[f"{SWATHS}/frequency{f}"]
+        sr = g["slantRange"]
+        bands[f] = dict(r0=float(sr[0]), dr=float(g["slantRangeSpacing"][()]),
+                        width=sr.shape[0])
+        for name, d in g.items():
+            if (isinstance(d, h5py.Dataset) and d.ndim == 2
+                    and d.shape[1] == sr.shape[0] and d.shape[0] != n_lines):
+                raise ValueError(f"frequency{f}/{name} has {d.shape[0]} lines, "
+                                 f"zeroDopplerTime has {n_lines}")
+    if freq not in bands:
+        raise ValueError(f"no frequency{freq} in the product: {sorted(bands)}")
+    dr_min = min(b["dr"] for b in bands.values())
+    for f, b in bands.items():
+        n = b["dr"] / dr_min
+        if abs(n - round(n)) > 1e-6:
+            raise ValueError(f"frequency{f} spacing {b['dr']} m is not an integer "
+                             f"multiple of {dr_min} m")
+        if abs(b["r0"] - bands[freq]["r0"]) > 1e-3 * dr_min:
+            raise ValueError(f"frequency{f} starts at {b['r0']} m, frequency{freq} "
+                             f"at {bands[freq]['r0']} m")
+        b["n"] = round(n)
+    # In units of the finest band's samples, every band's edges lie on
+    # multiples of its own ratio; the span keeps to multiples of all of them.
+    step = math.lcm(*(b["n"] for b in bands.values()))
+    n_win = bands[freq]["n"]
+    end_max = min(b["width"] * b["n"] for b in bands.values())
+    a = win["sample0"] * n_win // step * step
+    e = min(win["sample1"] * n_win, end_max) // step * step
+    if e <= a:
+        raise ValueError(f"window {win['sample0']}:{win['sample1']} of frequency"
+                         f"{freq} holds no sample of the coarsest band")
+    return {f: dict(sample0=a // b["n"], sample1=e // b["n"], full_width=b["width"])
+            for f, b in bands.items()}
+
+
 def copy_attrs(src, dst):
     for k, v in src.attrs.items():
         dst.attrs[k] = v
 
 
-def crop_copy(fin, fout, freq, win):
-    """Recursively copy fin -> fout, slicing the radar-grid datasets."""
-    l0, l1, s0, s1 = win["line0"], win["line1"], win["sample0"], win["sample1"]
-    freq_grp = f"{SWATHS}/frequency{freq}"
+def band_of(name, letters):
+    """Frequency letter of a dataset under ``swaths/frequencyX/``, else None."""
+    prefix = f"{SWATHS}/frequency"
+    if not name.startswith(prefix):
+        return None
+    letter, _, tail = name[len(prefix):].partition("/")
+    return letter if tail and letter in letters else None
+
+
+def crop_copy(fin, fout, win):
+    """Recursively copy fin -> fout, slicing the radar-grid datasets.
+
+    ``win`` carries the lines (line0/line1, full_length) and, under
+    ``frequencies``, the sample window of every band (frequency_windows).
+    """
+    l0, l1 = win["line0"], win["line1"]
+    bands = win["frequencies"]
 
     def visit(name, obj):
         if isinstance(obj, h5py.Group):
@@ -119,23 +208,31 @@ def crop_copy(fin, fout, freq, win):
         d = obj
         kw = dict(dtype=d.dtype, compression=d.compression,
                   compression_opts=d.compression_opts, shuffle=d.shuffle)
+        f = band_of(name, bands)
+        if f is not None:
+            s0, s1 = bands[f]["sample0"], bands[f]["sample1"]
+            freq_grp = f"{SWATHS}/frequency{f}"
         if name == f"{SWATHS}/zeroDopplerTime":
             data = d[l0:l1]
             kw["chunks"] = None
-        elif name == f"{freq_grp}/slantRange":
+        elif f is not None and name == f"{freq_grp}/slantRange":
             data = d[s0:s1]
             kw["chunks"] = None
-        elif name.startswith(f"{freq_grp}/validSamplesSubSwath"):
+        elif f is not None and name.startswith(f"{freq_grp}/validSamplesSubSwath"):
             sub = d[l0:l1]
-            # samples are re-indexed to the crop; clip to the new width
-            sub = np.clip(sub - s0, 0, s1 - s0)
-            data = sub
+            # samples are re-indexed to the crop; clip to the new width.
+            # NISAR stores them as uint32, so subtract in int64: an unsigned
+            # difference wraps and the clip then puts the start at the far edge.
+            sub = np.clip(sub.astype(np.int64) - s0, 0, s1 - s0)
+            data = sub.astype(d.dtype)
             kw["chunks"] = None
-        elif (name.startswith(freq_grp + "/") and d.ndim == 2
-              and d.shape == (win["full_length"], win["full_width"])):
-            # image array (HH, HV, ...): stream in line blocks
+        elif (f is not None and d.ndim == 2
+              and d.shape == (win["full_length"], bands[f]["full_width"])):
+            # image array (HH, HV, ..., inputDataExceptionMask): stream in
+            # line blocks
             out = fout.create_dataset(name, shape=(l1 - l0, s1 - s0),
-                                      chunks=(512, 512), **kw)
+                                      chunks=(min(512, l1 - l0), min(512, s1 - s0)),
+                                      **kw)
             copy_attrs(d, out)
             step = 2048
             for a in range(l0, l1, step):
@@ -203,6 +300,10 @@ def main():
     slc = SLC(hdf5file=args.src)
     win = window_for(slc, args.freq, args.center_lon, args.center_lat,
                      args.center_height, args.half_lines, args.half_samples)
+    with h5py.File(args.src, "r") as fin:
+        bands = frequency_windows(fin, args.freq, win)
+    win.update(sample0=bands[args.freq]["sample0"],
+               sample1=bands[args.freq]["sample1"], frequencies=bands)
     win.update(src=args.src, dst=args.dst, freq=args.freq,
                center_lon=args.center_lon, center_lat=args.center_lat)
     if args.dry_run:
@@ -210,7 +311,7 @@ def main():
         return
     with h5py.File(args.src, "r") as fin, h5py.File(args.dst, "w") as fout:
         copy_attrs(fin, fout)
-        crop_copy(fin, fout, args.freq, win)
+        crop_copy(fin, fout, win)
     # reopen r+ so the SLC reader can see a consistent file for the polygon
     with h5py.File(args.dst, "r+") as fout:
         wkt = update_identification(fout, args.freq, args.dem)
