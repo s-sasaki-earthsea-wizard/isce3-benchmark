@@ -14,7 +14,7 @@ import pytest
 
 crop_rslc = pytest.importorskip("crop_rslc")
 
-from crop_rslc import SWATHS, crop_copy, frequency_windows  # noqa: E402
+from crop_rslc import SWATHS, align_lines, crop_copy, frequency_windows  # noqa: E402
 
 N_LINES = 40
 R0 = 884337.78569
@@ -59,9 +59,9 @@ def window(line0, line1, sample0, sample1):
                 full_length=N_LINES, full_width=W_A)
 
 
-def crop(src, dst, win, freq="A"):
+def crop(src, dst, win, freq="A", align_samples=1):
     with h5py.File(src, "r") as fin:
-        bands = frequency_windows(fin, freq, win)
+        bands = frequency_windows(fin, freq, win, align_samples)
         win = dict(win, frequencies=bands)
         with h5py.File(dst, "w") as fout:
             crop_copy(fin, fout, win)
@@ -155,3 +155,42 @@ def test_a_window_narrower_than_one_b_sample_is_refused(tmp_path):
     with h5py.File(src, "r") as fin:
         with pytest.raises(ValueError, match="no sample of the coarsest band"):
             frequency_windows(fin, "A", window(5, 30, 17, 23))
+
+
+def test_the_start_moves_onto_the_sample_lattice_and_the_end_stays(tmp_path):
+    src = make_rslc(tmp_path / "in.h5")
+    with h5py.File(src, "r") as fin:
+        bands = frequency_windows(fin, "A", window(0, N_LINES, 90, 150), align_samples=20)
+    # 20 A samples and 8 per B sample: the start lands on 80 (a multiple of 40),
+    # the end on 144, the last whole B sample before 150
+    assert bands == {"A": dict(sample0=80, sample1=144, full_width=W_A),
+                     "B": dict(sample0=10, sample1=18, full_width=W_B)}
+
+
+def test_the_first_line_moves_onto_the_line_lattice():
+    win = window(13, 37, 0, 64)
+    assert align_lines(win, 6) == dict(win, line0=12)
+    assert align_lines(win, 1) == win
+
+
+def test_an_aligned_crop_holds_the_full_frame_pixels_of_its_lattice(tmp_path):
+    src, dst = make_rslc(tmp_path / "in.h5"), tmp_path / "out.h5"
+    win = align_lines(window(13, 37, 90, 150), 6)
+    bands = crop(src, dst, win, align_samples=20)
+    with h5py.File(src, "r") as fin, h5py.File(dst, "r") as fout:
+        a_in, a_out = fin[f"{SWATHS}/frequencyA"], fout[f"{SWATHS}/frequencyA"]
+        assert np.array_equal(a_out["HH"][()], a_in["HH"][12:37, 80:144])
+        assert a_out["slantRange"][0] == a_in["slantRange"][80]
+        assert np.array_equal(fout[f"{SWATHS}/frequencyB/HH"][()],
+                              fin[f"{SWATHS}/frequencyB/HH"][12:37, 10:18])
+    assert bands["A"]["sample0"] == 80
+
+
+@pytest.mark.parametrize("n", [0, -3])
+def test_a_lattice_below_one_is_refused(tmp_path, n):
+    with pytest.raises(ValueError, match="alignment must be >= 1"):
+        align_lines(window(0, 10, 0, 64), n)
+    src = make_rslc(tmp_path / "in.h5")
+    with h5py.File(src, "r") as fin:
+        with pytest.raises(ValueError, match="alignment must be >= 1"):
+            frequency_windows(fin, "A", window(0, 10, 0, 64), align_samples=n)
