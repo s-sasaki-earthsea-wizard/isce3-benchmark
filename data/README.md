@@ -92,7 +92,10 @@ make alos2-run         # sequential GPU batch -> data/ALOS2-kujukuri/gunw/<pair>
   75 min CPU per NISAR pair). `tools/crop_rslc.py` can cut a sub-scene
   around a geographic point if that is ever wanted. It cuts every
   frequency band to one slant-range span, so a 40+5 MHz NISAR RSLC keeps
-  the B band its ionosphere correction needs.
+  the B band its ionosphere correction needs. With `--align-lines` /
+  `--align-samples` the crop starts on the lattice of the workflow's looks
+  and offset skips, so its GUNW can be compared pixel by pixel with a
+  full-frame GUNW of the same pair.
 - **Same processor as the NISAR closure study.** The template
   `configs/insar_alos2_kujukuri_template.yaml` is the nisar-displacement
   DES118_071 template with sensor-forced changes only (looks 8x12 + 4x4,

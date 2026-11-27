@@ -23,6 +23,18 @@ and B starts at A's first slant range with 8x its spacing. The window of
 that every band again starts at one slant range. A product whose bands do
 not share a start range and an integer spacing ratio is refused.
 
+``--align-lines`` / ``--align-samples`` move the window's first line and
+sample down to multiples of the given counts (samples of ``--freq``), counted
+from the product's first line and sample; the far edges stay. The insar
+workflow lays its multilook windows (crossmul, and the unwrap looks it runs
+crossmul again with) and its dense-offset grid from the first pixel of the
+reference RSLC, so a crop that starts off that lattice averages other pixels
+than the full frame does: its coherence and phase differ from a full-frame
+GUNW of the same pair by a fresh speckle draw, even where nothing else
+changed. A start on the least common multiple of the looks and offset skips
+(and of the band ratio times the looks, for the B band) keeps every window
+where the full frame has it.
+
 What is sliced: the image arrays, ``inputDataExceptionMask``,
 ``swaths/zeroDopplerTime``, ``swaths/frequency*/slantRange`` and
 ``validSamplesSubSwath*`` of every frequency, plus the identification
@@ -35,7 +47,8 @@ Usage::
 
     python tools/crop_rslc.py in.h5 out.h5 \
         --center-lon 140.36 --center-lat 35.44 \
-        --half-lines 4500 --half-samples 4000 [--dem dem.tif] [--freq A]
+        --half-lines 4500 --half-samples 4000 [--dem dem.tif] [--freq A] \
+        [--align-lines 1200 --align-samples 7800]
 
 Prints the chosen window as JSON on stdout (one line) for provenance;
 ``frequencies`` holds the sample window of each band.
@@ -74,6 +87,11 @@ def parse_args():
                     help="frequency whose grid the window is computed on")
     ap.add_argument("--dem", default=None,
                     help="DEM for the bounding polygon (default: h=0 ellipsoid)")
+    ap.add_argument("--align-lines", type=int, default=1,
+                    help="start the window on a multiple of this many lines")
+    ap.add_argument("--align-samples", type=int, default=1,
+                    help="start the window on a multiple of this many samples "
+                         "of --freq")
     ap.add_argument("--dry-run", action="store_true",
                     help="only print the window, write nothing")
     return ap.parse_args()
@@ -116,19 +134,40 @@ def window_for(slc, freq, lon, lat, height, half_lines, half_samples):
                 clamped=clamped, full_length=grid.length, full_width=grid.width)
 
 
+def align_lines(win, n):
+    """The window with its first line moved down to a multiple of ``n``.
+
+    Args:
+        win: window from window_for (line0/line1/...).
+        n: line lattice, counted from the product's first line (1 = none).
+
+    Returns:
+        a copy of ``win``; line1 is kept, so the window only grows.
+
+    Raises:
+        ValueError: if ``n`` is not a positive integer.
+    """
+    if n < 1:
+        raise ValueError(f"line alignment must be >= 1, got {n}")
+    return dict(win, line0=win["line0"] // n * n)
+
+
 def frequency_letters(fin):
     """Frequencies present under ``swaths/``, e.g. ['A', 'B']."""
     return sorted(k[len("frequency"):] for k in fin[SWATHS]
                   if k.startswith("frequency"))
 
 
-def frequency_windows(fin, freq, win):
+def frequency_windows(fin, freq, win, align_samples=1):
     """Sample windows of every frequency over the slant-range span of ``win``.
 
     Args:
         fin: open source RSLC.
         freq: frequency letter whose samples ``win`` counts.
         win: window from window_for (line0/line1/sample0/sample1).
+        align_samples: start lattice in samples of ``freq``, counted from the
+            product's first sample (1 = none); the start moves down onto it
+            and onto the coarsest band's samples at once.
 
     Returns:
         dict letter -> dict(sample0, sample1, full_width), half-open sample
@@ -137,8 +176,11 @@ def frequency_windows(fin, freq, win):
     Raises:
         ValueError: if a band does not start at the slant range of the others,
             its spacing is not an integer multiple of the finest band's, or
-            its images do not have one line per ``swaths/zeroDopplerTime``.
+            its images do not have one line per ``swaths/zeroDopplerTime``,
+            or ``align_samples`` is not a positive integer.
     """
+    if align_samples < 1:
+        raise ValueError(f"sample alignment must be >= 1, got {align_samples}")
     n_lines = fin[f"{SWATHS}/zeroDopplerTime"].shape[0]
     bands = {}
     for f in frequency_letters(fin):
@@ -165,10 +207,12 @@ def frequency_windows(fin, freq, win):
         b["n"] = round(n)
     # In units of the finest band's samples, every band's edges lie on
     # multiples of its own ratio; the span keeps to multiples of all of them.
+    # The start also keeps to the requested lattice; the end does not need to.
     step = math.lcm(*(b["n"] for b in bands.values()))
     n_win = bands[freq]["n"]
+    start_step = math.lcm(step, align_samples * n_win)
     end_max = min(b["width"] * b["n"] for b in bands.values())
-    a = win["sample0"] * n_win // step * step
+    a = win["sample0"] * n_win // start_step * start_step
     e = min(win["sample1"] * n_win, end_max) // step * step
     if e <= a:
         raise ValueError(f"window {win['sample0']}:{win['sample1']} of frequency"
@@ -300,10 +344,12 @@ def main():
     slc = SLC(hdf5file=args.src)
     win = window_for(slc, args.freq, args.center_lon, args.center_lat,
                      args.center_height, args.half_lines, args.half_samples)
+    win = align_lines(win, args.align_lines)
     with h5py.File(args.src, "r") as fin:
-        bands = frequency_windows(fin, args.freq, win)
+        bands = frequency_windows(fin, args.freq, win, args.align_samples)
     win.update(sample0=bands[args.freq]["sample0"],
-               sample1=bands[args.freq]["sample1"], frequencies=bands)
+               sample1=bands[args.freq]["sample1"], frequencies=bands,
+               align=dict(lines=args.align_lines, samples=args.align_samples))
     win.update(src=args.src, dst=args.dst, freq=args.freq,
                center_lon=args.center_lon, center_lat=args.center_lat)
     if args.dry_run:
